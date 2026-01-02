@@ -3,6 +3,7 @@ import (
 	"os"
     "encoding/json"
     "math/bits"
+    "fmt"
 )
 var flush_ranks[0x2000]uint16
 var straight_ranks[0x2000]uint16
@@ -10,11 +11,13 @@ var seven_c_ranks[0x2000]uint16
 var rank_dict map[uint32]uint16
 var seven_rank_dict map[uint64]uint16
 var primes = [13]uint64{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41}
+var mask_primes [0x2000]uint64
 
 type Tables struct{
     FlushRanks         []uint16           `json:"flush_ranks"`
     StraightRanks      []uint16           `json:"straight_ranks"`
     SevenStraightRanks []uint16           `json:"seven_straight_ranks"`
+    Primes             []uint64           `json:"primes"`
     RankDict           map[uint32]uint16  `json:"rank_dict"`
     SevenRankDict      map[uint64]uint16  `json:"seven_rank_dict"`
 }
@@ -22,6 +25,7 @@ func exportTables() error {
     tables := Tables{
         FlushRanks:         flush_ranks[:],
         StraightRanks:      straight_ranks[:],
+        Primes:             mask_primes[:],
         RankDict:           rank_dict,
         SevenStraightRanks: seven_c_ranks[:],
         SevenRankDict:      seven_rank_dict,
@@ -50,10 +54,11 @@ func get_5c_rank_score(a int,b int, c int, d int, e int)uint16{
 
 func add_to_7c_rank_dict(a int, b int, c int, d int, e int, f int, g int){
     bitMask := (1<<a)|(1<<b)|(1<<c)|(1<<d)|(1<<e)|(1<<f)|(1<<g)
+    prime := primes[a] * primes[b] * primes[c] * primes[d] * primes[e] * primes[f] * primes[g]
     if seven_c_ranks[bitMask] != 0{
+        seven_rank_dict[prime] = seven_c_ranks[bitMask]
         return
     }
-    prime := primes[a] * primes[b] * primes[c] * primes[d] * primes[e] * primes[f] * primes[g]
     best_score := uint16(8000)
     var score uint16
     score = get_5c_rank_score(a,b,c,d,e)
@@ -102,6 +107,7 @@ func add_to_7c_rank_dict(a int, b int, c int, d int, e int, f int, g int){
 }
 
 func create_7c_rank_dict(){
+    count := int(0)
     for a:= 0; a < 13; a++{
         for b:= a; b < 13; b++{
             for c:= b; c < 13; c++{
@@ -110,6 +116,7 @@ func create_7c_rank_dict(){
                         for f:= e; f < 13; f++{
                             for g:= f; g < 13; g++{
                                 if !hasMoreThanFour(a,b,c,d,e,f,g){
+                                    count++;
                                     add_to_7c_rank_dict(a,b,c,d,e,f,g)
                                 }
                             }
@@ -119,6 +126,7 @@ func create_7c_rank_dict(){
             }
         }
     }
+    fmt.Printf("Number of hash table entries:%d\n", count)
 }
 func hasMoreThanFour(a,b,c,d,e,f,g int) bool{
     counts := [13]int{}
@@ -158,6 +166,22 @@ func add_high_card(flush_rank uint16, straight_rank uint16){
         }
     }
 }
+func get_primes(index int)uint64{
+    output_prime := uint64(1)
+    for i:=0; i < 13; i++{
+        if ((index >> i) & 1) != 0{
+            output_prime *= primes[i]
+        }
+    }
+    return output_prime
+}
+
+func build_mask_primes(){
+    for index:=0; index < 0x2000; index++{
+        mask_primes[index] = get_primes(index)
+    }
+}
+
 func add_straights(flush_rank uint16, straight_rank uint16){
     flush_ranks[0x100f] = flush_rank
     straight_ranks[0x100f] = straight_rank
@@ -282,6 +306,7 @@ func main(){
     add_quads(166)
     add_7c_flushes()
     add_7c_hc()
+    build_mask_primes()
     create_7c_rank_dict()
     exportTables()
 }

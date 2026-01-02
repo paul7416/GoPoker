@@ -4,7 +4,8 @@ import (
     "runtime/pprof"
     "os"
     "encoding/json"
-    "strings"
+    "encoding/binary"
+    "time"
 )
 var flushes[0x2000]uint16
 var noPairs[0x2000]uint16
@@ -12,6 +13,7 @@ var noPairs7[0x2000]uint16
 var rank_dict map[uint32]uint16
 var seven_rank_dict map[uint64]uint16
 var primes = [13]uint64{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41}
+var Primes[0x2000]uint64
 
 type Card struct{
     bitMask uint64
@@ -22,41 +24,11 @@ type Tables struct{
     FlushRanks         []uint16           `json:"flush_ranks"`
     StraightRanks      []uint16           `json:"straight_ranks"`
     SevenStraightRanks []uint16           `json:"seven_straight_ranks"`
+    Primes             []uint64           `json:"primes"`
     RankDict           map[uint32]uint16  `json:"rank_dict"`
     SevenRankDict      map[uint64]uint16  `json:"seven_rank_dict"`
 }
-var deck [52]Card
-const tableSize = 131072
 
-var hashTable [tableSize]uint64
-
-func initHashTable() {
-    for key, value := range seven_rank_dict {
-        index := key & (tableSize - 1)
-        for hashTable[index] != 0 {
-            index = (index + 1) & (tableSize - 1)
-        }
-        hashTable[index] = (uint64(value) << 38) | (uint64(key) & 0x3fffffffff)
-    }
-}
-
-func hashLookup(prime uint64) uint16 {
-    index := prime & (tableSize - 1)
-    for hashTable[index] & 0x3fffffffff != prime {
-        index = (index + 1) & (tableSize - 1)
-    }
-    return uint16(hashTable[index] >> 38)
-}
-
-func initDeck() {
-    for i := 0; i < 52; i++ {
-        rank := i % 13
-        deck[i] = Card{
-            bitMask: uint64(1) << (i),
-            prime:   primes[rank],
-        }
-    }
-}
 
 func importTables(filename string) error {
     data, err := os.ReadFile(filename)
@@ -71,10 +43,8 @@ func importTables(filename string) error {
     }
 
     copy(flushes[:], tables.FlushRanks)
-    copy(noPairs[:], tables.StraightRanks)
-    copy(noPairs7[:], tables.SevenStraightRanks)
+    copy(Primes[:], tables.Primes)
     seven_rank_dict = tables.SevenRankDict
-    rank_dict = tables.RankDict
 
     return nil
 }
@@ -91,40 +61,28 @@ func getHandType(rank uint16) string{
     if rank <= 6185 {return "Pair"}
     return "High Card"
 }
-
-func getCard(cardStr string) Card{
-    var ranks string = "23456789TJQKA"
-    var suits string = "hdcs"
-    rank := strings.Index(ranks, string(cardStr[0]))
-    suit := strings.Index(suits, string(cardStr[1]))
-    bitMask := uint64(1) << (rank + 13 * suit)
-    card := Card{
-        bitMask: bitMask,
-        prime: primes[rank],
+const tableSize = 0x20000
+var hashTable [tableSize]uint64
+func initHashTable() {
+    for key, value := range seven_rank_dict {
+        index := key & (tableSize - 1)
+        for hashTable[index] != 0 {
+            index = (index + 1) & (tableSize - 1)
+        }
+        hashTable[index] = (uint64(value) << 38) | (uint64(key) & 0x3fffffffff)
     }
-    return card
 }
 
-func solve5CHand(hand *[7]Card, indices *[5]int) uint16{
-    var bitMask uint64 = 0
-    var prime uint32 = 1
+func hashLookup(prime uint64) uint16 {
+    index := prime & (tableSize - 1)
 
-    for _, index := range indices{
-        bitMask |= hand[index].bitMask
+    for hashTable[index] & 0x3fffffffff != prime {
+        index = (index + 1) & (tableSize - 1)
     }
-    score := noPairs[(bitMask | bitMask >> 13 | bitMask >> 26 | bitMask >>39) & 0x1fff]
-    if score != 0{
-        return score
-    }
-
-    for _, index := range indices{
-        prime *= uint32(hand[index].prime)
-    }
-    return rank_dict[prime]
+    return uint16(hashTable[index] >> 38)
 }
 
-func solve7CHand(hand7C *[7]Card) uint16{
-    bitMask := hand7C[0].bitMask | hand7C[1].bitMask | hand7C[2].bitMask | hand7C[3].bitMask | hand7C[4].bitMask | hand7C[5].bitMask | hand7C[6].bitMask
+func solve7CHand(bitMask uint64) uint16{
     heartsMask := (bitMask & 0x1fff)
     diamondsMask := (bitMask >> 13) & 0x1fff
     clubsMask := (bitMask >> 26) & 0x1fff
@@ -135,24 +93,17 @@ func solve7CHand(hand7C *[7]Card) uint16{
             flushes[diamondsMask] + 
             flushes[clubsMask] + 
             flushes[spadesMask] 
-
     if flushScore != 0 {return flushScore}
     
-    rankMask := uint16(heartsMask|diamondsMask|clubsMask|spadesMask)
-    score := noPairs7[rankMask]
-    if score != 0{
-        return score
-    }
-    prime := hand7C[0].prime * hand7C[1].prime * hand7C[2].prime * hand7C[3].prime * hand7C[4].prime * hand7C[5].prime * hand7C[6].prime  
+    prime := Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask]
     return hashLookup(prime)
-
-
 }
+
 func test(){
     var histogram map[string]int
     histogram = make(map[string]int)
     var scores = [7463]int{}
-    var hand7c [7]Card
+    start := time.Now()
     for a:= 0; a < 52; a++{
         for b:= a +1; b < 52; b++{
             for c:= b +1; c < 52; c++{
@@ -160,14 +111,8 @@ func test(){
                     for e:= d +1; e < 52; e++{
                         for f:= e +1; f < 52; f++{
                             for g:= f +1; g < 52; g++{
-                                hand7c[0] = deck[a]
-                                hand7c[1] = deck[b]
-                                hand7c[2] = deck[c]
-                                hand7c[3] = deck[d]
-                                hand7c[4] = deck[e]
-                                hand7c[5] = deck[f]
-                                hand7c[6] = deck[g]
-                                scores[solve7CHand(&hand7c)]++
+                                mask := (uint64(1) << a)|(uint64(1) << b)|(uint64(1) << c)|(uint64(1) << d)|(uint64(1) << e)|(uint64(1) << f)|(uint64(1) << g)
+                                scores[solve7CHand(mask)]++
                             }
                         }
                     }
@@ -175,12 +120,55 @@ func test(){
             }
         }
     }
+    elapsed := time.Since(start)
+    fmt.Printf("Evaluation time: %v\n", elapsed)
+    fmt.Printf("Hands per second: %.2fM\n", 133784560.0 / elapsed.Seconds() / 1000000)
+    fmt.Printf("Hash table size: %.2fMB\n", float64(tableSize) * 8 / 1024 / 1024)
+
     for score, quantity := range scores{
         histogram[getHandType(uint16(score))] += quantity
     }
     for key, value := range histogram{
         fmt.Printf("%s: %d\n", key, value)
     }
+}
+func testRandom() {
+    f, err := os.Open("random_hands.bin")
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
+
+    var numHands int32
+    binary.Read(f, binary.LittleEndian, &numHands)
+
+    hands := make([][7]int32, numHands)
+    for i := range hands {
+        binary.Read(f, binary.LittleEndian, &hands[i])
+    }
+
+    fmt.Printf("Loaded %d hands\n", numHands)
+
+    var scores = [7463]int{}
+    var histogram = make(map[string]int)
+
+    start := time.Now()
+
+    for _, h := range hands {
+        mask := (uint64(1) << h[0])|(uint64(1) << h[1])|(uint64(1) << h[2])|(uint64(1) << h[3])|(uint64(1) << h[4])|(uint64(1) << h[5])|(uint64(1) << h[6])
+        scores[solve7CHand(mask)]++
+    }
+    elapsed := time.Since(start)
+    fmt.Printf("Evaluation time: %v\n", elapsed)
+    fmt.Printf("Hands per second: %.2fM\n", float64(numHands) / elapsed.Seconds() / 1000000)
+
+    for score, quantity := range scores{
+        histogram[getHandType(uint16(score))] += quantity
+    }
+    for key, value := range histogram{
+        fmt.Printf("%s: %d\n", key, value)
+    }
+
 }
 
 func main(){
@@ -192,7 +180,7 @@ func main(){
         panic(err)
     }
     initHashTable()
-    initDeck()
+    //testRandom()
     test()
 //    
 //    args := os.Args[1:]
