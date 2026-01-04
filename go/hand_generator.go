@@ -1,7 +1,7 @@
 package main
 import (
 	"os"
-    "encoding/json"
+    "encoding/binary"
     "math/bits"
     "fmt"
 )
@@ -15,28 +15,51 @@ var mask_primes [0x2000]uint64
 
 type Tables struct{
     FlushRanks         []uint16           `json:"flush_ranks"`
-    StraightRanks      []uint16           `json:"straight_ranks"`
-    SevenStraightRanks []uint16           `json:"seven_straight_ranks"`
     Primes             []uint64           `json:"primes"`
-    RankDict           map[uint32]uint16  `json:"rank_dict"`
     SevenRankDict      map[uint64]uint16  `json:"seven_rank_dict"`
 }
-func exportTables() error {
-    tables := Tables{
-        FlushRanks:         flush_ranks[:],
-        StraightRanks:      straight_ranks[:],
-        Primes:             mask_primes[:],
-        RankDict:           rank_dict,
-        SevenStraightRanks: seven_c_ranks[:],
-        SevenRankDict:      seven_rank_dict,
-    }
-    data, err := json.Marshal(tables)
-    if err != nil{
+
+func exportTablesBinary() error {
+    // 1. flush_ranks.bin - fixed size array
+    f1, err := os.Create("flush_ranks.bin")
+    if err != nil {
         return err
     }
-    return os.WriteFile("tables.json", data, 0644)
-}
+    defer f1.Close()
+    if err := binary.Write(f1, binary.LittleEndian, flush_ranks[:]); err != nil {
+        return err
+    }
 
+    // 2. primes.bin - fixed size array
+    f2, err := os.Create("primes.bin")
+    if err != nil {
+        return err
+    }
+    defer f2.Close()
+    if err := binary.Write(f2, binary.LittleEndian, mask_primes[:]); err != nil {
+        return err
+    }
+
+    // 3. seven_rank_dict.bin - key-value pairs
+    f3, err := os.Create("seven_rank_dict.bin")
+    if err != nil {
+        return err
+    }
+    defer f3.Close()
+    
+    // Write count first, then key-value pairs
+    if err := binary.Write(f3, binary.LittleEndian, uint32(len(seven_rank_dict))); err != nil {
+        return err
+    }
+    for k, v := range seven_rank_dict {
+        output_value := (k << 16) | (uint64(v) & 0xffff)
+        if err := binary.Write(f3, binary.LittleEndian, output_value); err != nil {
+            return err
+        }
+    }
+
+    return nil
+}
 func max(a, b int) int{
     if(a > b){
         return a
@@ -59,7 +82,7 @@ func add_to_7c_rank_dict(a int, b int, c int, d int, e int, f int, g int){
         seven_rank_dict[prime] = seven_c_ranks[bitMask]
         return
     }
-    best_score := uint16(8000)
+    best_score := uint16(0xffff)
     var score uint16
     score = get_5c_rank_score(a,b,c,d,e)
     if score < best_score{best_score=score}
@@ -253,7 +276,7 @@ func add_quads(rank uint16){
     }
 }
 func getBest(mask uint16, lookUp [0x2000]uint16)uint16{
-    bestRank := uint16(7462)
+    bestRank := uint16(0xffff)
     for i := uint16(0); i < 0x2000; i++{
         if bits.OnesCount16(i) != 5{
             continue
@@ -297,16 +320,16 @@ func add_7c_hc(){
 func main(){
     rank_dict = make(map[uint32]uint16)
     seven_rank_dict = make(map[uint64]uint16)
-    add_high_card(1599, 7462)
-    add_straights(10, 1609)
-    add_pairs(6185)
-    add_2p(3325)
-    add_trips(2467)
-    add_fh(322)
-    add_quads(166)
+    add_high_card(13565, 34045)
+    add_straights(10, 16394)
+    add_pairs(31532)
+    add_2p(25434)
+    add_trips(21338)
+    add_fh(8348)
+    add_quads(4252)
     add_7c_flushes()
     add_7c_hc()
     build_mask_primes()
     create_7c_rank_dict()
-    exportTables()
+    exportTablesBinary()
 }

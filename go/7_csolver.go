@@ -100,9 +100,7 @@ func solve7CHand(bitMask uint64) uint16{
 }
 
 func test(){
-    var histogram map[string]int
-    histogram = make(map[string]int)
-    var scores = [7463]int{}
+    var scores = [9]int{}
     start := time.Now()
     for a:= 0; a < 52; a++{
         for b:= a +1; b < 52; b++{
@@ -112,7 +110,7 @@ func test(){
                         for f:= e +1; f < 52; f++{
                             for g:= f +1; g < 52; g++{
                                 mask := (uint64(1) << a)|(uint64(1) << b)|(uint64(1) << c)|(uint64(1) << d)|(uint64(1) << e)|(uint64(1) << f)|(uint64(1) << g)
-                                scores[solve7CHand(mask)]++
+                                scores[solve7CHand(mask)>>12]++
                             }
                         }
                     }
@@ -126,10 +124,8 @@ func test(){
     fmt.Printf("Hash table size: %.2fMB\n", float64(tableSize) * 8 / 1024 / 1024)
 
     for score, quantity := range scores{
-        histogram[getHandType(uint16(score))] += quantity
-    }
-    for key, value := range histogram{
-        fmt.Printf("%s: %d\n", key, value)
+        fmt.Printf("Score:%d Quantity:%d\n",score, quantity)
+
     }
 }
 func testRandom() {

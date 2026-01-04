@@ -6,3 +6,6 @@ cpu.prof
 hand_generator
 *.swp
 random_hands.bin
+DataFiles/
+bin/
+obj/
