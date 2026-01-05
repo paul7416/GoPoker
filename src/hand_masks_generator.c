@@ -24,14 +24,24 @@ void create_52C5()
             for(int c = b + 1; c < 52; c++){
                 for(int d = c + 1; d < 52; d++){
                     for(int e = d + 1; e < 52; e++){
-                        *p = (1ll << a)|(1ll << b)|(1ll << c)|(1ll << d)|(1ll << e);
+                        int suit_counts[4]={0};
+                        suit_counts[a/13]++;
+                        suit_counts[b/13]++;
+                        suit_counts[c/13]++;
+                        suit_counts[d/13]++;
+                        suit_counts[e/13]++;
+                        uint64_t no_flush_bit = 1ull << 53;
+                        if((suit_counts[0] >= 3) || suit_counts[1] >= 3 || suit_counts[2] >= 3 || suit_counts[3] >= 3){
+                            no_flush_bit = 0;
+                        }
+                        *p = (1ull << a)|(1ull << b)|(1ull << c)|(1ull << d)|(1ull << e)|no_flush_bit;
                         p++;
                     }
                 }
             }
         }
     }
-    write_file("52C5.bin", sizeof(uint64_t), table_size, output_data);
+    write_file("DataFiles/52C5.bin", sizeof(uint64_t), table_size, output_data);
 }
 void create_52C3()
 {
@@ -46,7 +56,7 @@ void create_52C3()
             }
         }
     }
-    write_file("52C3.bin", sizeof(uint64_t), table_size, output_data);
+    write_file("DataFiles/52C3.bin", sizeof(uint64_t), table_size, output_data);
 }
 void create_52C2()
 {
@@ -59,7 +69,7 @@ void create_52C2()
             p++;
             }
         }
-    write_file("52C2.bin", sizeof(uint64_t), table_size, output_data);
+    write_file("DataFiles/52C2.bin", sizeof(uint64_t), table_size, output_data);
 }
 
 

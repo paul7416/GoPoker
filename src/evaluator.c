@@ -24,7 +24,11 @@ uint16_t *import_flushes()
         fclose(f);
         return NULL;
     }
-    fread(Flushes, sizeof(uint16_t), ARRAY_SIZE, f);
+    size_t file_length = fread(Flushes, sizeof(uint16_t), ARRAY_SIZE, f);
+    if (file_length != ARRAY_SIZE)
+    {
+        printf("Primes data file incorrect size expected %d got %ld\n", ARRAY_SIZE, file_length);
+    }
     fclose(f);
     return Flushes;
 }
@@ -45,7 +49,11 @@ uint64_t *import_primes()
         fclose(f);
         return NULL;
     }
-    fread(Primes, sizeof(uint64_t), ARRAY_SIZE, f);
+    size_t file_length = fread(Primes, sizeof(uint64_t), ARRAY_SIZE, f);
+    if (file_length != ARRAY_SIZE)
+    {
+        printf("Primes data file incorrect size expected %d got %ld\n", ARRAY_SIZE, file_length);
+    }
     fclose(f);
     return Primes;
 }
@@ -70,7 +78,7 @@ uint64_t *import_primes_dict(){
     /* Insert entries with linear probing */
     for(uint32_t i = 0; i < count; i++)
     {
-        int index = (buffer[i] >> 16) & (HASH_TABLE_SIZE - 1);
+        int index = (buffer[i] >> SCORE_BITS) & (HASH_TABLE_SIZE - 1);
         while(hash_table[index] != 0)
         {
             index = (index + 1)& (HASH_TABLE_SIZE - 1);
@@ -120,7 +128,7 @@ uint16_t hashLookup(uint64_t prime, uint64_t *hash_table)
     #ifdef DEBUG
     int probes = 0;
     #endif
-    while((hash_table[index] >> 16) != prime)
+    while((hash_table[index] >> SCORE_BITS) != prime)
     {
         index = (index + 1) & (HASH_TABLE_SIZE - 1);
         #ifdef DEBUG
@@ -130,27 +138,7 @@ uint16_t hashLookup(uint64_t prime, uint64_t *hash_table)
         }
         #endif
     }
-    return (hash_table[index] & 0xffff);
-}
-uint16_t evaluateKnownDrawHand(uint64_t bitMask, uint16_t *Flushes, uint64_t *Primes, uint64_t *hashTable, int flushSuit)
-{
-    /* Check for flush - at most one suit can have a valid flush */
-    if(flushSuit)
-    {
-        uint16_t flushScore = Flushes[(bitMask >> (flushSuit >> 1)) & 0x1fff];
-        if (flushScore != 0) return flushScore;
-    }
-
-    /* Extract 13-bit suit masks */
-    uint16_t heartsMask = (bitMask & 0x1fff);
-    uint16_t diamondsMask = (bitMask >> 13) & 0x1fff;
-    uint16_t clubsMask = (bitMask >> 26) & 0x1fff;
-    uint16_t spadesMask = (bitMask >> 39) & 0x1fff;
-    
-
-    /* Non-flush: multiply primes and look up rank */
-    uint64_t prime = Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask];
-    return hashLookup(prime, hashTable);
+    return (hash_table[index] & HIGHEST_SCORE);
 }
 
 /*
@@ -160,11 +148,11 @@ uint16_t evaluateKnownDrawHand(uint64_t bitMask, uint16_t *Flushes, uint64_t *Pr
  */
 uint16_t evaluateHand(uint64_t bitMask, uint16_t *Flushes, uint64_t *Primes, uint64_t *hashTable)
 {
-    /* Extract 13-bit suit masks */
-    uint16_t heartsMask = (bitMask & 0x1fff);
-    uint16_t diamondsMask = (bitMask >> 13) & 0x1fff;
-    uint16_t clubsMask = (bitMask >> 26) & 0x1fff;
-    uint16_t spadesMask = (bitMask >> 39) & 0x1fff;
+    /* Extract 13-bit suit masks --- definitions in global_defines.h*/
+    uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
+    uint16_t diamondsMask = GET_DIAMONDS_MASK(bitMask);
+    uint16_t clubsMask    = GET_CLUBS_MASK(bitMask);
+    uint16_t spadesMask   = GET_SPADES_MASK(bitMask);
     
     /* Check for flush - at most one suit can have a valid flush */
     uint16_t flushScore = 
@@ -178,42 +166,90 @@ uint16_t evaluateHand(uint64_t bitMask, uint16_t *Flushes, uint64_t *Primes, uin
     uint64_t prime = Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask];
     return hashLookup(prime, hashTable);
 }
+uint16_t evaluateHandNoFlush(uint64_t bitMask, uint64_t *Primes, uint64_t *hashTable)
+{
+    /* Extract 13-bit suit masks --- definitions in global_defines.h*/
+    uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
+    uint16_t diamondsMask = GET_DIAMONDS_MASK(bitMask);
+    uint16_t clubsMask    = GET_CLUBS_MASK(bitMask);
+    uint16_t spadesMask   = GET_SPADES_MASK(bitMask);
+    
+    /* Non-flush: multiply primes and look up rank */
+    uint64_t prime = Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask];
+    return hashLookup(prime, hashTable);
+}
+
 int cmp_playerResult(const void *a, const void *b) {
     playerResult x = *(playerResult*)a;
     playerResult y = *(playerResult*)b;
     return (x.score > y.score) - (x.score < y.score);
 }
+uint64_t encodeOutcomes(playerResult results[MAX_PLAYERS], int no_players)
+{
+    qsort(results, no_players, sizeof(playerResult), cmp_playerResult);
+    uint16_t previous_score = HIGHEST_SCORE;
+    uint64_t key = 0;
+    for (int i = 0; i < no_players; i++) {
+        uint64_t player_bits = results[i].player_id & 0xF;
+        if (i >= 1 && results[i].score == previous_score) {
+            player_bits |= 0x10;  // tie bit
+            key |= (0x10ULL << ((i-1) * 6));  // set previous tie bit too
+        }
+        if (results[i].folded) player_bits |= 0x20;
+        key |= (player_bits << (i * 6));
+        previous_score = results[i].score;
+    }
+    return key;
+}
+int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS])
+{
+    int i;
+    for(i = 0; i < MAX_PLAYERS && code != 0; i++)
+    {
+        uint64_t player_bits = code & 0x3f;
+        results[i].player_id = (uint8_t)((player_bits)&0xf);
+        results[i].tied = (bool)((player_bits >> 4) & 1);
+        results[i].folded = (bool)(player_bits & 0x20);
+        results[i].player_rank = (uint8_t)i;
+        code = code >> 6;
+    }
+    return i;
+}
 
-uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, uint32_t *bets, uint8_t *player_ids, int no_players, evaluatorTables *tables, char rankString[MAX_PLAYERS])
+uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, uint32_t *bets, uint8_t *player_ids, int no_players, evaluatorTables *tables)
 {
     playerResult scores[MAX_PLAYERS] = {0};
     uint64_t *hashTable = tables->hashTable;
-    uint64_t *Primes = tables->Primes;;
-    uint16_t *Flushes = tables->Flushes;
-    for(int i = 0; i < no_players; i++)
+    uint64_t *Primes = tables->Primes;
+    if(board & NO_FLUSH_BIT)
     {
-        scores[i].player_id = player_ids[i];
-        if(bets[i] == 0)
+        for(int i = 0; i < no_players; i++)
         {
-            scores[i].score = 0xffff;
-            scores[i].folded = true;
-            continue;
+            scores[i].player_id = player_ids[i];
+            if(bets[i] == 0)
+            {
+                scores[i].score = HIGHEST_SCORE;
+                scores[i].folded = true;
+                continue;
+            }
+            scores[i].score = evaluateHandNoFlush(hole_cards[i]|board, Primes, hashTable);
         }
-        scores[i].score = evaluateHand(hole_cards[i]|board, Flushes, Primes, hashTable);
     }
-    qsort(scores, no_players, sizeof(playerResult), cmp_playerResult);
-    uint16_t previous_score = 0xffff;
-    for(int i = 0; i < no_players; i++)
+    else
     {
-        rankString[i] = scores[i].player_id << 1;
-        if(i >=1 && scores[i].score == previous_score)
+        uint16_t *Flushes = tables->Flushes;
+        for(int i = 0; i < no_players; i++)
         {
-            rankString[i] |= 1;
-            rankString[i - 1] |= 1;
+            scores[i].player_id = player_ids[i];
+            if(bets[i] == 0)
+            {
+                scores[i].score = HIGHEST_SCORE;
+                scores[i].folded = true;
+                continue;
+            }
+            scores[i].score = evaluateHand(hole_cards[i]|board, Flushes, Primes, hashTable);
         }
-        if(scores[i].folded) rankString[i] |= (0x80);
-        previous_score = scores[i].score;
     }
-    return 0;
+    return encodeOutcomes(scores, no_players);
 }
 

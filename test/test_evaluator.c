@@ -1,7 +1,8 @@
 #include<stdio.h>
 #include<stdint.h>
 #include<time.h>
-#include"evaluator.h"
+#include "evaluator.h"
+#include "global_defines.h"
 
 void test_evaluator(evaluatorTables *tables)
 {
@@ -43,7 +44,7 @@ void test_evaluator(evaluatorTables *tables)
     printf("Total Hands:      %d\n", total);
     printf("Time taken: %fms\n", duration);
     printf("M Hands per second: %.3f\n", (double)total / 1000 / duration);
-    printf("Hash Table Size:%dMB\n",HASH_TABLE_SIZE * 8 / 1024 / 1024);
+    printf("Hash Table Size:%dkB\n",HASH_TABLE_SIZE * 8 / 1024);
 }
 int get_rank(char c)
 {
@@ -72,23 +73,26 @@ uint64_t get_card(char card_string[])
 void test_evaluateRound(evaluatorTables *tables)
 {
     uint64_t hole_cards[3];
-    hole_cards[0] = get_card("Ac")|get_card("As");
-    hole_cards[1] = get_card("Ah")|get_card("Ks");
-    hole_cards[2] = get_card("Ad")|get_card("Kd");
+    hole_cards[0] = get_card("Ks")|get_card("Td");
+    hole_cards[1] = get_card("Ah")|get_card("Qh");
+    hole_cards[2] = get_card("7d")|get_card("Kd");
     uint64_t board = 0;
     board |= get_card("Kc");
     board |= get_card("Kh");
-    board |= get_card("6c");
+    board |= get_card("6h");
     board |= get_card("Ts");
     board |= get_card("9h");
-    uint32_t bets[3] = {0, 1, 1};
+    uint32_t bets[3] = {1, 1, 1};
     uint8_t player_ids[3] = {1, 2, 3};
-    char rankString[MAX_PLAYERS] = {0};
     int no_players = 3;
-    evaluateRound(board, hole_cards, bets, player_ids, no_players, tables, rankString);
+    uint64_t outcome = evaluateRound(board, hole_cards, bets, player_ids, no_players, tables);
+    playerResult results[MAX_PLAYERS];
+    (void)decodeOutcomes(outcome, results);
+    printf("NO players %d\n", no_players);
+    
     for(int i = 0; i < no_players; i++)
     {
-        printf("%x ", rankString[i]);
+        printf("Player Id:%d  Folded:%d  Tied:%d\n", results[i].player_id, results[i].folded, results[i].tied);
     }
     printf("\n");
     
@@ -98,7 +102,7 @@ void test_evaluateRound(evaluatorTables *tables)
 int main()
 {
     evaluatorTables *tables = import_evaluator_tables();
-    test_evaluator(tables);
+    //test_evaluator(tables);
     test_evaluateRound(tables);
     free_evaluator_tables(tables);
 }

@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdint.h>
+#include "global_defines.h"
 #include "table_import.h"
-#define MAX_PLAYERS 9
 #define RANGE_BITE_SIZE 64
 
 typedef struct{
