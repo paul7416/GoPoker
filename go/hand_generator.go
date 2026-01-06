@@ -26,6 +26,10 @@ func exportTablesBinary() error {
         return err
     }
     defer f1.Close()
+
+    if err := binary.Write(f1, binary.LittleEndian, uint32(len(flush_ranks[:]))); err != nil {
+        return err
+    }
     if err := binary.Write(f1, binary.LittleEndian, flush_ranks[:]); err != nil {
         return err
     }
@@ -36,6 +40,9 @@ func exportTablesBinary() error {
         return err
     }
     defer f2.Close()
+    if err := binary.Write(f2, binary.LittleEndian, uint32(len(mask_primes[:]))); err != nil {
+        return err
+    }
     if err := binary.Write(f2, binary.LittleEndian, mask_primes[:]); err != nil {
         return err
     }

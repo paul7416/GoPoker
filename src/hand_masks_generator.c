@@ -41,7 +41,7 @@ void create_52C5()
             }
         }
     }
-    write_file("DataFiles/52C5.bin", sizeof(uint64_t), table_size, output_data);
+    write_file("DataFiles/52C5.dat", sizeof(uint64_t), table_size, output_data);
 }
 void create_52C3()
 {
@@ -56,7 +56,7 @@ void create_52C3()
             }
         }
     }
-    write_file("DataFiles/52C3.bin", sizeof(uint64_t), table_size, output_data);
+    write_file("DataFiles/52C3.dat", sizeof(uint64_t), table_size, output_data);
 }
 void create_52C2()
 {
@@ -69,7 +69,7 @@ void create_52C2()
             p++;
             }
         }
-    write_file("DataFiles/52C2.bin", sizeof(uint64_t), table_size, output_data);
+    write_file("DataFiles/52C2.dat", sizeof(uint64_t), table_size, output_data);
 }
 
 

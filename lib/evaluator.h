@@ -25,5 +25,5 @@ typedef struct{
 evaluatorTables *import_evaluator_tables();
 uint16_t evaluateHand(uint64_t bitMask, uint16_t *Flushes, uint64_t *Primes, uint64_t *hashTable);
 void free_evaluator_tables(evaluatorTables *tables);
-uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, uint32_t *bets, uint8_t *player_ids, int no_players, evaluatorTables *tables);
+uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, bool *folded, uint8_t *player_ids, int no_players, evaluatorTables *tables);
 int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS]);

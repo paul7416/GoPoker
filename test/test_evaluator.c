@@ -30,18 +30,46 @@ void test_evaluator(evaluatorTables *tables)
     }
     clock_t end = clock();
     double duration = (double)(end - start) * 1000 / CLOCKS_PER_SEC;
-    printf("Straight Flushes: %u\n",histogram[0]); //0
-    printf("Four Of A Kind:   %u\n",histogram[1]); //1
-    printf("Full House:       %u\n",histogram[2]); //2
-    printf("Flushes:          %u\n",histogram[3]); //3
-    printf("Straights:        %u\n",histogram[4]); //4
-    printf("Three of a Kind:  %u\n",histogram[5]); //5
-    printf("Two Pairs:        %u\n",histogram[6]); //6
-    printf("Pairs:            %u\n",histogram[7]); //7
-    printf("High Card:        %u\n",histogram[8]); //8
+
+
+    const uint32_t golden_histogram[9] = {
+        41584,      // Straight Flush
+        224848,     // Four Of A Kind
+        3473184,    // Full House
+        4047644,    // Flush
+        6180020,    // Straight
+        6461620,    // Three of a Kind
+        31433400,   // Two Pairs
+        58627800,   // Pairs
+        23294460    // High Card
+    };
+    const char *names[9] = {
+        "Straight Flush", "Four Of A Kind", "Full House", "Flush",
+        "Straight", "Three of a Kind", "Two Pairs", "Pairs", "High Card"
+    };
+    
     int total = 0;
     for(int i = 0; i < 9; i++) total += histogram[i];
-    printf("Total Hands:      %d\n", total);
+
+    int fail = 0;
+    for(int i=0; i<9; i++){
+        printf("%-16s: %u\n", names[i], histogram[i]);
+        if(histogram[i] != golden_histogram[i]){
+            fprintf(stderr, "\033[31mERROR: %s count mismatch! Got %d, Expected %u\033[0m\n", names[i], histogram[i], golden_histogram[i]);
+            fail = 1;
+        }
+    }
+    if(total != 133784560){
+        fprintf(stderr, "\033[31mERROR: Total hands mismatch! Got %d, expected 133784560\033[0m\n", total);
+        fail = 1;
+    }
+    
+    if(fail){
+        fprintf(stderr,"Evaluator test FAILED!\n");
+    }else{
+        printf("Evaluator test PASSED ✅\n");
+    }
+
     printf("Time taken: %fms\n", duration);
     printf("M Hands per second: %.3f\n", (double)total / 1000 / duration);
     printf("Hash Table Size:%dkB\n",HASH_TABLE_SIZE * 8 / 1024);
@@ -81,13 +109,18 @@ void test_evaluateRound(evaluatorTables *tables)
     board |= get_card("Kh");
     board |= get_card("6h");
     board |= get_card("Ts");
-    board |= get_card("9h");
-    uint32_t bets[3] = {1, 1, 1};
+    board |= get_card("9c");
+    bool folded[3] = {1, 1, 1};
     uint8_t player_ids[3] = {1, 2, 3};
     int no_players = 3;
-    uint64_t outcome = evaluateRound(board, hole_cards, bets, player_ids, no_players, tables);
+    uint64_t outcome = evaluateRound(board, hole_cards, folded, player_ids, no_players, tables);
+    printf("Outcome:%lx\n", outcome);
     playerResult results[MAX_PLAYERS];
-    (void)decodeOutcomes(outcome, results);
+    int decode_no_players = decodeOutcomes(outcome, results);
+    if(decode_no_players != no_players)
+    {
+        printf("Error decoding logic gave %d players where the test function shows %d\n", decode_no_players, no_players);
+    }
     printf("NO players %d\n", no_players);
     
     for(int i = 0; i < no_players; i++)
@@ -102,7 +135,7 @@ void test_evaluateRound(evaluatorTables *tables)
 int main()
 {
     evaluatorTables *tables = import_evaluator_tables();
-    //test_evaluator(tables);
+    test_evaluator(tables);
     test_evaluateRound(tables);
     free_evaluator_tables(tables);
 }
