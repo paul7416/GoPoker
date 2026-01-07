@@ -17,6 +17,7 @@ EVALUATOR_O = $(OBJ_DIR)/evaluator.o
 ICM_O = $(OBJ_DIR)/icm.o
 TABLE_IMPORT_O = $(OBJ_DIR)/table_import.o
 RANGE_EQUILATOR_O = $(OBJ_DIR)/range_equilator.o
+LIST_O = $(OBJ_DIR)/list.o
 
 # Create directories if they don't exist
 $(OBJ_DIR):
@@ -52,6 +53,9 @@ $(BIN_DIR)/test_range_equilator: $(OBJ_DIR)/test_range_equilator.o $(RANGE_EQUIL
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/test_icm: $(OBJ_DIR)/test_icm.o $(ICM_O) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(BIN_DIR)/test_list: $(OBJ_DIR)/test_list.o $(LIST_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 # === Future example ===

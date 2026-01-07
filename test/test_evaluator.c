@@ -4,11 +4,11 @@
 #include "evaluator.h"
 #include "global_defines.h"
 
-void test_evaluator(evaluatorTables *tables)
+void test_evaluator(const evaluatorTables *tables)
 {
-    uint16_t *Flushes = tables->Flushes;
-    uint64_t *Primes = tables->Primes;
-    uint64_t *hashTable = tables->hashTable;
+    const uint16_t *Flushes = tables->Flushes;
+    const uint64_t *Primes = tables->Primes;
+    const uint64_t *hashTable = tables->hashTable;
     uint32_t histogram[9] = {0};
     clock_t start = clock();
     for(int a=0; a < 52; a++){
@@ -98,7 +98,7 @@ uint64_t get_card(char card_string[])
     int suit = get_suit(card_string[1]);
     return (1ll << (13 * suit + rank));
 }
-void test_evaluateRound(evaluatorTables *tables)
+void test_evaluateRound(const evaluatorTables *tables)
 {
     uint64_t hole_cards[3];
     hole_cards[0] = get_card("Ks")|get_card("Td");
@@ -134,7 +134,7 @@ void test_evaluateRound(evaluatorTables *tables)
 }
 int main()
 {
-    evaluatorTables *tables = import_evaluator_tables();
+    const evaluatorTables *tables = import_evaluator_tables();
     test_evaluator(tables);
     test_evaluateRound(tables);
     free_evaluator_tables(tables);

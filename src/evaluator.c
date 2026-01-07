@@ -42,7 +42,7 @@ uint64_t *import_primes_dict(){
     return hash_table;
 }
 /* Load all lookup tables needed by the evaluator */
-evaluatorTables *import_evaluator_tables()
+const evaluatorTables *import_evaluator_tables()
 {
     evaluatorTables *eval_tables = malloc(sizeof(evaluatorTables));
     uint32_t count = 0x2000;
@@ -56,16 +56,16 @@ evaluatorTables *import_evaluator_tables()
     return eval_tables;
 }
 
-void free_evaluator_tables(evaluatorTables *tables)
+void free_evaluator_tables(const evaluatorTables *tables)
 {
-    free(tables->Flushes);
-    free(tables->Primes);
-    free(tables->hashTable);
-    free(tables);
+    free((void*)tables->Flushes);
+    free((void*)tables->Primes);
+    free((void*)tables->hashTable);
+    free((void*)tables);
 }
 
 /* Debug: print 52-bit card mask as binary, grouped by suit */
-void print_bin(uint64_t mask)
+void print_bin(const uint64_t mask)
 {
     for(int i = 51; i >= 0; i--)
     {
@@ -75,7 +75,7 @@ void print_bin(uint64_t mask)
 }
 
 /* Look up hand rank by prime product using linear probing */
-uint16_t hashLookup(uint64_t prime, uint64_t *hash_table)
+uint16_t hashLookup(uint64_t prime, const uint64_t *hash_table)
 {
     int index = prime & (HASH_TABLE_SIZE - 1);
     #ifdef DEBUG
@@ -99,7 +99,7 @@ uint16_t hashLookup(uint64_t prime, uint64_t *hash_table)
  * Bit layout: bits 0-12 = hearts, 13-25 = diamonds, 26-38 = clubs, 39-51 = spades
  * Returns hand rank (lower = better).
  */
-uint16_t evaluateHand(uint64_t bitMask, uint16_t *Flushes, uint64_t *Primes, uint64_t *hashTable)
+uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint64_t *Primes, const uint64_t *hashTable)
 {
     /* Extract 13-bit suit masks --- definitions in global_defines.h*/
     uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
@@ -120,7 +120,7 @@ uint16_t evaluateHand(uint64_t bitMask, uint16_t *Flushes, uint64_t *Primes, uin
     return hashLookup(prime, hashTable);
 }
 
-uint16_t evaluateHandNoFlush(uint64_t bitMask, uint64_t *Primes, uint64_t *hashTable)
+uint16_t evaluateHandNoFlush(const uint64_t bitMask, const uint64_t *Primes, const uint64_t *hashTable)
 {
     /* Extract 13-bit suit masks --- definitions in global_defines.h*/
     uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
@@ -153,12 +153,12 @@ int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS])
     return i;
 }
 
-uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, bool *folded, uint8_t *player_ids, int no_players, evaluatorTables *tables)
+uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, bool *folded, uint8_t *player_ids, int no_players,const evaluatorTables *tables)
 {
     if(no_players < 2)return 0;
     playerResult scores[MAX_PLAYERS] = {0};
-    uint64_t *hashTable = tables->hashTable;
-    uint64_t *Primes = tables->Primes;
+    const uint64_t *hashTable = tables->hashTable;
+    const uint64_t *Primes = tables->Primes;
     if(board & NO_FLUSH_BIT)
     {
         for(int i = 0; i < no_players; i++)
@@ -175,7 +175,7 @@ uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, bool *folded, uint8
     }
     else
     {
-        uint16_t *Flushes = tables->Flushes;
+        const uint16_t *Flushes = tables->Flushes;
         for(int i = 0; i < no_players; i++)
         {
             scores[i].player_id = player_ids[i];

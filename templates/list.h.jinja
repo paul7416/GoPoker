@@ -1,0 +1,34 @@
+#ifndef LIST_H
+#define LIST_H
+#include<stdlib.h>
+#include<stdint.h>
+#include<stdio.h>
+#include<string.h>
+#include<stdbool.h>
+#define LIST_BLOCK_SIZE 0x100
+
+//This code is auto generated using template 'templates/list.h.jinja' using script list.py
+//Types handled
+{% for t in types %}// {{ "%-12s" % t.type_name }} (C type: {{ t.c_type }})
+{% endfor %}
+
+{% for t in types %}
+typedef struct{
+    size_t capacity;
+    int length;
+    {{t.c_type}} *data;
+}{{t.type_name}};
+
+{{t.type_name}} *{{t.type_name}}_create(int length);
+{{t.c_type}} {{t.type_name}}_get({{t.type_name}} *l, int index);
+void {{t.type_name}}_free({{t.type_name}} *l);
+void {{t.type_name}}_set({{t.type_name}} *l, int index, {{t.c_type}} value);
+int {{t.type_name}}_append({{t.type_name}} *l, {{t.c_type}} value);
+int {{t.type_name}}_insert({{t.type_name}} *l, int index, {{t.c_type}} value);
+{{t.c_type}} {{t.type_name}}_pop({{t.type_name}} *l, int index);
+int {{t.type_name}}_concat({{t.type_name}} *dst, const {{t.type_name}} *src);
+int {{t.type_name}}_index(const {{t.type_name}} *l, const {{t.c_type}} value);
+
+{% endfor %}
+#endif
+/* vim: set filetype=c : */

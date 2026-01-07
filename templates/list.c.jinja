@@ -1,0 +1,128 @@
+#include "list.h"
+
+//This code is auto generated using template 'templates/list.c.jinja' using script list.py
+
+static inline int check_bounds(int length, int index)
+{
+    int original_index = index;
+    if(index < 0) index = length + index;
+    if(index < 0 || index >= length)
+    {
+        fprintf(stderr, "Out-of-bounds access in function '%s' index=%d (normalized=%d), size=%d\n",__func__, original_index, index, length);
+        exit(EXIT_FAILURE);
+    }
+    return index;
+}
+{% for t in types %}
+{{t.type_name}} *{{t.type_name}}_create(int length)
+{
+    int blocks = length / LIST_BLOCK_SIZE + 1;
+    {{t.type_name}} *l = calloc(1, sizeof({{t.type_name}}));
+    l->capacity = blocks * LIST_BLOCK_SIZE;
+    l->length = length;
+    l->data = calloc(l->capacity, sizeof({{t.c_type}}));
+    return l;
+}
+void {{t.type_name}}_free({{t.type_name}} *l)
+{
+    free(l->data);
+    free(l);
+}
+
+{{t.c_type}} {{t.type_name}}_get({{t.type_name}} *l, int index)
+{
+    index = check_bounds(l->length, index);
+    return l->data[index];
+}
+
+void {{t.type_name}}_set({{t.type_name}} *l, int index, {{t.c_type}} value)
+{
+    index = check_bounds(l->length, index);
+    l->data[index] = value;
+}
+
+int {{t.type_name}}_append({{t.type_name}} *l, {{t.c_type}} value)
+{
+    if(l->length == (int)l->capacity)
+    {
+        l->capacity *= 2;
+        l->data = realloc(l->data, (l->capacity) * sizeof({{t.c_type}}));
+    }
+    l->data[l->length] = value;
+    l->length++;
+    return l->length;
+}
+
+int {{t.type_name}}_insert({{t.type_name}} *l, int index, {{t.c_type}} value)
+{
+    index = check_bounds(l->length, index);
+    if(l->length == (int)l->capacity)
+    {
+        l->capacity *= 2;
+        l->data = realloc(l->data, (l->capacity) * sizeof({{t.c_type}}));
+    }
+    for(int i = l->length; i > index; i--)
+    {
+        l->data[i] = l->data[i - 1];
+    }
+    l->data[index] = value;
+    l->length++;
+    return l->length;
+}
+
+{{t.c_type}} {{t.type_name}}_pop({{t.type_name}} *l, int index)
+{
+    index = check_bounds(l->length, index);
+    {{t.c_type}} output = l->data[index];
+    l->length--;
+    for(int i = index; i < l->length; i++)
+    {
+        l->data[i] = l->data[i + 1];
+    }
+    return output;
+}
+
+int {{t.type_name}}_concat({{t.type_name}} *dst, const {{t.type_name}} *src)
+{
+    if (dst == src) {
+        fprintf(stderr, "Cannot concatenate list with itself in %s\n", __func__);
+        exit(EXIT_FAILURE);
+    }
+
+    size_t total = (size_t)dst->length + (size_t)src->length;
+
+    if (dst->capacity < total) {
+        size_t blocks = (total + LIST_BLOCK_SIZE - 1) / LIST_BLOCK_SIZE;
+        dst->capacity = blocks * LIST_BLOCK_SIZE;
+
+        {{t.c_type}} *new_data = realloc(dst->data, dst->capacity * sizeof({{t.c_type}}));
+        if (!new_data) {
+            fprintf(stderr, "Allocation failed in %s\n", __func__);
+            exit(EXIT_FAILURE);
+        }
+        dst->data = new_data;
+    }
+
+    memcpy(
+        dst->data + dst->length,
+        src->data,
+        src->length * sizeof({{t.c_type}})
+    );
+
+    dst->length = (int)total;
+    return dst->length;
+}
+
+int {{t.type_name}}_index(const {{t.type_name}} *l, const {{t.c_type}} value)
+{
+    for(int i = 0; i < l->length; i++)
+    {
+        if (l->data[i] == value) return i;
+    }
+    return -1;
+}
+{% endfor %}
+
+
+
+/* vim: set filetype=c : */

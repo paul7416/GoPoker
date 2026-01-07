@@ -2,6 +2,7 @@
 #include<stdint.h>
 #include "global_defines.h"
 #include "table_import.h"
+#include "player.h"
 #define RANGE_BITE_SIZE 64
 
 typedef struct{
@@ -16,8 +17,8 @@ typedef struct{
 }Ranges;
 
 typedef struct{
-    uint64_t *board_tables;
-    uint64_t *hole_tables;
+    const uint64_t *board_tables;
+    const uint64_t *hole_tables;
 }EquilatorTables;
 
 EquilatorTables *initialize_equilator_tables();
