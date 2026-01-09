@@ -6,6 +6,8 @@
  */
 #include "table_import.h"
 #include "evaluator.h"
+#include <string.h>
+#include "debug.h"
 
 /*
  * Build hash table for prime->rank lookup.
@@ -47,11 +49,8 @@ const evaluatorTables *import_evaluator_tables()
     evaluatorTables *eval_tables = malloc(sizeof(evaluatorTables));
     uint32_t count = 0x2000;
     eval_tables->Flushes = (uint16_t*)import_dat_file("./DataFiles/flush_ranks.bin", &count, sizeof(uint16_t));
-    printf("Imported Flushes\n");
     eval_tables->Primes = (uint64_t*)import_dat_file("./DataFiles/primes.bin", &count,  sizeof(uint64_t));
-    printf("Imported Primes\n");
     eval_tables->hashTable = import_primes_dict();
-    printf("Imported hashTable\n");
     printf("Table importing completed\n");
     return eval_tables;
 }
@@ -62,16 +61,6 @@ void free_evaluator_tables(const evaluatorTables *tables)
     free((void*)tables->Primes);
     free((void*)tables->hashTable);
     free((void*)tables);
-}
-
-/* Debug: print 52-bit card mask as binary, grouped by suit */
-void print_bin(const uint64_t mask)
-{
-    for(int i = 51; i >= 0; i--)
-    {
-        printf("%lld",(mask >> i)&1ull);
-        if (i%13 == 0)printf("|");
-    }
 }
 
 /* Look up hand rank by prime product using linear probing */
@@ -120,23 +109,20 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
     return hashLookup(prime, hashTable);
 }
 
-uint16_t evaluateHandNoFlush(const uint64_t bitMask, const uint64_t *Primes, const uint64_t *hashTable)
-{
-    /* Extract 13-bit suit masks --- definitions in global_defines.h*/
-    uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
-    uint16_t diamondsMask = GET_DIAMONDS_MASK(bitMask);
-    uint16_t clubsMask    = GET_CLUBS_MASK(bitMask);
-    uint16_t spadesMask   = GET_SPADES_MASK(bitMask);
-    
-    /* Non-flush: multiply primes and look up rank */
-    uint64_t prime = Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask];
-    return hashLookup(prime, hashTable);
-}
 
 int cmp_playerResult(const void *a, const void *b) {
     playerResult *x = (playerResult*)a;
     playerResult *y = (playerResult*)b;
     return (x->score > y->score) - (x->score < y->score);
+}
+int getTies(playerResult results[MAX_PLAYERS], int rank)
+{
+    int count = 0;
+    for(int i = 0;i < MAX_PLAYERS && !results[i].folded; i++)
+    {
+        count += (int)(results[i].player_rank == rank);
+    }
+    return count;
 }
 int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS])
 {
@@ -144,63 +130,75 @@ int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS])
     for(i = 0; i < MAX_PLAYERS && code != 0; i++)
     {
         uint64_t player_bits = code & 0x3f;
-        results[i].player_id = (uint8_t)(player_bits & 0xf);
-        results[i].tied = (bool)(player_bits & 0x10);
+        results[i].index = (uint8_t)(player_bits & 0xf);
+        results[i].tied = (uint8_t)((player_bits & 0x10)!=0);
         results[i].folded = (bool)(player_bits & 0x20);
-        results[i].player_rank = (uint8_t)i;
+        if(i > 0 && results[i].tied)
+        {
+            results[i].player_rank = results[i - 1].player_rank;
+        }
+        else results[i].player_rank = i;
         code = code >> 6;
     }
+    for(int j = 0;j < MAX_PLAYERS && !results[j].folded; j++)
+    {
+        results[j].tied = getTies(results, results[j].player_rank);
+    }
+
     return i;
 }
-
-uint64_t evaluateRound(uint64_t board, uint64_t *hole_cards, bool *folded, uint8_t *player_ids, int no_players,const evaluatorTables *tables)
+uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
 {
-    if(no_players < 2)return 0;
-    playerResult scores[MAX_PLAYERS] = {0};
+    if(G->active_count == 0)
+    {
+        return 0; // manually encode for when they all fold
+    }
+    if(G->active_count == 1)
+    {
+        return (uint64_t)G->last_active;
+    }
+    playerResult scores[MAX_PLAYERS];
     const uint64_t *hashTable = tables->hashTable;
     const uint64_t *Primes = tables->Primes;
-    if(board & NO_FLUSH_BIT)
+    const uint16_t *Flushes = tables->Flushes;
+
+    
+    for(int i = 0; i < G->no_players; i++)
     {
-        for(int i = 0; i < no_players; i++)
+        playerResult result;
+        result.index = G->players[i].index;
+        result.tied = false;
+        
+        if(G->players[i].folded)
         {
-            scores[i].player_id = player_ids[i];
-            if(folded[i] == 0)
-            {
-                scores[i].score = HIGHEST_SCORE;
-                scores[i].folded = true;
-                continue;
-            }
-            scores[i].score = evaluateHandNoFlush(hole_cards[i]|board, Primes, hashTable);
+            result.score = HIGHEST_SCORE;
+            result.folded = true;
         }
+        else
+        {
+            result.score = evaluateHand(G->players[i].hole_cards|G->community_cards, Flushes, Primes, hashTable);
+            result.folded = false;
+        }
+        
+        // Insert in sorted position
+        int j = i;
+        while (j > 0 && scores[j-1].score > result.score)
+        {
+            scores[j] = scores[j-1];
+            j--;
+        }
+        scores[j] = result;
     }
-    else
+    
+    uint64_t key = 0;
+    for (int i = 0; i < G->no_players; i++)
     {
-        const uint16_t *Flushes = tables->Flushes;
-        for(int i = 0; i < no_players; i++)
+        uint64_t player_bits = scores[i].index;
+        if (i > 0 && scores[i].score == scores[i-1].score)
         {
-            scores[i].player_id = player_ids[i];
-            if(folded[i] == 0)
-            {
-                scores[i].score = HIGHEST_SCORE;
-                scores[i].folded = true;
-                continue;
-            }
-            scores[i].score = evaluateHand(hole_cards[i]|board, Flushes, Primes, hashTable);
+            player_bits |= 1 << 4;  // tied
         }
-    }
-    qsort(scores, no_players, sizeof(playerResult), cmp_playerResult);
-    uint64_t player_bits, key = 0;
-    for (int i = 0; i < no_players; i++) {
-        playerResult result = scores[i];
-        // check for ties
-        if (i < no_players - 1 && result.score == scores[i + 1].score) {
-            result.tied = true;
-            scores[i + 1].tied = true;
-        }
-        // encode
-        player_bits = result.player_id;
-        player_bits |= result.tied << 4;
-        player_bits |= result.folded << 5;
+        player_bits |= scores[i].folded << 5;
         key |= player_bits << (i * 6);
     }
     return key;

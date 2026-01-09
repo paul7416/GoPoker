@@ -1,14 +1,20 @@
 #include "player.h"
+#include"table_import.h"
+//#include "debug.h"
 
 void set_range_extent(Player *p, int16_t range_extent)
 {
-    Range range = p->range;
-    range.range_extent = range_extent;
+    p->range.range_extent = range_extent;
     for(int i = 0; i < 1326; i++)
     {
-        range.playableHands[i] = (range.handRanks[i] <= range_extent);
+        p->range.playableHands[i] = (p->range.handRanks[i] <= range_extent);
     }
 }
+void set_folded(Player *p, int cards_index)
+{
+    p->folded = !p->range.playableHands[cards_index];
+}
+
 
 void increment_range_extent(Player *p, int16_t delta)
 {
@@ -25,19 +31,21 @@ bool get_hand_mask(Player *p, uint16_t hand_index)
     return p->range.playableHands[hand_index];
 }
 
-Players *create_players(int no_players, int16_t initial_range_extent)
+GameState *create_game_state(int no_players, uint16_t *initial_range_extent, double *stacks)
 {
-    Players *players = calloc(1, sizeof(Players));
+    GameState *G = calloc(1, sizeof(GameState));
     uint32_t count;
-    players->bitMasks = (uint64_t*)import_dat_file("DataFiles/52C2.dat", &count, sizeof(uint64_t))
-    players->handRanks = (uint8_t*)import_dat_file("DataFiles/holeCardHandRanks.dat", &count, sizeof(uint8_t))
-    players->no_players = no_players;
-    players->players = calloc(no_players, sizeof(Player));
+    G->bitMasks = (uint64_t*)import_dat_file("DataFiles/52C2.dat", &count, sizeof(uint64_t));
+    G->handRanks = (uint8_t*)import_dat_file("DataFiles/holeCardHandRanks.dat", &count, sizeof(uint8_t));
+    G->no_players = no_players;
     for(int i = 0; i < no_players; i++)
     {
-        players->players[i].range.bitMasks = players->bitMasks;
-        players->players[i].range.handRanks = players->handRanks;
-        set_range_extent(players->players[i], initial_range_extent);
+        G->players[i].range.bitMasks = G->bitMasks;
+        G->players[i].range.handRanks = G->handRanks;
+        G->players[i].stack = stacks[i];
+        G->players[i].range.playableHands = calloc(1326, sizeof(bool));
+        G->players[i].index = i + 1;
+        set_range_extent(&G->players[i], initial_range_extent[i]);
     }
-    return players;
+    return G;
 }

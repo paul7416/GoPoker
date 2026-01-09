@@ -1,0 +1,25 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-march=native",
+      "-std=c11",
+      "-Ilib",
+      "-isystem",
+      "/usr/include",
+      "-isystem",
+      "/usr/include/x86_64-linux-gnu",
+      "-c",
+      "-o",
+      "obj/ev_calculator.o",
+      "src/ev_calculator.c"
+    ],
+    "directory": "/home/paul/Projects/GoPoker",
+    "file": "/home/paul/Projects/GoPoker/src/ev_calculator.c",
+    "output": "/home/paul/Projects/GoPoker/obj/ev_calculator.o"
+  }
+]

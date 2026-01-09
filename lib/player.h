@@ -1,38 +1,55 @@
+
+#ifndef PLAYER_H
+#define PLAYER_H
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdint.h>
 #include<stdbool.h>
 #include"global_defines.h"
 #include<assert.h>
-#include"table_import.h"
 
 typedef struct
 {
-    int no_players;
-    Player *players;
     uint64_t *bitMasks;
     uint8_t *handRanks;
-}Players;
+    bool *playableHands;
+    int16_t range_extent;
+}Range;
 
 typedef struct
 {
-    uint32_t stack;
-    int64_t push_regret;
-    int64_t fold_regret;
+    double stack;
+    double bet;
+    double remaining;
+    double  push_regret;
+    double  fold_regret;
     double ev;
     Range range;
-    uint8_t position;
+    uint64_t hole_cards;
+    uint8_t rank;
+    uint8_t index;
+    bool folded;
 }Player;
 
 typedef struct
 {
+    int no_players;
+    Player players[MAX_PLAYERS];
+    uint64_t community_cards;
     uint64_t *bitMasks;
     uint8_t *handRanks;
-    bool playableHands[1326];
-    int16_t range_extent;
-}Range;
+    size_t iterations;
+    uint32_t big_blind;
+    uint32_t small_blind;
+    double *payouts;
+    uint8_t active_count;
+    uint8_t last_active;
+    
+}GameState;
 
 void set_range_extent(Player *p, int16_t range_extent);
 void increment_range_extent(Player *p, int16_t delta);
 bool get_hand_mask(Player *p, uint16_t hand_index);
-
+GameState *create_game_state(int no_players, uint16_t *initial_range_extent, double *stacks);
+void set_folded(Player *p, int cards_index);
+#endif

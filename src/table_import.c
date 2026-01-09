@@ -40,6 +40,7 @@ void *import_dat_file(char filename[], uint32_t *count, size_t element_size){
         fclose(f);
         abort();
     }
+    printf("imported %d elements from %s\n", *count, filename);
 
     fclose(f);
     return buffer;

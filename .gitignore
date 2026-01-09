@@ -9,3 +9,6 @@ random_hands.bin
 DataFiles/
 bin/
 obj/
+.cache/
+perf*
+gmon.out

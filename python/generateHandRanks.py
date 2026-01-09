@@ -1,4 +1,5 @@
 import struct
+import json
 # hands from  https://www.preflophands.com/
 hands = [
          "AA",  "KK",  "QQ", "AKs",  "JJ",
@@ -70,3 +71,5 @@ filename = "DataFiles/holeCardHandRanks.dat"
 with open(filename, "wb") as f:
         f.write(header + byte_data)
 print(f"Output written to {filename}")
+
+

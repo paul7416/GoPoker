@@ -100,19 +100,21 @@ uint64_t get_card(char card_string[])
 }
 void test_evaluateRound(const evaluatorTables *tables)
 {
-    uint64_t hole_cards[3];
+    #define no_players 5
+    uint64_t hole_cards[no_players];
     hole_cards[0] = get_card("Ks")|get_card("Td");
-    hole_cards[1] = get_card("Ah")|get_card("Qh");
-    hole_cards[2] = get_card("7d")|get_card("Kd");
+    hole_cards[1] = get_card("Th")|get_card("9h");
+    hole_cards[2] = get_card("7d")|get_card("Qd");
+    hole_cards[3] = get_card("7c")|get_card("Qs");
+    hole_cards[4] = get_card("Tc")|get_card("9d");
     uint64_t board = 0;
     board |= get_card("Kc");
     board |= get_card("Kh");
-    board |= get_card("6h");
+    board |= get_card("7h");
     board |= get_card("Ts");
     board |= get_card("9c");
-    bool folded[3] = {1, 1, 1};
-    uint8_t player_ids[3] = {1, 2, 3};
-    int no_players = 3;
+    bool folded[no_players] = {0, 0, 0, 0, 0};
+    uint8_t player_ids[no_players] = {0, 1, 2, 3, 4};
     uint64_t outcome = evaluateRound(board, hole_cards, folded, player_ids, no_players, tables);
     printf("Outcome:%lx\n", outcome);
     playerResult results[MAX_PLAYERS];
@@ -125,7 +127,7 @@ void test_evaluateRound(const evaluatorTables *tables)
     
     for(int i = 0; i < no_players; i++)
     {
-        printf("Player Id:%d  Folded:%d  Tied:%d\n", results[i].player_id, results[i].folded, results[i].tied);
+        printf("Player Id:%d  Folded:%d  Tied:%d Rank:%d\n", results[i].index, results[i].folded, results[i].tied, results[i].player_rank);
     }
     printf("\n");
     
@@ -135,7 +137,7 @@ void test_evaluateRound(const evaluatorTables *tables)
 int main()
 {
     const evaluatorTables *tables = import_evaluator_tables();
-    test_evaluator(tables);
+    //test_evaluator(tables);
     test_evaluateRound(tables);
     free_evaluator_tables(tables);
 }
