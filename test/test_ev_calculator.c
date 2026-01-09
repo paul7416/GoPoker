@@ -27,7 +27,7 @@ void* iterator_thread(void *arg) {
 
 int main(void)
 {
-    uint16_t range_extent[6] = {50, 50, 30, 80, 60, 40};
+    uint16_t range_extent[6] = {150, 150, 130, 180, 160, 140};
     double stacks[6] = {500, 600, 350, 2000, 1000, 900};
 
     //HistogramTable *H = create_histogram_table(HISTOGRAM_START_SIZE);
@@ -46,7 +46,7 @@ int main(void)
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
-    uint32_t iterations_per_thread = 1000000 / n_threads;
+    uint32_t iterations_per_thread = 100000000 / n_threads;
     // create thread-local histograms
     for (int t = 0; t < n_threads; t++) {
         H_threads[t] = create_histogram_table(HISTOGRAM_START_SIZE);

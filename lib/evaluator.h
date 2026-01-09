@@ -5,8 +5,9 @@
 #include "global_defines.h"
 #include "player.h"
 
-#define HASH_TABLE_SIZE 0x10000
+#define HASH_TABLE_SIZE 0x40000
 #define ARRAY_SIZE 0x2000
+extern uint32_t probe_histogram[50];
 
 typedef struct {
     uint64_t hole_cards;

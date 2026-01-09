@@ -14,6 +14,9 @@
  * Entry format: upper 48 bits = prime key, lower 16 bits = hand rank.
  * Uses linear probing for collision resolution.
  */
+uint32_t probe_histogram[50] = {0};
+
+
 uint64_t *import_primes_dict(){
     uint32_t count;
     uint64_t *buffer = import_dat_file("./DataFiles/seven_rank_dict.bin", &count, sizeof(uint64_t));
@@ -67,11 +70,10 @@ void free_evaluator_tables(const evaluatorTables *tables)
 uint16_t hashLookup(uint64_t prime, const uint64_t *hash_table)
 {
     int index = prime & (HASH_TABLE_SIZE - 1);
-    #ifdef DEBUG
-    int probes = 0;
-    #endif
+    int probes = 1;
     while((hash_table[index] >> SCORE_BITS) != prime)
     {
+        probes++;
         index = (index + 1) & (HASH_TABLE_SIZE - 1);
         #ifdef DEBUG
         if(++probes > HASH_TABLE_SIZE) {
@@ -80,6 +82,8 @@ uint16_t hashLookup(uint64_t prime, const uint64_t *hash_table)
         }
         #endif
     }
+    if (probes < 50)probe_histogram[probes]++;
+    else probe_histogram[49]++;
     return (hash_table[index] & HIGHEST_SCORE);
 }
 
