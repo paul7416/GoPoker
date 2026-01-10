@@ -27,7 +27,7 @@ void* iterator_thread(void *arg) {
 
 int main(void)
 {
-    uint16_t range_extent[6] = {150, 150, 130, 180, 160, 140};
+    uint16_t range_extent[6] = {85, 25, 23, 18, 66, 24};
     double stacks[6] = {500, 600, 350, 2000, 1000, 900};
 
     //HistogramTable *H = create_histogram_table(HISTOGRAM_START_SIZE);
@@ -39,7 +39,7 @@ int main(void)
 
     printf("Imported Hands\n");
 
-    int n_threads = 4;                    // adjust to number of CPU cores
+    int n_threads = 8;                    // adjust to number of CPU cores
     pthread_t threads[n_threads];
     ThreadArgs args[n_threads];
     HistogramTable *H_threads[n_threads];
@@ -78,6 +78,7 @@ int main(void)
     printf("Simulations:%d\n",iterations_per_thread * n_threads);
     printf("Simulations per thread:%d\n",iterations_per_thread);
     printf("Threads: %d\n",n_threads);
+    printf("Clocks Per Second:%ld\n",CLOCKS_PER_SEC);
    // printf("Time: %0.3f ms\n",duration);
 
 
