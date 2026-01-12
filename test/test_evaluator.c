@@ -7,7 +7,7 @@
 void test_evaluator(const evaluatorTables *tables)
 {
     const uint16_t *Flushes = tables->Flushes;
-    const uint64_t *Primes = tables->Primes;
+    const uint32_t *Primes = tables->Primes;
     const uint64_t *hashTable = tables->hashTable;
     uint32_t histogram[9] = {0};
     clock_t start = clock();
@@ -73,11 +73,11 @@ void test_evaluator(const evaluatorTables *tables)
     printf("Time taken: %fms\n", duration);
     printf("M Hands per second: %.3f\n", (double)total / 1000 / duration);
     printf("Hash Table Size:%dkB\n",HASH_TABLE_SIZE * 8 / 1024);
-    for(int i =0; i < 50; i++)
-    {
-        printf("%d probes:%d\n",i,probe_histogram[i]);
-
-    }
+//    for(int i =0; i < 50; i++)
+//    {
+//        printf("%d probes:%d\n",i,probe_histogram[i]);
+//
+//    }
 }
 int get_rank(char c)
 {

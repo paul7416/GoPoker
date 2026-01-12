@@ -41,7 +41,7 @@ uint64_t *import_primes_dict(){
         {
             index = (index + 1)& (HASH_TABLE_SIZE - 1);
         }
-        hash_table[index] = buffer[i];
+        hash_table[index] = buffer[i] & 0xFFFFFFFFFFFF;
     }
     free(buffer);
     return hash_table;
@@ -52,7 +52,16 @@ const evaluatorTables *import_evaluator_tables()
     evaluatorTables *eval_tables = malloc(sizeof(evaluatorTables));
     uint32_t count = 0x2000;
     eval_tables->Flushes = (uint16_t*)import_dat_file("./DataFiles/flush_ranks.bin", &count, sizeof(uint16_t));
-    eval_tables->Primes = (uint64_t*)import_dat_file("./DataFiles/primes.bin", &count,  sizeof(uint64_t));
+    uint64_t *tmp = (uint64_t*)import_dat_file("./DataFiles/primes.bin", &count,  sizeof(uint64_t));
+    eval_tables->Primes = (uint32_t*)malloc(0x2000 * sizeof(uint32_t));
+    for(int i = 0; i < 0x2000; i++)
+    {
+        eval_tables->Primes[i] = (uint32_t)tmp[i];
+    }
+    free(tmp);
+
+
+   
     eval_tables->hashTable = import_primes_dict();
     printf("Table importing completed\n");
     return eval_tables;
@@ -67,23 +76,13 @@ void free_evaluator_tables(const evaluatorTables *tables)
 }
 
 /* Look up hand rank by prime product using linear probing */
-uint16_t hashLookup(uint64_t prime, const uint64_t *hash_table)
+uint16_t hashLookup(uint32_t prime, const uint64_t *hash_table)
 {
     int index = prime & (HASH_TABLE_SIZE - 1);
-    int probes = 1;
     while((hash_table[index] >> SCORE_BITS) != prime)
     {
-        probes++;
         index = (index + 1) & (HASH_TABLE_SIZE - 1);
-        #ifdef DEBUG
-        if(++probes > HASH_TABLE_SIZE) {
-            fprintf(stderr, "hashLookup: prime %lu not found\n", prime);
-            abort();
-        }
-        #endif
     }
-    if (probes < 50)probe_histogram[probes]++;
-    else probe_histogram[49]++;
     return (hash_table[index] & HIGHEST_SCORE);
 }
 
@@ -92,7 +91,7 @@ uint16_t hashLookup(uint64_t prime, const uint64_t *hash_table)
  * Bit layout: bits 0-12 = hearts, 13-25 = diamonds, 26-38 = clubs, 39-51 = spades
  * Returns hand rank (lower = better).
  */
-uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint64_t *Primes, const uint64_t *hashTable)
+uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint64_t *hashTable)
 {
     /* Extract 13-bit suit masks --- definitions in global_defines.h*/
     uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
@@ -109,7 +108,7 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
     if (flushScore != 0) return flushScore;
 
     /* Non-flush: multiply primes and look up rank */
-    uint64_t prime = Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask];
+    uint32_t prime = (Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask]);
     return hashLookup(prime, hashTable);
 }
 
@@ -163,7 +162,7 @@ uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
     }
     playerResult scores[MAX_PLAYERS];
     const uint64_t *hashTable = tables->hashTable;
-    const uint64_t *Primes = tables->Primes;
+    const uint32_t *Primes = tables->Primes;
     const uint16_t *Flushes = tables->Flushes;
 
     

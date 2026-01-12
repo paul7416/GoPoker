@@ -5,7 +5,7 @@
 #include "global_defines.h"
 #include "player.h"
 
-#define HASH_TABLE_SIZE 0x40000
+#define HASH_TABLE_SIZE 0x20000
 #define ARRAY_SIZE 0x2000
 extern uint32_t probe_histogram[50];
 
@@ -28,7 +28,7 @@ typedef struct {
 
 typedef struct{
     const uint16_t *Flushes;
-    const uint64_t *Primes;
+    uint32_t *Primes;
     const uint64_t *hashTable;
 }evaluatorTables;
 
@@ -44,7 +44,7 @@ typedef struct{
 
 
 const evaluatorTables *import_evaluator_tables();
-uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint64_t *Primes, const uint64_t *hashTable);
+uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint64_t *hashTable);
 void free_evaluator_tables(const evaluatorTables *tables);
 uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables);
 int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS]);

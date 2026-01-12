@@ -27,7 +27,7 @@ void* iterator_thread(void *arg) {
 
 int main(void)
 {
-    uint16_t range_extent[6] = {150, 150, 130, 180, 160, 140};
+    uint16_t range_extent[6] = {50, 50, 30, 80, 60, 40};
     double stacks[6] = {500, 600, 350, 2000, 1000, 900};
 
     //HistogramTable *H = create_histogram_table(HISTOGRAM_START_SIZE);
