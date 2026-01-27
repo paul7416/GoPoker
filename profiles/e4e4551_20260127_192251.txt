@@ -1,0 +1,108 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 19:22:51 NZDT
+Binary:      ./bin/test_evaluator
+Arguments:   
+Git Commit:  e4e45515d9fac60d356ff4f655f0fc56a1618626
+Git Short:   e4e4551
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 994.631000ms
+M Hands per second: 134.507
+Hash Table Size:256kB
+Direct Lookup Size:1024kB
+
+ Performance counter stats for './bin/test_evaluator':
+
+            996.27 msec task-clock                #    0.998 CPUs utilized          
+                30      context-switches          #   30.112 /sec                   
+                 1      cpu-migrations            #    1.004 /sec                   
+               511      page-faults               #  512.913 /sec                   
+     3,471,243,173      cycles                    #    3.484 GHz                    
+     1,234,407,848      stalled-cycles-frontend   #   35.56% frontend cycles idle   
+       414,881,792      stalled-cycles-backend    #   11.95% backend cycles idle    
+     5,918,394,619      instructions              #    1.70  insn per cycle         
+                                                  #    0.21  stalled cycles per insn
+       708,899,810      branches                  #  711.553 M/sec                  
+        24,332,796      branch-misses             #    3.43% of all branches        
+     1,640,154,439      L1-dcache-loads           #    1.646 G/sec                  
+        94,676,056      L1-dcache-load-misses     #    5.77% of all L1-dcache accesses
+         7,504,432      LLC-loads                 #    7.533 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       0.998535322 seconds time elapsed
+
+       0.997028000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 4K of event 'cycles'
+# Event count (approx.): 3776047179
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    67.06%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--62.00%--evaluateHand
+            |          main
+            |          0x558f251ad8f0
+            |          0
+            |          
+             --5.04%--test_evaluator
+                       main
+                       0x558f251ad8f0
+                       0
+
+    32.58%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--29.54%--test_evaluator
+            |          main
+            |          0x558f251ad8f0
+            |          0
+            |          
+             --3.04%--evaluateHand
+                       main
+                       0x558f251ad8f0
+                       0
+
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __schedule
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] irq_exit_rcu
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] irqentry_exit
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] account_user_time
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] update_load_avg
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] perf_adjust_freq_unthr_context
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __sysvec_apic_timer_interrupt
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __run_timers.part.0
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] timerqueue_add
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] copy_user_generic_string
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __cgroup_throttle_swaprate
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] exit_to_user_mode_loop
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] release_pages
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] page_add_file_rmap
+     0.02%  test_evaluator  test_evaluator        [.] import_primes_dict

@@ -7,7 +7,6 @@
 #include "table_import.h"
 #include "evaluator.h"
 #include <string.h>
-#include "debug.h"
 
 /*
  * Build hash table for prime->rank lookup.
@@ -17,13 +16,14 @@
 uint32_t probe_histogram[50] = {0};
 
 
-uint64_t *import_primes_dict(){
+void import_primes_dict(evaluatorTables *e){
     uint32_t count;
     uint64_t *buffer = import_dat_file("./DataFiles/seven_rank_dict.bin", &count, sizeof(uint64_t));
     if(!buffer)
     {
         fprintf(stderr, "Failed to load seven_rank_dict.bin\n");
-        return NULL;
+        exit(1);
+        return; 
     }
     uint64_t *hash_table = aligned_alloc(64, HASH_TABLE_SIZE * sizeof(uint64_t));
     if(!hash_table)
@@ -32,10 +32,33 @@ uint64_t *import_primes_dict(){
         exit(1);
     }
     memset(hash_table, 0, HASH_TABLE_SIZE * sizeof(uint64_t));
+    uint16_t *direct_lookup = aligned_alloc(64, DIRECT_LOOKUP_SIZE * sizeof(uint16_t));
+    if(!direct_lookup)
+    {
+        printf("direct lookup table failed to allocate\n");
+        exit(1);
+    }
+    memset(hash_table, 0, HASH_TABLE_SIZE * sizeof(uint64_t));
+    memset(direct_lookup, 0, DIRECT_LOOKUP_SIZE * sizeof(uint16_t));
 
-    /* Insert entries with linear probing */
+    // create direct lookup table
     for(uint32_t i = 0; i < count; i++)
     {
+        int direct_index = (buffer[i] >> SCORE_BITS) & (DIRECT_LOOKUP_SIZE - 1);
+        if(direct_lookup[direct_index])
+        {
+            direct_lookup[direct_index] = 0xFFFF;
+        }
+        else
+        {
+            direct_lookup[direct_index] = buffer[i] & 0xFFFF;
+        }
+    }
+    /* Insert entries with linear probing if they aren't direct lookups*/
+    for(uint32_t i = 0; i < count; i++)
+    {
+        int direct_index = (buffer[i] >> SCORE_BITS) & (DIRECT_LOOKUP_SIZE - 1);
+        if(direct_lookup[direct_index] != 0xFFFF) continue;
         int index = (buffer[i] >> SCORE_BITS) & (HASH_TABLE_SIZE - 1);
         while(hash_table[index] != 0)
         {
@@ -43,8 +66,10 @@ uint64_t *import_primes_dict(){
         }
         hash_table[index] = buffer[i] & 0xFFFFFFFFFFFF;
     }
+
     free(buffer);
-    return hash_table;
+    e->hashTable = hash_table;
+    e->directLookup = direct_lookup;
 }
 /* Load all lookup tables needed by the evaluator */
 const evaluatorTables *import_evaluator_tables()
@@ -62,7 +87,7 @@ const evaluatorTables *import_evaluator_tables()
 
 
    
-    eval_tables->hashTable = import_primes_dict();
+    import_primes_dict(eval_tables);
     printf("Table importing completed\n");
     return eval_tables;
 }
@@ -76,8 +101,11 @@ void free_evaluator_tables(const evaluatorTables *tables)
 }
 
 /* Look up hand rank by prime product using linear probing */
-uint16_t hashLookup(uint32_t prime, const uint64_t *hash_table)
+static inline uint16_t hashLookup(uint32_t prime, const uint64_t *hash_table, const uint16_t *direct_lookup)
 {
+    uint32_t lookup_index = prime & (DIRECT_LOOKUP_SIZE - 1);
+    uint16_t score = direct_lookup[lookup_index];
+    if(score != 0xFFFF)return score;
     int index = prime & (HASH_TABLE_SIZE - 1);
     while((hash_table[index] >> SCORE_BITS) != prime)
     {
@@ -91,7 +119,7 @@ uint16_t hashLookup(uint32_t prime, const uint64_t *hash_table)
  * Bit layout: bits 0-12 = hearts, 13-25 = diamonds, 26-38 = clubs, 39-51 = spades
  * Returns hand rank (lower = better).
  */
-uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint64_t *hashTable)
+uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint64_t *hashTable, const uint16_t *directLookup)
 {
     /* Extract 13-bit suit masks --- definitions in global_defines.h*/
     uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
@@ -109,7 +137,7 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
 
     /* Non-flush: multiply primes and look up rank */
     uint32_t prime = (Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask]);
-    return hashLookup(prime, hashTable);
+    return hashLookup(prime, hashTable, directLookup);
 }
 
 
@@ -164,6 +192,7 @@ uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
     const uint64_t *hashTable = tables->hashTable;
     const uint32_t *Primes = tables->Primes;
     const uint16_t *Flushes = tables->Flushes;
+    const uint16_t *directLookup = tables->directLookup;
 
     
     for(int i = 0; i < G->no_players; i++)
@@ -179,7 +208,7 @@ uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
         }
         else
         {
-            result.score = evaluateHand(G->players[i].hole_cards|G->community_cards, Flushes, Primes, hashTable);
+            result.score = evaluateHand(G->players[i].hole_cards|G->community_cards, Flushes, Primes, hashTable, directLookup);
             result.folded = false;
         }
         

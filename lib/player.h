@@ -44,7 +44,6 @@ typedef struct
     double *payouts;
     uint8_t active_count;
     uint8_t last_active;
-    
 }GameState;
 
 void set_range_extent(Player *p, int16_t range_extent);

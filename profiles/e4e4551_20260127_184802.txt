@@ -1,0 +1,110 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 18:48:02 NZDT
+Binary:      ./bin/test_evaluator
+Arguments:   
+Git Commit:  e4e45515d9fac60d356ff4f655f0fc56a1618626
+Git Short:   e4e4551
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+[31mERROR: Straight Flush count mismatch! Got 22217164, Expected 41584[0m
+[31mERROR: High Card count mismatch! Got 1118880, Expected 23294460[0m
+Evaluator test FAILED!
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 22217164
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 1118880
+Time taken: 1028.378000ms
+M Hands per second: 130.093
+Hash Table Size:512kB
+Direct Lookup Size:1024kB
+
+ Performance counter stats for './bin/test_evaluator':
+
+          1,030.61 msec task-clock                #    0.999 CPUs utilized          
+                 8      context-switches          #    7.762 /sec                   
+                 0      cpu-migrations            #    0.000 /sec                   
+               576      page-faults               #  558.895 /sec                   
+     3,602,240,861      cycles                    #    3.495 GHz                    
+     1,286,215,819      stalled-cycles-frontend   #   35.71% frontend cycles idle   
+       440,079,017      stalled-cycles-backend    #   12.22% backend cycles idle    
+     6,003,762,748      instructions              #    1.67  insn per cycle         
+                                                  #    0.21  stalled cycles per insn
+       722,076,339      branches                  #  700.633 M/sec                  
+        28,204,294      branch-misses             #    3.91% of all branches        
+     1,653,408,010      L1-dcache-loads           #    1.604 G/sec                  
+       102,916,204      L1-dcache-load-misses     #    6.22% of all L1-dcache accesses
+         9,432,604      LLC-loads                 #    9.152 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       1.031706343 seconds time elapsed
+
+       1.031411000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 4K of event 'cycles'
+# Event count (approx.): 3809287778
+#
+# Overhead  Command         Shared Object         Symbol                          
+# ........  ..............  ....................  ................................
+#
+    68.03%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--61.82%--evaluateHand
+            |          main
+            |          0x5588b9c158f0
+            |          0
+            |          
+             --6.21%--test_evaluator
+                       main
+                       0x5588b9c158f0
+                       0
+
+    31.67%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--28.74%--test_evaluator
+            |          main
+            |          0x5588b9c158f0
+            |          0
+            |          
+             --2.93%--evaluateHand
+                       main
+                       0x5588b9c158f0
+                       0
+
+     0.04%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __irqentry_text_end
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] clear_page_rep
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] native_apic_msr_eoi_write
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] zap_pte_range
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] pvclock_gtod_notify
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] timekeeping_update
+     0.02%  test_evaluator  ld-linux-x86-64.so.2  [.] strcmp
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] free_unref_page_list
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] release_pages
+     0.01%  test_evaluator  libc.so.6             [.] __memset_sse2_unaligned_erms
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] __alloc_pages
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] rmqueue
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] copy_user_generic_string
+     0.01%  test_evaluator  libc.so.6             [.] @plt

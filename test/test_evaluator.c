@@ -9,6 +9,7 @@ void test_evaluator(const evaluatorTables *tables)
     const uint16_t *Flushes = tables->Flushes;
     const uint32_t *Primes = tables->Primes;
     const uint64_t *hashTable = tables->hashTable;
+    const uint16_t *directLookup = tables->directLookup;
     uint32_t histogram[9] = {0};
     clock_t start = clock();
     for(int a=0; a < 52; a++){
@@ -19,7 +20,7 @@ void test_evaluator(const evaluatorTables *tables)
                         for(int f=e+1; f < 52; f++){
                             for(int g=f+1; g < 52; g++){
                                 uint64_t bitmask = (1ll << a) |(1ll << b) |(1ll << c) |(1ll << d) |(1ll << e) |(1ll << f) |(1ll << g);
-                                histogram[evaluateHand(bitmask, Flushes, Primes, hashTable)>>12]++;
+                                histogram[evaluateHand(bitmask, Flushes, Primes, hashTable, directLookup)>>12]++;
 
                            }
                         }
@@ -73,6 +74,7 @@ void test_evaluator(const evaluatorTables *tables)
     printf("Time taken: %fms\n", duration);
     printf("M Hands per second: %.3f\n", (double)total / 1000 / duration);
     printf("Hash Table Size:%dkB\n",HASH_TABLE_SIZE * 8 / 1024);
+    printf("Direct Lookup Size:%dkB\n",DIRECT_LOOKUP_SIZE * 2 / 1024);
 //    for(int i =0; i < 50; i++)
 //    {
 //        printf("%d probes:%d\n",i,probe_histogram[i]);
@@ -103,42 +105,6 @@ uint64_t get_card(char card_string[])
     int suit = get_suit(card_string[1]);
     return (1ll << (13 * suit + rank));
 }
-//void test_evaluateRound(const evaluatorTables *tables)
-//{
-//    #define no_players 5
-//    uint64_t hole_cards[no_players];
-//    hole_cards[0] = get_card("Ks")|get_card("Td");
-//    hole_cards[1] = get_card("Th")|get_card("9h");
-//    hole_cards[2] = get_card("7d")|get_card("Qd");
-//    hole_cards[3] = get_card("7c")|get_card("Qs");
-//    hole_cards[4] = get_card("Tc")|get_card("9d");
-//    uint64_t board = 0;
-//    board |= get_card("Kc");
-//    board |= get_card("Kh");
-//    board |= get_card("7h");
-//    board |= get_card("Ts");
-//    board |= get_card("9c");
-//    bool folded[no_players] = {0, 0, 0, 0, 0};
-//    uint8_t player_ids[no_players] = {0, 1, 2, 3, 4};
-//    uint64_t outcome = evaluateRound(board, hole_cards, folded, player_ids, no_players, tables);
-//    printf("Outcome:%lx\n", outcome);
-//    playerResult results[MAX_PLAYERS];
-//    int decode_no_players = decodeOutcomes(outcome, results);
-//    if(decode_no_players != no_players)
-//    {
-//        printf("Error decoding logic gave %d players where the test function shows %d\n", decode_no_players, no_players);
-//    }
-//    printf("NO players %d\n", no_players);
-//    
-//    for(int i = 0; i < no_players; i++)
-//    {
-//        printf("Player Id:%d  Folded:%d  Tied:%d Rank:%d\n", results[i].index, results[i].folded, results[i].tied, results[i].player_rank);
-//    }
-//    printf("\n");
-//    
-//    
-//
-//}
 int main()
 {
     const evaluatorTables *tables = import_evaluator_tables();

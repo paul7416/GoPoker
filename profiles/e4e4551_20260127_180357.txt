@@ -1,0 +1,58 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 18:03:57 NZDT
+Binary:      ./bin/test_evaluator
+Arguments:   
+Git Commit:  e4e45515d9fac60d356ff4f655f0fc56a1618626
+Git Short:   e4e4551
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 1405.561000ms
+M Hands per second: 95.182
+Hash Table Size:1024kB
+
+ Performance counter stats for './bin/test_evaluator':
+
+          1,407.10 msec task-clock                #    0.998 CPUs utilized          
+                99      context-switches          #   70.358 /sec                   
+                 0      cpu-migrations            #    0.000 /sec                   
+               444      page-faults               #  315.543 /sec                   
+     4,922,389,155      cycles                    #    3.498 GHz                    
+     1,831,378,088      stalled-cycles-frontend   #   37.21% frontend cycles idle   
+       881,943,733      stalled-cycles-backend    #   17.92% backend cycles idle    
+     6,380,217,133      instructions              #    1.30  insn per cycle         
+                                                  #    0.29  stalled cycles per insn
+       857,534,119      branches                  #  609.434 M/sec                  
+        54,922,282      branch-misses             #    6.40% of all branches        
+     1,533,265,554      L1-dcache-loads           #    1.090 G/sec                  
+        99,071,566      L1-dcache-load-misses     #    6.46% of all L1-dcache accesses
+        10,193,712      LLC-loads                 #    7.244 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       1.410118024 seconds time elapsed
+
+       1.407690000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+failed to open ./perf_outputs/perf_20260127_180357.data: No such file or directory

@@ -1,0 +1,108 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 19:06:43 NZDT
+Binary:      ./bin/test_evaluator
+Arguments:   
+Git Commit:  e4e45515d9fac60d356ff4f655f0fc56a1618626
+Git Short:   e4e4551
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 944.645000ms
+M Hands per second: 141.624
+Hash Table Size:256kB
+Direct Lookup Size:2048kB
+
+ Performance counter stats for './bin/test_evaluator':
+
+            946.73 msec task-clock                #    0.999 CPUs utilized          
+                15      context-switches          #   15.844 /sec                   
+                 0      cpu-migrations            #    0.000 /sec                   
+               767      page-faults               #  810.154 /sec                   
+     3,338,577,472      cycles                    #    3.526 GHz                    
+     1,257,829,079      stalled-cycles-frontend   #   37.68% frontend cycles idle   
+       377,873,294      stalled-cycles-backend    #   11.32% backend cycles idle    
+     5,861,463,444      instructions              #    1.76  insn per cycle         
+                                                  #    0.21  stalled cycles per insn
+       699,409,321      branches                  #  738.760 M/sec                  
+        18,204,659      branch-misses             #    2.60% of all branches        
+     1,634,307,296      L1-dcache-loads           #    1.726 G/sec                  
+        95,107,343      L1-dcache-load-misses     #    5.82% of all L1-dcache accesses
+         7,402,095      LLC-loads                 #    7.819 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       0.947962576 seconds time elapsed
+
+       0.939679000 seconds user
+       0.007963000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 4K of event 'cycles'
+# Event count (approx.): 3524469940
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    66.78%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--63.26%--evaluateHand
+            |          main
+            |          0x55e541e8e8f0
+            |          0
+            |          
+             --3.52%--test_evaluator
+                       main
+                       0x55e541e8e8f0
+                       0
+
+    32.76%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--29.88%--test_evaluator
+            |          main
+            |          0x55e541e8e8f0
+            |          0
+            |          
+             --2.88%--evaluateHand
+                       main
+                       0x55e541e8e8f0
+                       0
+
+     0.05%  test_evaluator  [kernel.kallsyms]     [k] ilk_irq_handler
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] native_irq_return_iret
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __i915_vma_retire
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] save_fpregs_to_fpstate
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] irq_work_run_list
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __hrtimer_run_queues
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] timekeeping_update
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] psi_group_change
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] cpuacct_account_field
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __update_load_avg_cfs_rq
+     0.02%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] memset
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] error_entry
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] get_mem_cgroup_from_mm
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] kfree
