@@ -1,0 +1,100 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 21:33:50 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 600.256000ms
+M Hands per second: 222.879
+Hash Table Size:128kB
+Direct Lookup Size:4096kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            602.69 msec task-clock                       #    0.999 CPUs utilized          
+                 3      context-switches                 #    4.978 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               734      page-faults                      #    1.218 K/sec                  
+     2,177,139,977      cycles                           #    3.612 GHz                      (49.56%)
+     5,652,464,476      instructions                     #    2.60  insn per cycle           (62.17%)
+       692,312,429      branches                         #    1.149 G/sec                    (62.17%)
+        12,879,056      branch-misses                    #    1.86% of all branches          (62.22%)
+     1,629,881,771      L1-dcache-loads                  #    2.704 G/sec                    (62.88%)
+        91,629,177      L1-dcache-load-misses            #    5.62% of all L1-dcache accesses  (63.05%)
+        12,450,311      LLC-loads                        #   20.658 M/sec                    (50.39%)
+            39,874      LLC-load-misses                  #    0.32% of all LL-cache accesses  (49.73%)
+
+       0.603380129 seconds time elapsed
+
+       0.603431000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2194911355
+#
+# Overhead  Command         Shared Object         Symbol                                
+# ........  ..............  ....................  ......................................
+#
+    66.45%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--59.32%--evaluateHand
+            |          main
+            |          
+             --7.13%--test_evaluator
+                       main
+
+    33.12%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--31.43%--test_evaluator
+            |          main
+            |          
+             --1.69%--evaluateHand
+                       main
+
+     0.07%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.06%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.06%  test_evaluator  [kernel.kallsyms]     [k] native_irq_return_iret
+     0.04%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_fini
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] __intel_pmu_enable_all.constprop.0
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] update_curr
+     0.03%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  libc.so.6             [.] printf
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] change_protection
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] kmem_cache_alloc_bulk
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] down_read_trylock
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] syscall_exit_to_user_mode
+
+
+#
+# (Tip: To show context switches in perf report sample context add --switch-events to perf record.)
+#

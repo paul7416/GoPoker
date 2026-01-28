@@ -1,0 +1,99 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 21:34:00 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 601.334000ms
+M Hands per second: 222.480
+Hash Table Size:256kB
+Direct Lookup Size:4096kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            603.54 msec task-clock                       #    0.999 CPUs utilized          
+                 2      context-switches                 #    3.314 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               765      page-faults                      #    1.268 K/sec                  
+     2,181,297,099      cycles                           #    3.614 GHz                      (49.64%)
+     5,673,926,363      instructions                     #    2.60  insn per cycle           (62.23%)
+       694,101,699      branches                         #    1.150 G/sec                    (62.23%)
+        12,852,800      branch-misses                    #    1.85% of all branches          (62.23%)
+     1,623,603,295      L1-dcache-loads                  #    2.690 G/sec                    (62.77%)
+        91,040,889      L1-dcache-load-misses            #    5.61% of all L1-dcache accesses  (62.95%)
+        11,379,950      LLC-loads                        #   18.855 M/sec                    (50.36%)
+            34,467      LLC-load-misses                  #    0.30% of all LL-cache accesses  (49.82%)
+
+       0.604142154 seconds time elapsed
+
+       0.604162000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2189991594
+#
+# Overhead  Command         Shared Object         Symbol                          
+# ........  ..............  ....................  ................................
+#
+    65.25%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--58.64%--evaluateHand
+            |          main
+            |          
+             --6.57%--test_evaluator
+                       main
+
+    34.41%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--32.43%--test_evaluator
+            |          main
+            |          
+             --1.98%--evaluateHand
+                       main
+
+     0.07%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.06%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] native_flush_tlb_local
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] error_entry
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __list_del_entry_valid
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __mod_memcg_lruvec_state
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] filemap_map_pages
+     0.02%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_check_map_versions
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_map_object
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] mas_next_entry
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] __GI___tunables_init
+
+
+#
+# (Tip: Generate a script for your data: perf script -g <lang>)
+#

@@ -1,0 +1,99 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 22:05:07 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 583.817000ms
+M Hands per second: 229.155
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            587.76 msec task-clock                       #    0.999 CPUs utilized          
+                13      context-switches                 #   22.118 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               740      page-faults                      #    1.259 K/sec                  
+     2,033,344,635      cycles                           #    3.459 GHz                      (49.52%)
+     5,636,384,590      instructions                     #    2.77  insn per cycle           (62.44%)
+       690,414,518      branches                         #    1.175 G/sec                    (63.12%)
+        10,155,696      branch-misses                    #    1.47% of all branches          (63.26%)
+     1,627,347,392      L1-dcache-loads                  #    2.769 G/sec                    (63.26%)
+        90,746,244      L1-dcache-load-misses            #    5.58% of all L1-dcache accesses  (62.73%)
+        11,443,126      LLC-loads                        #   19.469 M/sec                    (49.13%)
+           239,229      LLC-load-misses                  #    2.09% of all LL-cache accesses  (48.98%)
+
+       0.588565998 seconds time elapsed
+
+       0.588467000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2032223892
+#
+# Overhead  Command         Shared Object         Symbol                           
+# ........  ..............  ....................  .................................
+#
+    62.97%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--55.79%--evaluateHand
+            |          main
+            |          
+             --7.18%--test_evaluator
+                       main
+
+    36.46%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--33.97%--test_evaluator
+            |          main
+            |          
+             --2.49%--evaluateHand
+                       main
+
+     0.17%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.11%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.06%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.06%  test_evaluator  [kernel.kallsyms]     [k] __list_del_entry_valid
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] check_new_pages
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] charge_memcg
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] up_read
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __d_lookup_rcu
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] mab_mas_cp
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] kmem_cache_alloc_bulk
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] copy_from_kernel_nofault
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] init_cpu_features.constprop.0
+
+
+#
+# (Tip: For a higher level overview, try: perf report --sort comm,dso)
+#

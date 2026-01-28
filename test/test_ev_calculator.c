@@ -79,6 +79,8 @@ int main(void)
     printf("Simulations per thread:%d\n",iterations_per_thread);
     printf("Threads: %d\n",n_threads);
     printf("Clocks Per Second:%ld\n",CLOCKS_PER_SEC);
+    printf("Hash Table Size:%d\n",HASH_TABLE_SIZE);
+    printf("Direct Lookup Table Size:%d\n",DIRECT_LOOKUP_SIZE);
    // printf("Time: %0.3f ms\n",duration);
 
 

@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Usage: ./profile.sh <binary> [args...]
-# Output goes to profile_<timestamp>.txt
-
 if [ $# -lt 1 ]; then
     echo "Usage: $0 <binary> [args...]"
     exit 1
@@ -12,13 +9,19 @@ BINARY="$1"
 shift
 ARGS="$@"
 
-# Get git commit hash (short and long)
-GIT_HASH=$(git rev-parse HEAD 2>/dev/null || echo "not a git repo")
-GIT_HASH_SHORT=$(git rev-parse --short HEAD 2>/dev/null || echo "n/a")
+# Extract binary name without path
+BINARY_NAME=$(basename "$BINARY")
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-OUTPUT_FILE="profiles/${GIT_HASH_SHORT}_${TIMESTAMP}.txt"
+GIT_HASH_SHORT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
+# Prepend binary name to filename
+OUTPUT_FILE="profiles/${BINARY_NAME}_${GIT_HASH_SHORT}_${TIMESTAMP}.txt"
+
+mkdir -p profiles
+
+# Get git commit hash (full)
+GIT_HASH=$(git rev-parse HEAD 2>/dev/null || echo "not a git repo")
 
 # Write header info
 {
@@ -46,11 +49,11 @@ echo "Running perf stat..."
 
 # Run perf record + report
 echo "Running perf record..."
-perf record -g -o ./perf_outputs/perf_${TIMESTAMP}.data "$BINARY" $ARGS 2>/dev/null
+perf record -g -o perf_${TIMESTAMP}.data "$BINARY" $ARGS 2>/dev/null
 
 {
     echo "=== perf report (top functions) ==="
-    perf report -i ./perf_outputs/perf_${TIMESTAMP}.data --stdio --no-children 2>&1 | head -50
+    perf report -i perf_${TIMESTAMP}.data --stdio --no-children 2>&1 | head -50
 } >> "$OUTPUT_FILE"
 
 echo "Done! Output written to: $OUTPUT_FILE"

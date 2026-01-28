@@ -64,13 +64,13 @@ void iterator(const int iterations, const uint64_t *_52C2, GameState *G, Histogr
         for(int i = 0; i < sim.no_players; i++)
         {
             PlayerSim *p = &sim.players[i];
-            while(1)
+            index = ((uint64_t)((uint32_t)xorshift128plus(s)) * 1326) >> 32;
+            hole_cards = _52C2[index];
+            while((hole_cards & used))
             {
                 // Lemire's fast range mapping (biased, but negligible for Monte Carlo)
                 index = ((uint64_t)((uint32_t)xorshift128plus(s)) * 1326) >> 32;
-
                 hole_cards = _52C2[index];
-                if (!(hole_cards & used)) break;
             }
             p->hole_cards = hole_cards;
             p->folded = !p->playableHands[index];

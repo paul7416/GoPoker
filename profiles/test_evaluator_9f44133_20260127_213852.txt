@@ -1,0 +1,99 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 21:38:52 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 635.463000ms
+M Hands per second: 210.531
+Hash Table Size:128kB
+Direct Lookup Size:2048kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            637.56 msec task-clock                       #    0.999 CPUs utilized          
+                 2      context-switches                 #    3.137 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               733      page-faults                      #    1.150 K/sec                  
+     2,344,381,696      cycles                           #    3.677 GHz                      (49.81%)
+     5,671,454,617      instructions                     #    2.42  insn per cycle           (62.36%)
+       696,480,828      branches                         #    1.092 G/sec                    (62.36%)
+        15,823,956      branch-misses                    #    2.27% of all branches          (62.36%)
+     1,641,776,402      L1-dcache-loads                  #    2.575 G/sec                    (62.58%)
+        89,755,224      L1-dcache-load-misses            #    5.47% of all L1-dcache accesses  (62.74%)
+        10,819,314      LLC-loads                        #   16.970 M/sec                    (50.19%)
+            22,181      LLC-load-misses                  #    0.21% of all LL-cache accesses  (49.97%)
+
+       0.638241667 seconds time elapsed
+
+       0.638296000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2367479222
+#
+# Overhead  Command         Shared Object      Symbol                          
+# ........  ..............  .................  ................................
+#
+    64.32%  test_evaluator  test_evaluator     [.] evaluateHand
+            |          
+            |--57.86%--evaluateHand
+            |          main
+            |          
+             --6.46%--test_evaluator
+                       main
+
+    35.36%  test_evaluator  test_evaluator     [.] test_evaluator
+            |          
+            |--32.51%--test_evaluator
+            |          main
+            |          
+             --2.85%--evaluateHand
+                       main
+
+     0.06%  test_evaluator  test_evaluator     [.] import_primes_dict
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] native_irq_return_iret
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] _atomic_dec_and_lock_irqsave
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] fwtable_read32
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] __handle_mm_fault
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] asm_exc_page_fault
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] clear_page_erms
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] _raw_spin_trylock
+     0.02%  test_evaluator  libc.so.6          [.] __strnlen_ifunc
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] filemap_map_pages
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] mas_wr_node_store
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] xas_descend
+
+
+#
+# (Tip: Limit to show entries above 5% only: perf report --percent-limit 5)
+#

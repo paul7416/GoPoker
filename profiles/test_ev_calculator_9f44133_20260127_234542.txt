@@ -1,0 +1,37 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 23:45:42 NZDT
+Binary:      bin/test_ev_calculator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+bin/test_ev_calculator: Interrupt
+
+ Performance counter stats for 'bin/test_ev_calculator':
+
+         67,300.20 msec task-clock                       #    7.977 CPUs utilized          
+             1,842      context-switches                 #   27.370 /sec                   
+                 4      cpu-migrations                   #    0.059 /sec                   
+             2,021      page-faults                      #   30.030 /sec                   
+   227,862,748,747      cycles                           #    3.386 GHz                      (49.98%)
+   435,286,814,390      instructions                     #    1.91  insn per cycle           (62.50%)
+    48,359,236,012      branches                         #  718.560 M/sec                    (62.50%)
+         1,486,496      branch-misses                    #    0.00% of all branches          (62.50%)
+    48,342,864,799      L1-dcache-loads                  #  718.317 M/sec                    (62.52%)
+     5,257,688,959      L1-dcache-load-misses            #   10.88% of all L1-dcache accesses  (62.53%)
+         8,687,518      LLC-loads                        #  129.086 K/sec                    (50.01%)
+            22,899      LLC-load-misses                  #    0.26% of all LL-cache accesses  (50.01%)
+
+       8.436971613 seconds time elapsed
+
+      67.293243000 seconds user
+       0.012003000 seconds sys
+
+
+

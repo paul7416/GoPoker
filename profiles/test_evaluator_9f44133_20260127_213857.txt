@@ -1,0 +1,99 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 21:38:57 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 664.403000ms
+M Hands per second: 201.361
+Hash Table Size:128kB
+Direct Lookup Size:2048kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            669.87 msec task-clock                       #    0.998 CPUs utilized          
+                 5      context-switches                 #    7.464 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               733      page-faults                      #    1.094 K/sec                  
+     2,413,357,220      cycles                           #    3.603 GHz                      (49.85%)
+     5,709,178,675      instructions                     #    2.37  insn per cycle           (62.39%)
+       698,695,822      branches                         #    1.043 G/sec                    (62.39%)
+        15,742,409      branch-misses                    #    2.25% of all branches          (62.39%)
+     1,626,819,104      L1-dcache-loads                  #    2.429 G/sec                    (62.44%)
+        91,214,670      L1-dcache-load-misses            #    5.61% of all L1-dcache accesses  (62.68%)
+        15,044,671      LLC-loads                        #   22.459 M/sec                    (50.15%)
+             7,964      LLC-load-misses                  #    0.05% of all LL-cache accesses  (50.10%)
+
+       0.671037223 seconds time elapsed
+
+       0.667004000 seconds user
+       0.004018000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2371333696
+#
+# Overhead  Command         Shared Object      Symbol                          
+# ........  ..............  .................  ................................
+#
+    66.05%  test_evaluator  test_evaluator     [.] evaluateHand
+            |          
+            |--59.65%--evaluateHand
+            |          main
+            |          
+             --6.40%--test_evaluator
+                       main
+
+    33.69%  test_evaluator  test_evaluator     [.] test_evaluator
+            |          
+            |--31.09%--test_evaluator
+            |          main
+            |          
+             --2.60%--evaluateHand
+                       main
+
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] unmap_page_range
+     0.03%  test_evaluator  test_evaluator     [.] import_primes_dict
+     0.03%  test_evaluator  libc.so.6          [.] __memset_avx2_unaligned_erms
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] native_irq_return_iret
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] sync_regs
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] lru_add_fn
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] page_add_new_anon_rmap
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] __mod_memcg_lruvec_state
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] next_uptodate_page
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] strncpy_from_user
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] copy_page
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] vma_interval_tree_remove
+
+
+#
+# (Tip: Compare performance results with: perf diff [<old file> <new file>])
+#

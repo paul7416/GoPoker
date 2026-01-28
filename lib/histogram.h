@@ -3,7 +3,7 @@
 #include<stdint.h>
 #include<stdlib.h>
 
-#define HISTOGRAM_START_SIZE   0x10000
+#define HISTOGRAM_START_SIZE   0x8000
 #define HISTOGRAM_MAX_SIZE     0x2000000
 
 typedef struct

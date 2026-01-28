@@ -1,0 +1,102 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 21:36:10 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 597.748000ms
+M Hands per second: 223.814
+Hash Table Size:256kB
+Direct Lookup Size:8192kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            600.62 msec task-clock                       #    0.999 CPUs utilized          
+                25      context-switches                 #   41.624 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               768      page-faults                      #    1.279 K/sec                  
+     2,071,873,169      cycles                           #    3.450 GHz                      (49.41%)
+     5,653,979,616      instructions                     #    2.73  insn per cycle           (62.06%)
+       690,966,190      branches                         #    1.150 G/sec                    (62.06%)
+        10,876,197      branch-misses                    #    1.57% of all branches          (62.42%)
+     1,625,316,587      L1-dcache-loads                  #    2.706 G/sec                    (63.08%)
+        91,152,223      L1-dcache-load-misses            #    5.61% of all L1-dcache accesses  (63.24%)
+        11,506,740      LLC-loads                        #   19.158 M/sec                    (50.22%)
+           126,207      LLC-load-misses                  #    1.10% of all LL-cache accesses  (49.57%)
+
+       0.601421643 seconds time elapsed
+
+       0.601256000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2095356245
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    65.49%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--59.61%--evaluateHand
+            |          main
+            |          
+             --5.88%--test_evaluator
+                       main
+
+    33.84%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--31.86%--test_evaluator
+            |          main
+            |          
+             --1.98%--evaluateHand
+                       main
+
+     0.17%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.11%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.06%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] __update_load_avg_se
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] timerqueue_add
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] native_write_msr
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] update_cfs_group
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] update_load_avg
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] rebalance_domains
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] get_page_from_freelist
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] memset_erms
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] mas_empty_area_rev
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] fsnotify
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] apparmor_current_getsecid_subj
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] __GI___tunables_init
+
+
+#
+# (Tip: To show IPC for sampling periods use perf record -e '{cycles,instructions}:S' and then browse context)
+#

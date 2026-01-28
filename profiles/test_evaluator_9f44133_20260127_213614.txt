@@ -1,0 +1,99 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 27 Jan 2026 21:36:14 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  9f441331828a9d736d39fa5c939018ae0ac452c5
+Git Short:   9f44133
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 577.161000ms
+M Hands per second: 231.798
+Hash Table Size:256kB
+Direct Lookup Size:8192kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            580.12 msec task-clock                       #    0.999 CPUs utilized          
+                 1      context-switches                 #    1.724 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               767      page-faults                      #    1.322 K/sec                  
+     2,072,026,354      cycles                           #    3.572 GHz                      (50.20%)
+     5,659,998,413      instructions                     #    2.73  insn per cycle           (62.77%)
+       689,926,355      branches                         #    1.189 G/sec                    (62.77%)
+        10,909,761      branch-misses                    #    1.58% of all branches          (62.77%)
+     1,618,756,899      L1-dcache-loads                  #    2.790 G/sec                    (62.77%)
+        91,031,522      L1-dcache-load-misses            #    5.62% of all L1-dcache accesses  (62.21%)
+        10,929,144      LLC-loads                        #   18.840 M/sec                    (49.64%)
+            70,639      LLC-load-misses                  #    0.65% of all LL-cache accesses  (49.64%)
+
+       0.580757006 seconds time elapsed
+
+       0.580798000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2074320759
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    65.23%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--58.94%--evaluateHand
+            |          main
+            |          
+             --6.29%--test_evaluator
+                       main
+
+    34.29%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--31.42%--test_evaluator
+            |          main
+            |          
+             --2.88%--evaluateHand
+                       main
+
+     0.11%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.10%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.07%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] native_read_msr
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] get_page_from_freelist
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] lru_add_fn
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] fsverity_file_open
+     0.02%  test_evaluator  ld-linux-x86-64.so.2  [.] __minimal_malloc
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] do_dentry_open
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] memset_erms
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] brk
+
+
+#
+# (Tip: To count events in every 1000 msec: perf stat -I 1000)
+#
