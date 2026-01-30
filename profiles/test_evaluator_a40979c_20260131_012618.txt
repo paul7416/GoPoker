@@ -1,0 +1,101 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 01:26:18 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 603.737000ms
+M Hands per second: 221.594
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            615.67 msec task-clock                       #    0.998 CPUs utilized          
+                 2      context-switches                 #    3.248 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               739      page-faults                      #    1.200 K/sec                  
+     2,089,382,657      cycles                           #    3.394 GHz                      (49.77%)
+     5,794,777,783      instructions                     #    2.77  insn per cycle           (62.76%)
+       637,191,147      branches                         #    1.035 G/sec                    (62.97%)
+         4,299,907      branch-misses                    #    0.67% of all branches          (62.97%)
+     1,863,012,411      L1-dcache-loads                  #    3.026 G/sec                    (62.97%)
+        92,360,001      L1-dcache-load-misses            #    4.96% of all L1-dcache accesses  (62.58%)
+        10,525,013      LLC-loads                        #   17.095 M/sec                    (49.37%)
+           111,403      LLC-load-misses                  #    1.06% of all LL-cache accesses  (49.37%)
+
+       0.616786672 seconds time elapsed
+
+       0.608830000 seconds user
+       0.008010000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2097723458
+#
+# Overhead  Command         Shared Object      Symbol                          
+# ........  ..............  .................  ................................
+#
+    59.50%  test_evaluator  test_evaluator     [.] evaluateHand
+            |          
+            |--52.59%--evaluateHand
+            |          main
+            |          
+             --6.91%--test_evaluator
+                       main
+
+    39.78%  test_evaluator  test_evaluator     [.] test_evaluator
+            |          
+            |--38.28%--test_evaluator
+            |          main
+            |          
+             --1.50%--evaluateHand
+                       main
+
+     0.24%  test_evaluator  [kernel.kallsyms]  [k] clear_page_erms
+     0.11%  test_evaluator  test_evaluator     [.] import_primes_dict
+     0.06%  test_evaluator  libc.so.6          [.] __memset_avx2_unaligned_erms
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] native_irq_return_iret
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] __calc_delta
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] qi_submit_sync
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] llist_add_batch
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] reweight_entity
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] charge_memcg
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] filemap_get_read_batch
+     0.02%  test_evaluator  libc.so.6          [.] _IO_file_fopen@@GLIBC_2.2.5
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] perf_iterate_sb
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] memset_erms
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] vma_interval_tree_remove
+
+
+#
+# (Tip: To see list of saved events and attributes: perf evlist -v)
+#

@@ -1,0 +1,37 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 01:15:31 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+bin/test_evaluator: Interrupt
+
+ Performance counter stats for 'bin/test_evaluator':
+
+         11,608.92 msec task-clock                       #    1.000 CPUs utilized          
+                48      context-switches                 #    4.135 /sec                   
+                 3      cpu-migrations                   #    0.258 /sec                   
+               475      page-faults                      #   40.917 /sec                   
+    45,174,182,202      cycles                           #    3.891 GHz                      (49.97%)
+   202,865,225,974      instructions                     #    4.49  insn per cycle           (62.48%)
+    22,542,689,748      branches                         #    1.942 G/sec                    (62.48%)
+           183,340      branch-misses                    #    0.00% of all branches          (62.49%)
+    22,549,005,350      L1-dcache-loads                  #    1.942 G/sec                    (62.53%)
+     2,820,218,295      L1-dcache-load-misses            #   12.51% of all L1-dcache accesses  (62.54%)
+         5,252,085      LLC-loads                        #  452.418 K/sec                    (50.01%)
+             5,268      LLC-load-misses                  #    0.10% of all LL-cache accesses  (49.98%)
+
+      11.609842556 seconds time elapsed
+
+      11.609574000 seconds user
+       0.000000000 seconds sys
+
+
+

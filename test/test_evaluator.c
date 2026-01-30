@@ -4,11 +4,14 @@
 #include "evaluator.h"
 #include "global_defines.h"
 
+int card_values[52] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+                        32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
+                        48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60};
+                    
 static inline int get_card_no(int i)
 {
-    int suit = i / 13;
-    int rank = i % 13;
-    return (suit << 4 | rank);
+    return card_values[i];
 
 }
 void test_evaluator(const evaluatorTables *tables)

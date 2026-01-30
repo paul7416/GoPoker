@@ -1,0 +1,103 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 00:42:47 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 862.494000ms
+M Hands per second: 155.114
+Hash Table Size:128kB
+Direct Lookup Size:1024kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            864.10 msec task-clock                       #    0.999 CPUs utilized          
+                 6      context-switches                 #    6.944 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               476      page-faults                      #  550.860 /sec                   
+     3,068,582,304      cycles                           #    3.551 GHz                      (50.06%)
+     7,106,419,908      instructions                     #    2.32  insn per cycle           (62.54%)
+       666,686,863      branches                         #  771.536 M/sec                    (62.54%)
+        22,072,974      branch-misses                    #    3.31% of all branches          (62.54%)
+     1,642,794,276      L1-dcache-loads                  #    1.901 G/sec                    (62.51%)
+        97,839,482      L1-dcache-load-misses            #    5.96% of all L1-dcache accesses  (62.44%)
+        10,862,423      LLC-loads                        #   12.571 M/sec                    (49.95%)
+            20,398      LLC-load-misses                  #    0.19% of all LL-cache accesses  (49.96%)
+
+       0.865122229 seconds time elapsed
+
+       0.864718000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cycles'
+# Event count (approx.): 3187667932
+#
+# Overhead  Command         Shared Object         Symbol                         
+# ........  ..............  ....................  ...............................
+#
+    57.62%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--51.17%--evaluateHand
+            |          main
+            |          
+             --6.45%--test_evaluator
+                       main
+
+    42.04%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--38.26%--test_evaluator
+            |          main
+            |          
+             --3.78%--evaluateHand
+                       main
+
+     0.06%  test_evaluator  [kernel.kallsyms]     [k] native_write_msr
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] reweight_entity
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] hrtimer_active
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] kthread_is_per_cpu
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] its_return_thunk
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] acct_account_cputime
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] next_uptodate_page
+     0.02%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __list_del_entry_valid
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] set_pte
+     0.02%  test_evaluator  libc.so.6             [.] _IO_file_fopen@@GLIBC_2.2.5
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_map_object_deps
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] dl_main
+     0.00%  test_evaluator  [kernel.kallsyms]     [k] __slab_free
+     0.00%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_setup_hash
+
+
+#
+# (Tip: Order by the overhead of source file name and line number: perf report -s srcline)
+#

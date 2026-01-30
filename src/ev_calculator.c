@@ -141,6 +141,7 @@ void iterator(int iterations, GameState *G, HistogramTable *H, const evaluatorTa
             else
             {
                 evaluation = evaluateRound(&sim, T);
+
             }
             iterateHistogram(H, evaluation);
         }

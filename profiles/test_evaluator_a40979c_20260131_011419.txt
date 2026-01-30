@@ -1,0 +1,108 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 01:14:19 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+[31mERROR: Straight Flush count mismatch! Got 10971186, Expected 41584[0m
+[31mERROR: Four Of A Kind count mismatch! Got 244068, Expected 224848[0m
+[31mERROR: Full House count mismatch! Got 3651912, Expected 3473184[0m
+[31mERROR: Flush count mismatch! Got 3937296, Expected 4047644[0m
+[31mERROR: Straight count mismatch! Got 5653122, Expected 6180020[0m
+[31mERROR: Three of a Kind count mismatch! Got 6401781, Expected 6461620[0m
+[31mERROR: Two Pairs count mismatch! Got 30434706, Expected 31433400[0m
+[31mERROR: Pairs count mismatch! Got 52955665, Expected 58627800[0m
+[31mERROR: High Card count mismatch! Got 19534824, Expected 23294460[0m
+Evaluator test FAILED!
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 10971186
+Four Of A Kind  : 244068
+Full House      : 3651912
+Flush           : 3937296
+Straight        : 5653122
+Three of a Kind : 6401781
+Two Pairs       : 30434706
+Pairs           : 52955665
+High Card       : 19534824
+Time taken: 567.026000ms
+M Hands per second: 235.941
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            571.19 msec task-clock                       #    0.999 CPUs utilized          
+                 4      context-switches                 #    7.003 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               741      page-faults                      #    1.297 K/sec                  
+     2,059,390,789      cycles                           #    3.605 GHz                      (49.59%)
+     5,762,714,162      instructions                     #    2.80  insn per cycle           (62.19%)
+       638,123,027      branches                         #    1.117 G/sec                    (62.19%)
+         4,130,288      branch-misses                    #    0.65% of all branches          (62.19%)
+     1,876,823,273      L1-dcache-loads                  #    3.286 G/sec                    (62.85%)
+        45,633,993      L1-dcache-load-misses            #    2.43% of all L1-dcache accesses  (63.02%)
+         7,377,431      LLC-loads                        #   12.916 M/sec                    (50.42%)
+           115,350      LLC-load-misses                  #    1.56% of all LL-cache accesses  (49.75%)
+
+       0.571878399 seconds time elapsed
+
+       0.567914000 seconds user
+       0.003999000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2022489822
+#
+# Overhead  Command         Shared Object      Symbol                          
+# ........  ..............  .................  ................................
+#
+    59.95%  test_evaluator  test_evaluator     [.] evaluateHand
+            |          
+            |--52.84%--evaluateHand
+            |          main
+            |          
+             --7.12%--test_evaluator
+                       main
+
+    39.41%  test_evaluator  test_evaluator     [.] test_evaluator
+            |          
+            |--37.45%--test_evaluator
+            |          main
+            |          
+             --1.95%--evaluateHand
+                       main
+
+     0.23%  test_evaluator  [kernel.kallsyms]  [k] clear_page_erms
+     0.12%  test_evaluator  test_evaluator     [.] import_primes_dict
+     0.11%  test_evaluator  libc.so.6          [.] __memset_avx2_unaligned_erms
+     0.04%  test_evaluator  [kernel.kallsyms]  [k] native_irq_return_iret
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] __mod_zone_page_state
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] __list_del_entry_valid
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] folio_batch_move_lru
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] xas_load
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] __mod_node_page_state
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] cache_from_obj
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] __get_vma_policy
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] kmem_cache_alloc
+
+
+#
+# (Tip: See assembly instructions with percentage: perf annotate <symbol>)
+#

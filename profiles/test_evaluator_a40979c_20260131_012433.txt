@@ -1,0 +1,100 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 01:24:33 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 750.151000ms
+M Hands per second: 178.344
+Hash Table Size:128kB
+Direct Lookup Size:1024kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            751.61 msec task-clock                       #    0.999 CPUs utilized          
+                 6      context-switches                 #    7.983 /sec                   
+                 1      cpu-migrations                   #    1.330 /sec                   
+               475      page-faults                      #  631.981 /sec                   
+     2,901,559,392      cycles                           #    3.860 GHz                      (49.36%)
+     5,896,150,004      instructions                     #    2.03  insn per cycle           (62.13%)
+       658,995,431      branches                         #  876.784 M/sec                    (62.67%)
+        21,909,733      branch-misses                    #    3.32% of all branches          (63.20%)
+     1,885,487,860      L1-dcache-loads                  #    2.509 G/sec                    (63.29%)
+       103,547,027      L1-dcache-load-misses            #    5.49% of all L1-dcache accesses  (62.88%)
+        11,552,514      LLC-loads                        #   15.370 M/sec                    (49.57%)
+             2,275      LLC-load-misses                  #    0.02% of all LL-cache accesses  (49.04%)
+
+       0.752137964 seconds time elapsed
+
+       0.752141000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cycles'
+# Event count (approx.): 2852510181
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    64.38%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--58.18%--evaluateHand
+            |          main
+            |          
+             --6.20%--test_evaluator
+                       main
+
+    35.35%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--33.82%--test_evaluator
+            |          main
+            |          
+             --1.53%--evaluateHand
+                       main
+
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] entry_SYSCALL_64_after_hwframe
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] sync_regs
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] update_load_avg
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] tick_sched_do_timer
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] mtree_range_walk
+     0.02%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.02%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] lockref_get
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_map_object_deps
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] __lookup_mnt
+     0.00%  test_evaluator  [kernel.kallsyms]     [k] __handle_mm_fault
+     0.00%  test_evaluator  [kernel.kallsyms]     [k] unmap_page_range
+
+
+#
+# (Tip: System-wide collection from all CPUs: perf record -a)
+#

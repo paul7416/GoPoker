@@ -1,0 +1,111 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 01:13:27 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+[31mERROR: Straight Flush count mismatch! Got 10971186, Expected 41584[0m
+[31mERROR: Four Of A Kind count mismatch! Got 244068, Expected 224848[0m
+[31mERROR: Full House count mismatch! Got 3651912, Expected 3473184[0m
+[31mERROR: Flush count mismatch! Got 3937296, Expected 4047644[0m
+[31mERROR: Straight count mismatch! Got 5653122, Expected 6180020[0m
+[31mERROR: Three of a Kind count mismatch! Got 6401781, Expected 6461620[0m
+[31mERROR: Two Pairs count mismatch! Got 30434706, Expected 31433400[0m
+[31mERROR: Pairs count mismatch! Got 52955665, Expected 58627800[0m
+[31mERROR: High Card count mismatch! Got 19534824, Expected 23294460[0m
+Evaluator test FAILED!
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 10971186
+Four Of A Kind  : 244068
+Full House      : 3651912
+Flush           : 3937296
+Straight        : 5653122
+Three of a Kind : 6401781
+Two Pairs       : 30434706
+Pairs           : 52955665
+High Card       : 19534824
+Time taken: 550.883000ms
+M Hands per second: 242.855
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            554.43 msec task-clock                       #    0.999 CPUs utilized          
+                 1      context-switches                 #    1.804 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               739      page-faults                      #    1.333 K/sec                  
+     2,022,954,886      cycles                           #    3.649 GHz                      (49.62%)
+     5,746,208,960      instructions                     #    2.84  insn per cycle           (62.61%)
+       634,546,519      branches                         #    1.145 G/sec                    (63.21%)
+         4,032,190      branch-misses                    #    0.64% of all branches          (63.20%)
+     1,876,803,612      L1-dcache-loads                  #    3.385 G/sec                    (63.21%)
+        44,675,003      L1-dcache-load-misses            #    2.38% of all L1-dcache accesses  (62.65%)
+         7,027,106      LLC-loads                        #   12.674 M/sec                    (49.05%)
+           200,434      LLC-load-misses                  #    2.85% of all LL-cache accesses  (49.06%)
+
+       0.555036215 seconds time elapsed
+
+       0.555067000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2029863127
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    58.77%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--52.31%--evaluateHand
+            |          main
+            |          
+             --6.46%--test_evaluator
+                       main
+
+    40.43%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--38.69%--test_evaluator
+            |          main
+            |          
+             --1.74%--evaluateHand
+                       main
+
+     0.25%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.12%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.11%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] native_write_msr
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] try_to_wake_up
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] update_blocked_averages
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] _raw_spin_lock
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] asm_exc_page_fault
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __list_del_entry_valid
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  libc.so.6             [.] __lll_elision_init
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] vma_interval_tree_remove
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] do_mmap
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] d_path
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] init_cpu_features.constprop.0
+
+
+#
+# (Tip: For a higher level overview, try: perf report --sort comm,dso)
+#

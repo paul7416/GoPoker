@@ -1,0 +1,105 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 01:25:25 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 826.142000ms
+M Hands per second: 161.939
+Hash Table Size:128kB
+Direct Lookup Size:1024kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            827.59 msec task-clock                       #    0.999 CPUs utilized          
+                 2      context-switches                 #    2.417 /sec                   
+                 1      cpu-migrations                   #    1.208 /sec                   
+               477      page-faults                      #  576.375 /sec                   
+     2,966,759,708      cycles                           #    3.585 GHz                      (49.74%)
+     5,889,959,556      instructions                     #    1.99  insn per cycle           (62.30%)
+       660,703,328      branches                         #  798.349 M/sec                    (62.30%)
+        21,992,767      branch-misses                    #    3.33% of all branches          (62.30%)
+     1,896,490,327      L1-dcache-loads                  #    2.292 G/sec                    (62.74%)
+       104,317,850      L1-dcache-load-misses            #    5.50% of all L1-dcache accesses  (62.83%)
+        12,423,136      LLC-loads                        #   15.011 M/sec                    (50.26%)
+            15,745      LLC-load-misses                  #    0.13% of all LL-cache accesses  (49.82%)
+
+       0.828106482 seconds time elapsed
+
+       0.828154000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cycles'
+# Event count (approx.): 2888665760
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    63.08%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--56.39%--evaluateHand
+            |          main
+            |          
+             --6.66%--test_evaluator
+                       main
+
+    36.48%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--35.22%--test_evaluator
+            |          main
+            |          
+             --1.26%--evaluateHand
+                       main
+
+     0.05%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.05%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] ktime_get
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] tick_do_update_jiffies64
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __sysvec_apic_timer_interrupt
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] account_user_time
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] perf_event_task_tick
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] native_write_msr
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] x86_pmu_disable
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] update_cfs_group
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __cgroup_account_cputime_field
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] mtree_range_walk
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] do_set_pte
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] clear_bhb_loop
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_important_hwcaps
+     0.00%  test_evaluator  [kernel.kallsyms]     [k] mmap_region
+     0.00%  test_evaluator  [kernel.kallsyms]     [k] next_uptodate_page
+
+
+#
+# (Tip: Use --symfs <dir> if your symbol files are in non-standard locations)
+#

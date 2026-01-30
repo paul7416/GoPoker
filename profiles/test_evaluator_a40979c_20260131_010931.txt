@@ -1,0 +1,101 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 31 Jan 2026 01:09:31 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a40979ccd77bb92f61e8b0eafa452de6d058f607
+Git Short:   a40979c
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 636.869000ms
+M Hands per second: 210.066
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            642.08 msec task-clock                       #    0.999 CPUs utilized          
+                 5      context-switches                 #    7.787 /sec                   
+                 1      cpu-migrations                   #    1.557 /sec                   
+               740      page-faults                      #    1.153 K/sec                  
+     2,333,956,036      cycles                           #    3.635 GHz                      (50.17%)
+     6,929,019,421      instructions                     #    2.97  insn per cycle           (62.63%)
+       642,553,636      branches                         #    1.001 G/sec                    (62.63%)
+         5,515,528      branch-misses                    #    0.86% of all branches          (62.63%)
+     1,637,857,465      L1-dcache-loads                  #    2.551 G/sec                    (62.62%)
+        88,966,419      L1-dcache-load-misses            #    5.43% of all L1-dcache accesses  (62.29%)
+        10,694,537      LLC-loads                        #   16.656 M/sec                    (49.83%)
+            91,637      LLC-load-misses                  #    0.86% of all LL-cache accesses  (49.83%)
+
+       0.642788084 seconds time elapsed
+
+       0.638796000 seconds user
+       0.004017000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2346965869
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    52.73%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--46.49%--evaluateHand
+            |          main
+            |          
+             --6.25%--test_evaluator
+                       main
+
+    46.71%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--41.63%--test_evaluator
+            |          main
+            |          
+             --5.08%--evaluateHand
+                       main
+
+     0.23%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.06%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] __rseq_handle_notify_resume
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] rcu_segcblist_extract_done_cbs
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] free_unref_page_list
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] native_irq_return_iret
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] folio_add_lru
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] down_read_trylock
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] next_uptodate_page
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] _raw_spin_lock
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] mas_next_entry
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] sched_clock_cpu
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] init_cpu_features.constprop.0
+
+
+#
+# (Tip: Order by the overhead of source file name and line number: perf report -s srcline)
+#

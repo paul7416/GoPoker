@@ -1,0 +1,103 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Fri 30 Jan 2026 21:53:40 NZDT
+Binary:      bin/test_ev_calculator
+Arguments:   
+Git Commit:  7ee69b05e10a6c1d9b9f01dba3fe437796588283
+Git Short:   7ee69b0
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 1326 elements from DataFiles/52C2.dat
+imported 13312 elements from DataFiles/holeCardHandRanks.dat
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Imported Hands
+Wall time: 1838.75 ms
+Hands per second 54384802
+Simulations:100000000
+Simulations per thread:25000000
+Threads: 4
+Clocks Per Second:1000000
+Hash Table Size:128 kB
+Direct Lookup Table Size:1024 kB
+Size of PlayerSim:8 bytes
+
+ Performance counter stats for 'bin/test_ev_calculator':
+
+          7,249.11 msec task-clock                       #    3.937 CPUs utilized          
+                39      context-switches                 #    5.380 /sec                   
+                 4      cpu-migrations                   #    0.552 /sec                   
+             1,419      page-faults                      #  195.748 /sec                   
+    24,534,418,799      cycles                           #    3.384 GHz                      (49.77%)
+    40,311,306,101      instructions                     #    1.64  insn per cycle           (62.50%)
+     5,604,764,862      branches                         #  773.166 M/sec                    (62.54%)
+       315,830,039      branch-misses                    #    5.64% of all branches          (62.63%)
+     8,969,189,248      L1-dcache-loads                  #    1.237 G/sec                    (62.73%)
+       530,225,809      L1-dcache-load-misses            #    5.91% of all L1-dcache accesses  (62.72%)
+       115,686,858      LLC-loads                        #   15.959 M/sec                    (50.00%)
+            17,332      LLC-load-misses                  #    0.01% of all LL-cache accesses  (49.81%)
+
+       1.841279247 seconds time elapsed
+
+       7.246045000 seconds user
+       0.003996000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 29K of event 'cycles'
+# Event count (approx.): 24604147683
+#
+# Overhead  Command          Shared Object         Symbol                            
+# ........  ...............  ....................  ..................................
+#
+    33.61%  test_ev_calcula  test_ev_calculator    [.] iterator
+            |          
+             --33.00%--iterator
+                       iterator_thread
+
+    25.15%  test_ev_calcula  test_ev_calculator    [.] evaluateRound
+            |          
+             --24.84%--evaluateRound
+                       |          
+                        --3.13%--iterator_thread
+
+    24.01%  test_ev_calcula  test_ev_calculator    [.] evaluateHand
+            |          
+            |--22.92%--evaluateHand
+            |          
+             --1.09%--evaluateRound
+
+    12.58%  test_ev_calcula  test_ev_calculator    [.] iterateHistogram
+            |          
+             --12.19%--iterateHistogram
+
+     4.60%  test_ev_calcula  test_ev_calculator    [.] shuffle_deck
+            |          
+             --4.58%--shuffle_deck
+                       iterator_thread
+
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] smp_call_function_many_cond
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] native_irq_return_iret
+     0.01%  test_ev_calcula  test_ev_calculator    [.] import_primes_dict
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] native_flush_tlb_one_user
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] change_protection
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] handle_mm_fault
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] handle_softirqs
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] _find_next_and_bit
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] lru_add_fn
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] do_user_addr_fault
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] memcg_slab_post_alloc_hook
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] llist_reverse_order
