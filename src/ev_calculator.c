@@ -56,7 +56,7 @@ cardDeck create_card_deck(int no_players, uint64_t s[2])
 }
 
 
-__attribute__((noinline)) void shuffle_deck(cardDeck *d, uint64_t s[2])
+static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
 {
     __m128i a;
     __m128i *arr = (__m128i*)d->card_array;
