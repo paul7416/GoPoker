@@ -64,11 +64,11 @@ done | sort -t'|' -k1 -n | cut -d'|' -f2- | while IFS='|' read -r date time_of_d
         "$date" "$time_of_day" "$commit" "$walltime" "$hands_sec" "$sims" "$threads" "$ipc" "$cycles_per_sim" "$brmiss" "$l1miss" "$llcmiss" "$direct"
 done
 echo ""
-echo "=== Top Functions ==="
-for file in $FILES; do
-    time_of_day=$(grep "Date:" "$file" | grep -oP '\d{2}:\d{2}:\d{2}' | head -1)
-    echo ""
-    echo "$time_of_day:"
-    grep -P '^\s+[\d.]+%\s+\S+\s+\S+\s+\[.\]\s+\S+' "$file" | head -5 | \
-        awk '{printf "  %6s  %s\n", $1, $NF}'
-done
+#echo "=== Top Functions ==="
+#for file in $FILES; do
+#    time_of_day=$(grep "Date:" "$file" | grep -oP '\d{2}:\d{2}:\d{2}' | head -1)
+#    echo ""
+#    echo "$time_of_day:"
+#    grep -P '^\s+[\d.]+%\s+\S+\s+\S+\s+\[.\]\s+\S+' "$file" | head -5 | \
+#        awk '{printf "  %6s  %s\n", $1, $NF}'
+#done
