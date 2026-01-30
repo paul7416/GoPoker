@@ -5,18 +5,6 @@
 #include <assert.h>
 //#include "debug.h"
 
-cardDeck create_card_deck(int no_players)
-{
-    cardDeck d;
-    d.current_index = 0;
-    for(int i = 0; i < DECK_SIZE; i++)
-    {
-        d.card_array[i] = i;
-    }
-    d.number_of_shuffled_cards = 2 * no_players + 5;
-    return d;
-}
-
 // Xorshift128+ generator
 static inline uint64_t xorshift128plus(uint64_t s[2]) {
     uint64_t x = s[0];
@@ -32,32 +20,67 @@ void seed(uint64_t s[2])
     for( int i = 0; i < 20; i++)xorshift128plus(s);
 }
 
-static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
+void shuffle_single_deck(uint8_t cdecks[DECK_SIZE][CONCURRENT_DECKS], int deck_no, uint64_t s[2])
 {
-    uint32_t tmp;
-    for(int i = 0; i < d->number_of_shuffled_cards; i++)
+    uint8_t tmp;
+    for(int i = 0; i < DECK_SIZE - 1; i++)
     {
         uint32_t rnd_index = (((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i;
-        tmp = d->card_array[i];
-        d->card_array[i] = d->card_array[rnd_index];
-        d->card_array[rnd_index] = tmp;
+        tmp = cdecks[i][deck_no];
+        cdecks[i][deck_no] = cdecks[rnd_index][deck_no];
+        cdecks[rnd_index][deck_no] = tmp;
     }
 
 }
 
-
-
-static inline uint64_t generate_community_cards(cardDeck *d)
+cardDeck create_card_deck(int no_players, uint64_t s[2])
 {
-    d->current_index = 5;
-    return (1ull << d->card_array[0])|
-           (1ull << d->card_array[1])|
-           (1ull << d->card_array[2])|
-           (1ull << d->card_array[3])|
-           (1ull << d->card_array[4]);
+    cardDeck d;
+    d.current_index = 0;
+    d.number_of_shuffled_cards = no_players * 2 + 5;
+    uint8_t decks[DECK_SIZE][CONCURRENT_DECKS];
+    for(int deck_number = 0; deck_number < CONCURRENT_DECKS; deck_number++)
+    {
+        for(int i = 0; i < DECK_SIZE; i++)
+        {
+            decks[i][deck_number] = i;
+        }
+        shuffle_single_deck(decks, deck_number, s);
+    }
+    __uint128_t *tmpptr = (__uint128_t*)decks;
+    for(int i = 0; i < DECK_SIZE; i++)
+    {
+        d.card_array[i] = tmpptr[i];
+    }
+    return d;
 }
 
-void iterator(const int iterations, GameState *G, HistogramTable *H, const evaluatorTables *T)
+
+static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
+{
+    __m128i a;
+    __m128i *arr = (__m128i*)d->card_array;
+    
+    for(int i = 0; i < d->number_of_shuffled_cards; i++)
+    {
+        uint32_t rnd_index = (((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i;
+        a = arr[i];
+        arr[i] = arr[rnd_index];
+        arr[rnd_index] = a;
+    }
+
+}
+
+static inline uint64_t generate_community_cards(uint8_t cards[DECK_SIZE][CONCURRENT_DECKS], int sim_no)
+{
+    return (1ull << cards[0][sim_no])|
+           (1ull << cards[1][sim_no])|
+           (1ull << cards[2][sim_no])|
+           (1ull << cards[3][sim_no])|
+           (1ull << cards[4][sim_no]);
+}
+
+void iterator(int iterations, GameState *G, HistogramTable *H, const evaluatorTables *T)
 {
     // Build lightweight copy
     uint16_t local_playable_hands[0x3400] = {0};
@@ -71,41 +94,43 @@ void iterator(const int iterations, GameState *G, HistogramTable *H, const evalu
         }
         sim.players[i].index = G->players[i].index;
     }
-    cardDeck d = create_card_deck(G->no_players);
-    
     // create and seed rng
     uint64_t s[2];
     seed(s);
-
+    cardDeck d = create_card_deck(G->no_players, s);
     // loop variables
-    uint8_t active_count, last_active;
+    uint8_t active_count, last_active, card_1, card_2;
+    uint8_t (*cards)[CONCURRENT_DECKS];
+    iterations /= CONCURRENT_DECKS;
 
 
     for(int iteration = 0; iteration < iterations; iteration++)
     {
         shuffle_deck(&d, s);
-        active_count = 0;
-        last_active = 0;
-        sim.community_cards = generate_community_cards(&d);
-        uint16_t *player_draw_cards = (uint16_t*)(d.card_array + 5);
-        for(int i = 0; i < sim.no_players; i++)
+        cards = (uint8_t(*)[CONCURRENT_DECKS])d.card_array;
+        for(int sim_no = 0; sim_no < CONCURRENT_DECKS; sim_no++)
         {
-            PlayerSim *p = &sim.players[i];
-            assert(player_draw_cards[i] < 0x3400);
-            p->folded = !(local_playable_hands[player_draw_cards[i]] & (1 << i));
-            if (!p->folded)
+            active_count = 0;
+            last_active = 0;
+            sim.community_cards = generate_community_cards(cards, sim_no);
+            for(int i = 0; i < sim.no_players; i++)
             {
-                p->hole_cards = (1ull << d.card_array[5 + 2 * i])|(1ull << d.card_array[6 + 2 * i]);
-                active_count++;
-                last_active = i;
+                PlayerSim *p = &sim.players[i];
+                card_1 = cards[2 * i + 5][sim_no];
+                card_2 = cards[2 * i + 6][sim_no];
+                uint16_t playable_index = ((uint16_t)card_1 << 8)|(card_2);
+                p->folded = !(local_playable_hands[playable_index] & (1 << i));
+                if (!p->folded)
+                {
+                    p->hole_cards = (1ull << card_1)|(1ull << card_2);
+                    active_count++;
+                    last_active = i;
+                }
             }
+            sim.last_active = last_active;
+            sim.active_count = active_count;
+            uint64_t evaluation = evaluateRound(&sim, T);
+            iterateHistogram(H, evaluation);
         }
-        sim.last_active = last_active;
-        sim.active_count = active_count;
-        uint64_t evaluation = evaluateRound(&sim, T);
-        iterateHistogram(H, evaluation);
     }
 }
-
-
-

@@ -1,0 +1,105 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Fri 30 Jan 2026 17:00:29 NZDT
+Binary:      bin/test_ev_calculator
+Arguments:   
+Git Commit:  751821651ad7455e4a099ea1870385b58c2920ba
+Git Short:   7518216
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+imported 1326 elements from DataFiles/52C2.dat
+imported 13312 elements from DataFiles/holeCardHandRanks.dat
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Imported Hands
+Wall time: 2527.43 ms
+Hands per second 39565805
+Simulations:100000000
+Simulations per thread:12500000
+Threads: 8
+Clocks Per Second:1000000
+Hash Table Size:128 kB
+Direct Lookup Table Size:1024 kB
+
+ Performance counter stats for 'bin/test_ev_calculator':
+
+          8,326.93 msec task-clock                #    3.288 CPUs utilized          
+             2,150      context-switches          #  258.198 /sec                   
+                29      cpu-migrations            #    3.483 /sec                   
+             2,266      page-faults               #  272.129 /sec                   
+    28,231,754,634      cycles                    #    3.390 GHz                    
+     6,600,187,570      stalled-cycles-frontend   #   23.38% frontend cycles idle   
+     3,070,495,737      stalled-cycles-backend    #   10.88% backend cycles idle    
+    65,111,481,472      instructions              #    2.31  insn per cycle         
+                                                  #    0.10  stalled cycles per insn
+     5,096,471,237      branches                  #  612.047 M/sec                  
+       134,552,800      branch-misses             #    2.64% of all branches        
+     9,697,638,717      L1-dcache-loads           #    1.165 G/sec                  
+       185,110,026      L1-dcache-load-misses     #    1.91% of all L1-dcache accesses
+        42,678,235      LLC-loads                 #    5.125 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       2.532888718 seconds time elapsed
+
+       8.311792000 seconds user
+       0.020038000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 35K of event 'cycles'
+# Event count (approx.): 29089030908
+#
+# Overhead  Command          Shared Object         Symbol                                
+# ........  ...............  ....................  ......................................
+#
+    72.51%  test_ev_calcula  test_ev_calculator    [.] iterator
+            |          
+             --71.78%--iterator
+                       iterator_thread
+
+    11.89%  test_ev_calcula  test_ev_calculator    [.] evaluateRound
+            |          
+             --11.52%--evaluateRound
+                       |          
+                        --3.58%--iterator_thread
+
+     8.54%  test_ev_calcula  test_ev_calculator    [.] evaluateHand
+            |          
+             --8.29%--evaluateHand
+
+     6.72%  test_ev_calcula  test_ev_calculator    [.] iterateHistogram
+            |          
+             --6.30%--iterateHistogram
+
+     0.03%  test_ev_calcula  [kernel.kallsyms]     [k] psi_group_change
+     0.02%  test_ev_calcula  [kernel.kallsyms]     [k] __irqentry_text_end
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] update_load_avg
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] native_apic_msr_eoi_write
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] perf_event_task_tick
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] _raw_spin_lock_irqsave
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] native_write_msr
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] update_min_vruntime
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] __update_load_avg_cfs_rq
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] clear_page_rep
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] smp_call_function_many_cond
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] __update_load_avg_se
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] irq_work_run_list
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] cpufreq_this_cpu_can_update
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] account_user_time
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] __common_interrupt
+     0.01%  test_ev_calcula  test_ev_calculator    [.] import_primes_dict
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] copy_process
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] error_entry
+     0.00%  test_ev_calcula  [kernel.kallsyms]     [k] tick_program_event
