@@ -1,0 +1,113 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Fri 30 Jan 2026 16:20:28 NZDT
+Binary:      bin/test_ev_calculator
+Arguments:   
+Git Commit:  cc59402eaa76f8da037f06441d2ad89524e8535d
+Git Short:   cc59402
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+imported 1326 elements from DataFiles/52C2.dat
+imported 13312 elements from DataFiles/holeCardHandRanks.dat
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Imported Hands
+Resized Histogram to 65536 elements (0.062500 MB)
+Resized Histogram to 65536 elements (0.062500 MB)
+Resized Histogram to 65536 elements (0.062500 MB)
+Resized Histogram to 65536 elements (0.062500 MB)
+Resized Histogram to 65536 elements (0.062500 MB)
+Resized Histogram to 65536 elements (0.062500 MB)
+Resized Histogram to 65536 elements (0.062500 MB)
+Resized Histogram to 65536 elements (0.062500 MB)
+Wall time: 5476.93 ms
+Hands per second 18258397
+Simulations:100000000
+Simulations per thread:12500000
+Threads: 8
+Clocks Per Second:1000000
+Hash Table Size:128 kB
+Direct Lookup Table Size:1024 kB
+
+ Performance counter stats for 'bin/test_ev_calculator':
+
+         19,517.68 msec task-clock                #    3.559 CPUs utilized          
+             4,574      context-switches          #  234.352 /sec                   
+                36      cpu-migrations            #    1.844 /sec                   
+             5,174      page-faults               #  265.093 /sec                   
+    66,188,026,407      cycles                    #    3.391 GHz                    
+    19,779,815,282      stalled-cycles-frontend   #   29.88% frontend cycles idle   
+    11,801,427,026      stalled-cycles-backend    #   17.83% backend cycles idle    
+   104,226,282,660      instructions              #    1.57  insn per cycle         
+                                                  #    0.19  stalled cycles per insn
+    11,553,289,380      branches                  #  591.940 M/sec                  
+       726,085,303      branch-misses             #    6.28% of all branches        
+    20,030,311,285      L1-dcache-loads           #    1.026 G/sec                  
+     1,425,894,949      L1-dcache-load-misses     #    7.12% of all L1-dcache accesses
+       429,341,361      LLC-loads                 #   21.998 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       5.483558565 seconds time elapsed
+
+      19.475421000 seconds user
+       0.051881000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 83K of event 'cycles'
+# Event count (approx.): 68831878437
+#
+# Overhead  Command          Shared Object         Symbol                                     
+# ........  ...............  ....................  ...........................................
+#
+    35.65%  test_ev_calcula  test_ev_calculator    [.] iterator
+            |          
+             --35.41%--iterator
+                       |          
+                       |--0.80%--0x247a
+                       |          
+                       |--0.73%--0x2470
+                       |          
+                       |--0.66%--0x246e
+                       |          
+                       |--0.63%--0x2484
+                       |          
+                       |--0.58%--0x2475
+                       |          
+                       |--0.57%--0x2471
+                       |          
+                       |--0.54%--0x2473
+                       |          
+                        --0.53%--0x2486
+
+    27.40%  test_ev_calcula  test_ev_calculator    [.] evaluateHand
+            |          
+            |--26.40%--evaluateHand
+            |          
+             --1.00%--evaluateRound
+
+    24.54%  test_ev_calcula  test_ev_calculator    [.] evaluateRound
+            |          
+             --24.14%--evaluateRound
+
+    11.96%  test_ev_calcula  test_ev_calculator    [.] iterateHistogram
+            |          
+             --11.66%--iterateHistogram
+
+     0.03%  test_ev_calcula  [kernel.kallsyms]     [k] __irqentry_text_end
+     0.03%  test_ev_calcula  [kernel.kallsyms]     [k] psi_group_change
+     0.02%  test_ev_calcula  test_ev_calculator    [.] resize_hash_table
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] __update_load_avg_cfs_rq
+     0.01%  test_ev_calcula  [kernel.kallsyms]     [k] update_load_avg
