@@ -1,0 +1,108 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Fri 30 Jan 2026 15:17:54 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  b31cd7062106e5674165cb611065d2c45e4b5568
+Git Short:   b31cd70
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 954.555000ms
+M Hands per second: 140.154
+Hash Table Size:256kB
+Direct Lookup Size:1024kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            956.03 msec task-clock                #    0.999 CPUs utilized          
+                 7      context-switches          #    7.322 /sec                   
+                 0      cpu-migrations            #    0.000 /sec                   
+               509      page-faults               #  532.410 /sec                   
+     3,431,279,267      cycles                    #    3.589 GHz                    
+     1,196,497,061      stalled-cycles-frontend   #   34.87% frontend cycles idle   
+       377,019,314      stalled-cycles-backend    #   10.99% backend cycles idle    
+     5,918,147,981      instructions              #    1.72  insn per cycle         
+                                                  #    0.20  stalled cycles per insn
+       708,840,672      branches                  #  741.441 M/sec                  
+        24,278,805      branch-misses             #    3.43% of all branches        
+     1,640,084,480      L1-dcache-loads           #    1.716 G/sec                  
+        94,968,915      L1-dcache-load-misses     #    5.79% of all L1-dcache accesses
+         7,444,266      LLC-loads                 #    7.787 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       0.956786290 seconds time elapsed
+
+       0.956641000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 4K of event 'cycles'
+# Event count (approx.): 3667814245
+#
+# Overhead  Command         Shared Object         Symbol                          
+# ........  ..............  ....................  ................................
+#
+    65.45%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--60.85%--evaluateHand
+            |          main
+            |          0x5558045fd8f0
+            |          0
+            |          
+             --4.60%--test_evaluator
+                       main
+                       0x5558045fd8f0
+                       0
+
+    34.36%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--31.50%--test_evaluator
+            |          main
+            |          0x5558045fd8f0
+            |          0
+            |          
+             --2.86%--evaluateHand
+                       main
+                       0x5558045fd8f0
+                       0
+
+     0.05%  test_evaluator  libc.so.6             [.] __memset_sse2_unaligned_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] tty_write_room
+     0.03%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] update_curr
+     0.02%  test_evaluator  ld-linux-x86-64.so.2  [.] strlen
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] _raw_spin_lock_irqsave
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] vma_link
+     0.00%  test_evaluator  [kernel.kallsyms]     [k] commit_creds
+     0.00%  perf-exec       [kernel.kallsyms]     [k] perf_lock_task_context
+     0.00%  perf-exec       [kernel.kallsyms]     [k] native_sched_clock
+     0.00%  perf-exec       [kernel.kallsyms]     [k] native_write_msr
+
+
+#
+# (Cannot load tips.txt file, please install perf!)

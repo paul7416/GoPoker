@@ -87,7 +87,7 @@ void iterator(const int iterations, GameState *G, HistogramTable *H, const evalu
             }
             used |= card_2_mask;
             p->hole_cards = card_1_mask|card_2_mask;
-            p->folded = !(local_playable_hands[card_1_index << 6 | card_2_index] & (1 << i));
+            p->folded = !(local_playable_hands[card_1_index << 8 | card_2_index] & (1 << i));
             active_count += !p->folded;
             last_active = i * (!p->folded) +(last_active * p->folded);
         }
