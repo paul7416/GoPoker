@@ -56,7 +56,7 @@ cardDeck create_card_deck(int no_players, uint64_t s[2])
 }
 
 
-static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
+__attribute__((noinline)) void shuffle_deck(cardDeck *d, uint64_t s[2])
 {
     __m128i a;
     __m128i *arr = (__m128i*)d->card_array;
@@ -102,6 +102,7 @@ void iterator(int iterations, GameState *G, HistogramTable *H, const evaluatorTa
     uint8_t active_count, last_active, card_1, card_2;
     uint8_t (*cards)[CONCURRENT_DECKS];
     iterations /= CONCURRENT_DECKS;
+    uint64_t evaluation;
 
 
     for(int iteration = 0; iteration < iterations; iteration++)
@@ -116,20 +117,27 @@ void iterator(int iterations, GameState *G, HistogramTable *H, const evaluatorTa
             for(int i = 0; i < sim.no_players; i++)
             {
                 PlayerSim *p = &sim.players[i];
-                card_1 = cards[2 * i + 5][sim_no];
-                card_2 = cards[2 * i + 6][sim_no];
+                card_1 = cards[(i << 1) + 5][sim_no];
+                card_2 = cards[(i << 1) + 6][sim_no];
                 uint16_t playable_index = ((uint16_t)card_1 << 8)|(card_2);
                 p->folded = !(local_playable_hands[playable_index] & (1 << i));
+
                 if (!p->folded)
                 {
-                    p->hole_cards = (1ull << card_1)|(1ull << card_2);
+                    uint16_t *ptr = (uint16_t*)&p->hole_cards;
+                    *ptr = playable_index;
                     active_count++;
                     last_active = i;
                 }
             }
-            sim.last_active = last_active;
-            sim.active_count = active_count;
-            uint64_t evaluation = evaluateRound(&sim, T);
+            if(active_count <= 1)
+            {
+                evaluation = last_active;
+            }
+            else
+            {
+                evaluation = evaluateRound(&sim, T);
+            }
             iterateHistogram(H, evaluation);
         }
     }

@@ -26,7 +26,7 @@ void* iterator_thread(void *arg) {
 
 int main(void)
 {
-    uint16_t range_extent[6] = {85, 25, 23, 18, 66, 24};
+    uint16_t range_extent[6] = {25, 25, 23, 28, 26, 24};
     double stacks[6] = {500, 600, 350, 2000, 1000, 900};
 
     //HistogramTable *H = create_histogram_table(HISTOGRAM_START_SIZE);
@@ -77,6 +77,7 @@ int main(void)
     printf("Clocks Per Second:%ld\n",CLOCKS_PER_SEC);
     printf("Hash Table Size:%d kB\n",HASH_TABLE_SIZE * 8 / 1024);
     printf("Direct Lookup Table Size:%d kB\n",DIRECT_LOOKUP_SIZE * 2 / 1024);
+    printf("Size of PlayerSim:%ld bytes\n",sizeof(PlayerSim));
    // printf("Time: %0.3f ms\n",duration);
 
 

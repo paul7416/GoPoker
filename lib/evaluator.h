@@ -8,23 +8,18 @@
 #define HASH_TABLE_SIZE 0x4000
 #define DIRECT_LOOKUP_SIZE 0x80000
 #define ARRAY_SIZE 0x2000
-extern uint32_t probe_histogram[50];
 
 typedef struct {
-    uint64_t hole_cards;
-    bool *playableHands;  // pointer to full Range data
+    uint8_t hole_cards[2];
     uint8_t index;
     bool folded;
-    uint16_t padding1;
-    uint32_t padding2;
+    uint32_t padding;
 } PlayerSim;
 
 typedef struct {
     uint64_t community_cards;
     uint8_t no_players;
-    uint8_t active_count;
     PlayerSim players[MAX_PLAYERS];
-    uint8_t last_active;
 } GameStateSim;
 
 typedef struct{

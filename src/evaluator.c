@@ -7,6 +7,7 @@
 #include "table_import.h"
 #include "evaluator.h"
 #include <string.h>
+uint32_t evaluatehand_calls = 0;
 
 /*
  * Build hash table for prime->rank lookup.
@@ -140,12 +141,6 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
     return hashLookup(prime, hashTable, directLookup);
 }
 
-
-int cmp_playerResult(const void *a, const void *b) {
-    playerResult *x = (playerResult*)a;
-    playerResult *y = (playerResult*)b;
-    return (x->score > y->score) - (x->score < y->score);
-}
 int getTies(playerResult results[MAX_PLAYERS], int rank)
 {
     int count = 0;
@@ -180,19 +175,14 @@ int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS])
 }
 uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
 {
-    if(G->active_count == 0)
-    {
-        return 0; // manually encode for when they all fold
-    }
-    if(G->active_count == 1)
-    {
-        return (uint64_t)G->last_active;
-    }
     playerResult scores[MAX_PLAYERS];
     const uint64_t *hashTable = tables->hashTable;
     const uint32_t *Primes = tables->Primes;
     const uint16_t *Flushes = tables->Flushes;
     const uint16_t *directLookup = tables->directLookup;
+    uint64_t player_mask;
+    uint8_t *hole_cards;
+    uint64_t community_cards = G->community_cards;
 
     
     for(int i = 0; i < G->no_players; i++)
@@ -208,7 +198,9 @@ uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
         }
         else
         {
-            result.score = evaluateHand(G->players[i].hole_cards|G->community_cards, Flushes, Primes, hashTable, directLookup);
+            hole_cards = G->players[i].hole_cards;
+            player_mask = (1ull << hole_cards[0])| (1ull << hole_cards[1]);
+            result.score = evaluateHand(player_mask|community_cards, Flushes, Primes, hashTable, directLookup);
             result.folded = false;
         }
         

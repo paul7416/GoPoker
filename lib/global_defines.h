@@ -1,4 +1,4 @@
-#define MAX_PLAYERS 16
+#define MAX_PLAYERS 9
 #define NO_FLUSH_BIT (1ull<<53)
 #define GET_HEARTS_MASK(b)   ((b) & 0x1fff)
 #define GET_DIAMONDS_MASK(b) (((b) >> 13) & 0x1fff)
