@@ -1,0 +1,97 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 21:13:18 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 745.354000ms
+M Hands per second: 179.491
+Hash Table Size:128kB
+Direct Lookup Size:2048kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            749.43 msec task-clock                       #    0.999 CPUs utilized          
+                 1      context-switches                 #    1.334 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               732      page-faults                      #  976.748 /sec                   
+     2,390,709,143      cycles                           #    3.190 GHz                      (49.49%)
+     5,618,591,794      instructions                     #    2.35  insn per cycle           (62.30%)
+       652,446,403      branches                         #  870.595 M/sec                    (62.83%)
+        12,047,625      branch-misses                    #    1.85% of all branches          (63.18%)
+     1,637,772,655      L1-dcache-loads                  #    2.185 G/sec                    (63.18%)
+        94,482,720      L1-dcache-load-misses            #    5.77% of all L1-dcache accesses  (62.79%)
+        12,126,873      LLC-loads                        #   16.182 M/sec                    (49.44%)
+           214,346      LLC-load-misses                  #    1.77% of all LL-cache accesses  (49.10%)
+
+       0.750433382 seconds time elapsed
+
+       0.746506000 seconds user
+       0.004013000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2359840623
+#
+# Overhead  Command         Shared Object         Symbol                          
+# ........  ..............  ....................  ................................
+#
+    65.20%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--58.97%--evaluateHand
+            |          main
+            |          
+             --6.24%--test_evaluator
+                       main
+
+    34.56%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--33.37%--test_evaluator
+            |          main
+            |          
+             --1.19%--evaluateHand
+                       main
+
+     0.05%  test_evaluator  [kernel.kallsyms]     [k] sync_regs
+     0.05%  test_evaluator  [kernel.kallsyms]     [k] next_uptodate_page
+     0.03%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.03%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __list_del_entry_valid
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] try_charge_memcg
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] strncmp
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] apparmor_mmap_file
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] elf_map
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] update_active.constprop.0
+
+
+#
+# (Tip: To record callchains for each sample: perf record -g)
+#

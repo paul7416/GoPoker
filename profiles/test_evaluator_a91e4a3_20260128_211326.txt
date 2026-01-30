@@ -1,0 +1,98 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 21:13:26 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 700.898000ms
+M Hands per second: 190.876
+Hash Table Size:128kB
+Direct Lookup Size:2048kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            702.48 msec task-clock                       #    0.999 CPUs utilized          
+                 3      context-switches                 #    4.271 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               733      page-faults                      #    1.043 K/sec                  
+     2,377,696,491      cycles                           #    3.385 GHz                      (49.90%)
+     5,588,636,195      instructions                     #    2.35  insn per cycle           (62.43%)
+       642,461,775      branches                         #  914.561 M/sec                    (62.43%)
+        12,312,367      branch-misses                    #    1.92% of all branches          (62.43%)
+     1,630,241,919      L1-dcache-loads                  #    2.321 G/sec                    (62.55%)
+        94,198,971      L1-dcache-load-misses            #    5.78% of all L1-dcache accesses  (62.62%)
+        11,803,289      LLC-loads                        #   16.802 M/sec                    (50.10%)
+           239,624      LLC-load-misses                  #    2.03% of all LL-cache accesses  (49.97%)
+
+       0.703150230 seconds time elapsed
+
+       0.703190000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2486425949
+#
+# Overhead  Command         Shared Object         Symbol                          
+# ........  ..............  ....................  ................................
+#
+    66.46%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--60.36%--evaluateHand
+            |          main
+            |          
+             --6.09%--test_evaluator
+                       main
+
+    33.34%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--32.12%--test_evaluator
+            |          main
+            |          
+             --1.22%--evaluateHand
+                       main
+
+     0.03%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.03%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] sync_regs
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] __list_del_entry_valid
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] irqentry_exit
+     0.02%  test_evaluator  libc.so.6             [.] malloc
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] mas_ascend
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] __alloc_file
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] vma_interval_tree_remove
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] __GI___tunables_init
+
+
+#
+# (Tip: For hierarchical output, try: perf report --hierarchy)
+#

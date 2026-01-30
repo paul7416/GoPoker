@@ -1,0 +1,53 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 23:14:31 NZDT
+Binary:      bin/test_ev_calculator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 1326 elements from DataFiles/52C2.dat
+imported 4096 elements from DataFiles/holeCardHandRanks.dat
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Imported Hands
+Wall time: 2197.17 ms
+Hands per second 45513009
+Simulations:100000000
+Simulations per thread:12500000
+Threads: 8
+Clocks Per Second:1000000
+Hash Table Size:128 kB
+Direct Lookup Table Size:1024 kB
+
+ Performance counter stats for 'bin/test_ev_calculator':
+
+         15,766.09 msec task-clock                       #    7.169 CPUs utilized          
+             4,448      context-switches                 #  282.125 /sec                   
+                 3      cpu-migrations                   #    0.190 /sec                   
+             2,233      page-faults                      #  141.633 /sec                   
+    53,199,113,327      cycles                           #    3.374 GHz                      (49.87%)
+    65,763,394,441      instructions                     #    1.24  insn per cycle           (62.44%)
+     5,748,442,661      branches                         #  364.608 M/sec                    (62.48%)
+       602,065,552      branch-misses                    #   10.47% of all branches          (62.69%)
+     4,863,231,546      L1-dcache-loads                  #  308.462 M/sec                    (62.59%)
+       275,066,110      L1-dcache-load-misses            #    5.66% of all L1-dcache accesses  (62.86%)
+        61,375,300      LLC-loads                        #    3.893 M/sec                    (50.01%)
+           735,324      LLC-load-misses                  #    1.20% of all LL-cache accesses  (49.82%)
+
+       2.199197067 seconds time elapsed
+
+      15.718770000 seconds user
+       0.056009000 seconds sys
+
+
+
+=== perf report (top functions) ===
+failed to open perf_data/perf_20260128_231431.data: No such file or directory

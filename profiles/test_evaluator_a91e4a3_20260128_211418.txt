@@ -1,0 +1,98 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 21:14:18 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 624.575000ms
+M Hands per second: 214.201
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            631.68 msec task-clock                       #    0.998 CPUs utilized          
+                14      context-switches                 #   22.163 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               741      page-faults                      #    1.173 K/sec                  
+     2,018,597,544      cycles                           #    3.196 GHz                      (49.38%)
+     5,546,476,017      instructions                     #    2.75  insn per cycle           (62.03%)
+       637,116,603      branches                         #    1.009 G/sec                    (62.03%)
+         4,311,595      branch-misses                    #    0.68% of all branches          (62.48%)
+     1,619,754,383      L1-dcache-loads                  #    2.564 G/sec                    (63.11%)
+        92,122,774      L1-dcache-load-misses            #    5.69% of all L1-dcache accesses  (63.27%)
+        12,306,867      LLC-loads                        #   19.483 M/sec                    (50.18%)
+           501,220      LLC-load-misses                  #    4.07% of all LL-cache accesses  (49.54%)
+
+       0.633223981 seconds time elapsed
+
+       0.624897000 seconds user
+       0.008011000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 1999273371
+#
+# Overhead  Command         Shared Object         Symbol                          
+# ........  ..............  ....................  ................................
+#
+    64.56%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--57.91%--evaluateHand
+            |          main
+            |          
+             --6.65%--test_evaluator
+                       main
+
+    34.85%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--33.59%--test_evaluator
+            |          main
+            |          
+             --1.26%--evaluateHand
+                       main
+
+     0.24%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.12%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.07%  test_evaluator  [kernel.kallsyms]     [k] native_irq_return_iret
+     0.04%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] try_charge_memcg
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] __rcu_read_unlock
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] next_uptodate_page
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] bpf_lsm_vm_enough_memory
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] walk_component
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] mas_wr_modify
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] update_active.constprop.0
+
+
+#
+# (Tip: For tracepoint events, try: perf report -s trace_fields)
+#

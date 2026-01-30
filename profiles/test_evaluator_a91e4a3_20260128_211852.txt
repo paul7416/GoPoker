@@ -1,0 +1,98 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 21:18:52 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 592.906000ms
+M Hands per second: 225.642
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            596.61 msec task-clock                       #    0.999 CPUs utilized          
+                 4      context-switches                 #    6.705 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               739      page-faults                      #    1.239 K/sec                  
+     2,015,936,681      cycles                           #    3.379 GHz                      (49.06%)
+     5,560,286,123      instructions                     #    2.76  insn per cycle           (61.80%)
+       638,764,639      branches                         #    1.071 G/sec                    (62.19%)
+         4,312,972      branch-misses                    #    0.68% of all branches          (62.85%)
+     1,628,439,874      L1-dcache-loads                  #    2.729 G/sec                    (63.52%)
+        92,658,276      L1-dcache-load-misses            #    5.69% of all L1-dcache accesses  (63.28%)
+        12,065,453      LLC-loads                        #   20.223 M/sec                    (49.88%)
+           436,598      LLC-load-misses                  #    3.62% of all LL-cache accesses  (49.21%)
+
+       0.597342485 seconds time elapsed
+
+       0.597273000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2014942649
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    65.29%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--58.28%--evaluateHand
+            |          main
+            |          
+             --7.01%--test_evaluator
+                       main
+
+    34.06%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--33.02%--test_evaluator
+            |          main
+            |          
+             --1.04%--evaluateHand
+                       main
+
+     0.20%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.17%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.11%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] cpuacct_charge
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] native_irq_return_iret
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  test_evaluator        [.] _init
+     0.02%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_map_object_from_fd
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] __d_lookup_rcu
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] mas_walk
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_start
+
+
+#
+# (Tip: To set sample time separation other than 100ms with --sort time use --time-quantum)
+#

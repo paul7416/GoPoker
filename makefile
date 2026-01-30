@@ -15,7 +15,9 @@ CFLAGS += -isystem
 CFLAGS += /usr/include
 CFLAGS += -isystem
 CFLAGS += /usr/include/x86_64-linux-gnu
-LDFLAGS =
+CFLAGS += -funroll-loops
+CFLAGS += -fpeel-loops
+LDFLAGS = -flto
 
 # Object files
 EVALUATOR_O = $(OBJ_DIR)/evaluator.o

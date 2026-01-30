@@ -1,0 +1,97 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 21:05:55 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 750.353000ms
+M Hands per second: 178.295
+Hash Table Size:128kB
+Direct Lookup Size:2048kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            752.07 msec task-clock                       #    0.999 CPUs utilized          
+                 1      context-switches                 #    1.330 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               732      page-faults                      #  973.319 /sec                   
+     2,522,193,943      cycles                           #    3.354 GHz                      (49.36%)
+     5,706,691,925      instructions                     #    2.26  insn per cycle           (62.13%)
+       700,109,522      branches                         #  930.915 M/sec                    (62.66%)
+        15,947,504      branch-misses                    #    2.28% of all branches          (63.19%)
+     1,638,831,929      L1-dcache-loads                  #    2.179 G/sec                    (63.30%)
+        93,712,633      L1-dcache-load-misses            #    5.72% of all L1-dcache accesses  (62.87%)
+        11,626,416      LLC-loads                        #   15.459 M/sec                    (49.58%)
+           439,545      LLC-load-misses                  #    3.78% of all LL-cache accesses  (49.05%)
+
+       0.752614062 seconds time elapsed
+
+       0.752711000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cycles'
+# Event count (approx.): 2564714374
+#
+# Overhead  Command         Shared Object      Symbol                            
+# ........  ..............  .................  ..................................
+#
+    66.68%  test_evaluator  test_evaluator     [.] evaluateHand
+            |          
+            |--60.94%--evaluateHand
+            |          main
+            |          
+             --5.74%--test_evaluator
+                       main
+
+    33.08%  test_evaluator  test_evaluator     [.] test_evaluator
+            |          
+            |--30.56%--test_evaluator
+            |          main
+            |          
+             --2.53%--evaluateHand
+                       main
+
+     0.05%  test_evaluator  libc.so.6          [.] __memset_avx2_unaligned_erms
+     0.03%  test_evaluator  libc.so.6          [.] __GI___libc_cleanup_push_defer
+     0.03%  test_evaluator  test_evaluator     [.] import_primes_dict
+     0.03%  test_evaluator  [kernel.kallsyms]  [k] __list_del_entry_valid
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] asm_exc_page_fault
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] exit_to_user_mode_prepare
+     0.02%  test_evaluator  [kernel.kallsyms]  [k] next_uptodate_page
+     0.01%  test_evaluator  [kernel.kallsyms]  [k] security_cred_free
+     0.00%  test_evaluator  [kernel.kallsyms]  [k] vma_interval_tree_insert
+
+
+#
+# (Tip: Use --symfs <dir> if your symbol files are in non-standard locations)
+#

@@ -49,12 +49,12 @@ echo "Running perf stat..."
 
 # Run perf record + report
 echo "Running perf record..."
-perf record -g -o perf_${TIMESTAMP}.data "$BINARY" $ARGS 2>/dev/null
+perf record -g -o perf_outputs/perf_${TIMESTAMP}.data "$BINARY" $ARGS 2>/dev/null
 
 {
     echo "=== perf report (top functions) ==="
-    perf report -i perf_${TIMESTAMP}.data --stdio --no-children 2>&1 | head -50
+    perf report -i perf_outputs/perf_${TIMESTAMP}.data --stdio --no-children 2>&1 | head -50
 } >> "$OUTPUT_FILE"
 
 echo "Done! Output written to: $OUTPUT_FILE"
-echo "Raw perf data: perf_${TIMESTAMP}.data"
+echo "Raw perf data: perf_outputs/perf_${TIMESTAMP}.data"

@@ -39,21 +39,26 @@ static inline uint64_t generate_community_cards(uint64_t *s)
     return cards;
 }
 
-void iterator(const int iterations, const uint64_t *_52C2, GameState *G, HistogramTable *H, const evaluatorTables *T)
+void iterator(const int iterations, GameState *G, HistogramTable *H, const evaluatorTables *T)
 {
     // Build lightweight copy
+    uint16_t local_playable_hands[0x1000] = {0};
     GameStateSim sim;
     sim.no_players = G->no_players;
     for (int i = 0; i < sim.no_players; i++)
     {
-        sim.players[i].playableHands = G->players[i].range.playableHands;
+        for(int j = 0; j < 0x1000; j++)
+        {
+            local_playable_hands[j] |= (G->players[i].range.playableHands[j] << i);
+        }
         sim.players[i].index = G->players[i].index;
     }
     
     uint64_t s[2];
     seed(s);
-    uint64_t hole_cards, used, index;
+    uint64_t card_1_mask, card_2_mask, used;
     uint8_t active_count, last_active;
+    uint16_t card_1_index, card_2_index;
 
     for(int iteration = 0; iteration < iterations; iteration++)
     {
@@ -64,19 +69,27 @@ void iterator(const int iterations, const uint64_t *_52C2, GameState *G, Histogr
         for(int i = 0; i < sim.no_players; i++)
         {
             PlayerSim *p = &sim.players[i];
-            index = ((uint64_t)((uint32_t)xorshift128plus(s)) * 1326) >> 32;
-            hole_cards = _52C2[index];
-            while((hole_cards & used))
+
+            while(1)
             {
                 // Lemire's fast range mapping (biased, but negligible for Monte Carlo)
-                index = ((uint64_t)((uint32_t)xorshift128plus(s)) * 1326) >> 32;
-                hole_cards = _52C2[index];
+                card_1_index = ((uint64_t)((uint32_t)xorshift128plus(s)) * 52) >> 32;
+                card_1_mask = 1ull << card_1_index;
+                if(!(card_1_mask&used))break;
             }
-            p->hole_cards = hole_cards;
-            p->folded = !p->playableHands[index];
+            used |= card_1_mask;
+            // After getting card_1_index, before second card loop:
+            while(1)
+            {
+                card_2_index = ((uint64_t)((uint32_t)xorshift128plus(s)) * 52) >> 32;
+                card_2_mask = 1ull << card_2_index;
+                if(!(card_2_mask & used))break;
+            }
+            used |= card_2_mask;
+            p->hole_cards = card_1_mask|card_2_mask;
+            p->folded = !(local_playable_hands[card_1_index << 6 | card_2_index] & (1 << i));
             active_count += !p->folded;
             last_active = i * (!p->folded) +(last_active * p->folded);
-            used |= hole_cards;
         }
         sim.last_active = last_active;
         sim.active_count = active_count;

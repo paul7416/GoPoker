@@ -6,7 +6,7 @@
 #include "player.h"
 
 #define HASH_TABLE_SIZE 0x4000
-#define DIRECT_LOOKUP_SIZE 0x100000
+#define DIRECT_LOOKUP_SIZE 0x80000
 #define ARRAY_SIZE 0x2000
 extern uint32_t probe_histogram[50];
 

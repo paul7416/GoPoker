@@ -1,0 +1,100 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 21:18:43 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 587.928000ms
+M Hands per second: 227.553
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            591.84 msec task-clock                       #    0.999 CPUs utilized          
+                 0      context-switches                 #    0.000 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               739      page-faults                      #    1.249 K/sec                  
+     1,996,500,391      cycles                           #    3.373 GHz                      (49.20%)
+     5,559,350,720      instructions                     #    2.78  insn per cycle           (62.04%)
+       637,491,286      branches                         #    1.077 G/sec                    (62.71%)
+         4,340,444      branch-misses                    #    0.68% of all branches          (63.39%)
+     1,627,608,733      L1-dcache-loads                  #    2.750 G/sec                    (63.51%)
+        91,730,968      L1-dcache-load-misses            #    5.64% of all L1-dcache accesses  (62.96%)
+        12,268,929      LLC-loads                        #   20.730 M/sec                    (49.45%)
+           444,242      LLC-load-misses                  #    3.62% of all LL-cache accesses  (48.77%)
+
+       0.592611220 seconds time elapsed
+
+       0.592651000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2030906497
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    64.27%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--57.48%--evaluateHand
+            |          main
+            |          
+             --6.79%--test_evaluator
+                       main
+
+    34.99%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--33.74%--test_evaluator
+            |          main
+            |          
+             --1.24%--evaluateHand
+                       main
+
+     0.21%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.15%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.14%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] next_uptodate_page
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] page_add_file_rmap
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] check_new_pages
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] sync_regs
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] down_read_trylock
+     0.02%  test_evaluator  libc.so.6             [.] __default_morecore@GLIBC_2.2.5
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] mtree_range_walk
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] tomoyo_check_open_permission
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] perf_event_mmap_output
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] get_common_indices.constprop.0
+
+
+#
+# (Tip: Use parent filter to see specific call path: perf report -p <regex>)
+#

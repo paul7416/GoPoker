@@ -5,7 +5,7 @@
 void set_range_extent(Player *p, int16_t range_extent)
 {
     p->range.range_extent = range_extent;
-    for(int i = 0; i < 1326; i++)
+    for(int i = 0; i < 0x1000; i++)
     {
         p->range.playableHands[i] = (p->range.handRanks[i] <= range_extent);
     }
@@ -27,7 +27,7 @@ void increment_range_extent(Player *p, int16_t delta)
 
 bool get_hand_mask(Player *p, uint16_t hand_index)
 {
-    assert(hand_index < 1326);
+    assert(hand_index < 0x1000);
     return p->range.playableHands[hand_index];
 }
 
@@ -43,7 +43,7 @@ GameState *create_game_state(int no_players, uint16_t *initial_range_extent, dou
         G->players[i].range.bitMasks = G->bitMasks;
         G->players[i].range.handRanks = G->handRanks;
         G->players[i].stack = stacks[i];
-        G->players[i].range.playableHands = calloc(1326, sizeof(bool));
+        G->players[i].range.playableHands = calloc(0x1000, sizeof(bool));
         G->players[i].index = i + 1;
         set_range_extent(&G->players[i], initial_range_extent[i]);
     }

@@ -1,0 +1,98 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Wed 28 Jan 2026 21:18:15 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  a91e4a3e127f361283e2b89c8bbf4e5262d406b7
+Git Short:   a91e4a3
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 692.682000ms
+M Hands per second: 193.140
+Hash Table Size:128kB
+Direct Lookup Size:16384kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            707.71 msec task-clock                       #    0.998 CPUs utilized          
+                 2      context-switches                 #    2.826 /sec                   
+                 1      cpu-migrations                   #    1.413 /sec                   
+               739      page-faults                      #    1.044 K/sec                  
+     2,302,154,998      cycles                           #    3.253 GHz                      (50.05%)
+     5,580,556,264      instructions                     #    2.42  insn per cycle           (62.70%)
+       637,588,229      branches                         #  900.914 M/sec                    (62.71%)
+         4,339,413      branch-misses                    #    0.68% of all branches          (62.70%)
+     1,620,231,142      L1-dcache-loads                  #    2.289 G/sec                    (62.70%)
+        92,357,474      L1-dcache-load-misses            #    5.70% of all L1-dcache accesses  (62.38%)
+        12,089,462      LLC-loads                        #   17.082 M/sec                    (49.73%)
+           517,600      LLC-load-misses                  #    4.28% of all LL-cache accesses  (49.73%)
+
+       0.709063454 seconds time elapsed
+
+       0.705023000 seconds user
+       0.004005000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles'
+# Event count (approx.): 2308516060
+#
+# Overhead  Command         Shared Object         Symbol                            
+# ........  ..............  ....................  ..................................
+#
+    63.13%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--57.37%--evaluateHand
+            |          main
+            |          
+             --5.76%--test_evaluator
+                       main
+
+    36.34%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--35.10%--test_evaluator
+            |          main
+            |          
+             --1.24%--evaluateHand
+                       main
+
+     0.22%  test_evaluator  [kernel.kallsyms]     [k] clear_page_erms
+     0.10%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.05%  test_evaluator  libc.so.6             [.] __memset_avx2_unaligned_erms
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] load_balance
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] try_charge_memcg
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] copy_user_enhanced_fast_string
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] next_uptodate_page
+     0.02%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_check_map_versions
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] security_inode_getattr
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] vm_area_alloc
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] init_cpu_features.constprop.0
+
+
+#
+# (Tip: Show individual samples with: perf script)
+#

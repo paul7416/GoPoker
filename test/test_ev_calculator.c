@@ -13,7 +13,6 @@
 typedef struct {
     int thread_id;
     uint32_t iterations;
-    const uint64_t *_52C2;
     GameState *G;
     HistogramTable *H_thread;
     const evaluatorTables *T;
@@ -21,7 +20,7 @@ typedef struct {
 
 void* iterator_thread(void *arg) {
     ThreadArgs *a = (ThreadArgs*)arg;
-    iterator(a->iterations, a->_52C2, a->G, a->H_thread, a->T);
+    iterator(a->iterations, a->G, a->H_thread, a->T);
     return NULL;
 }
 
@@ -34,8 +33,6 @@ int main(void)
     GameState *G = create_game_state(6, range_extent, stacks);
     const evaluatorTables *T = import_evaluator_tables();
 
-    uint32_t i;
-    const uint64_t *_52C2 = import_dat_file("DataFiles/52C2.dat", &i, sizeof(uint64_t));
 
     printf("Imported Hands\n");
 
@@ -52,7 +49,6 @@ int main(void)
         H_threads[t] = create_histogram_table(HISTOGRAM_START_SIZE);
         args[t].thread_id = t;
         args[t].iterations = iterations_per_thread;
-        args[t]._52C2 = _52C2;
         args[t].G = G;
         args[t].H_thread = H_threads[t];
         args[t].T = T;
@@ -79,13 +75,12 @@ int main(void)
     printf("Simulations per thread:%d\n",iterations_per_thread);
     printf("Threads: %d\n",n_threads);
     printf("Clocks Per Second:%ld\n",CLOCKS_PER_SEC);
-    printf("Hash Table Size:%d\n",HASH_TABLE_SIZE);
-    printf("Direct Lookup Table Size:%d\n",DIRECT_LOOKUP_SIZE);
+    printf("Hash Table Size:%d kB\n",HASH_TABLE_SIZE * 8 / 1024);
+    printf("Direct Lookup Table Size:%d kB\n",DIRECT_LOOKUP_SIZE * 2 / 1024);
    // printf("Time: %0.3f ms\n",duration);
 
 
     free_evaluator_tables(T);
-    free((void*)_52C2);
 
     return 0;
 }
