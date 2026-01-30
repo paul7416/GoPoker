@@ -43,7 +43,7 @@ GameState *create_game_state(int no_players, uint16_t *initial_range_extent, dou
         G->players[i].range.bitMasks = G->bitMasks;
         G->players[i].range.handRanks = G->handRanks;
         G->players[i].stack = stacks[i];
-        G->players[i].range.playableHands = calloc(0x1000, sizeof(bool));
+        G->players[i].range.playableHands = calloc(0x4000, sizeof(bool));
         G->players[i].index = i + 1;
         set_range_extent(&G->players[i], initial_range_extent[i]);
     }

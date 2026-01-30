@@ -37,7 +37,10 @@ hands = [
         "73o", "T2o", "62o", "94o", "93o",
         "92o", "83o", "82o", "72o"
         ]
-
+def get_16_bit_hand_no(card):
+    suit = card // 13
+    rank = card % 13
+    return suit * 16 + rank
 def add_frequency(hand, frequencies):
     if hand not in frequencies:
         frequencies[hand] = 1
@@ -46,7 +49,7 @@ def add_frequency(hand, frequencies):
 
 ranks = "23456789TJQKA"
 frequencies = {}
-output_list = [255] * 0x3400
+output_list = [255] * 0x4000
 for i in range(52):
     for j in range(i+1, 52):
         hand_ranks = sorted([i%13, j%13], reverse=True)
@@ -58,8 +61,8 @@ for i in range(52):
             modifier = "o"
         card_string = f"{ranks[hand_ranks[0]]}{ranks[hand_ranks[1]]}{modifier}"
         hand_score = hands.index(card_string)
-        output_list[i<<8|j] = hand_score
-        output_list[j<<8|i] = hand_score
+        output_list[get_16_bit_hand_no(i)<<8|get_16_bit_hand_no(j)] = hand_score
+        output_list[get_16_bit_hand_no(j)<<8|get_16_bit_hand_no(i)] = hand_score
         add_frequency(card_string, frequencies)
 pairs = sorted([(key, value) for key, value in frequencies.items()],key = lambda x: x[0])
 for p in pairs:

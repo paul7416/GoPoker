@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <sys/random.h>
 #include <assert.h>
-//#include "debug.h"
+#include "debug.h"
 
 // Xorshift128+ generator
 static inline uint64_t xorshift128plus(uint64_t s[2]) {
@@ -43,7 +43,10 @@ cardDeck create_card_deck(int no_players, uint64_t s[2])
     {
         for(int i = 0; i < DECK_SIZE; i++)
         {
-            decks[i][deck_number] = i;
+            int suit = i / 13;
+            int rank = i % 13;
+            int card_int = 16 * suit + rank;
+            decks[i][deck_number] = card_int;
         }
         shuffle_single_deck(decks, deck_number, s);
     }
@@ -83,12 +86,12 @@ static inline uint64_t generate_community_cards(uint8_t cards[DECK_SIZE][CONCURR
 void iterator(int iterations, GameState *G, HistogramTable *H, const evaluatorTables *T)
 {
     // Build lightweight copy
-    uint16_t local_playable_hands[0x3400] = {0};
+    uint16_t local_playable_hands[0x4000] = {0};
     GameStateSim sim;
     sim.no_players = G->no_players;
     for (int i = 0; i < sim.no_players; i++)
     {
-        for(int j = 0; j < 0x3400; j++)
+        for(int j = 0; j < 0x4000; j++)
         {
             local_playable_hands[j] |= (G->players[i].range.playableHands[j] << i);
         }
@@ -114,6 +117,7 @@ void iterator(int iterations, GameState *G, HistogramTable *H, const evaluatorTa
             active_count = 0;
             last_active = 0;
             sim.community_cards = generate_community_cards(cards, sim_no);
+
             for(int i = 0; i < sim.no_players; i++)
             {
                 PlayerSim *p = &sim.players[i];

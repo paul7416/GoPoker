@@ -123,10 +123,11 @@ static inline uint16_t hashLookup(uint32_t prime, const uint64_t *hash_table, co
 uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint64_t *hashTable, const uint16_t *directLookup)
 {
     /* Extract 13-bit suit masks --- definitions in global_defines.h*/
-    uint16_t heartsMask   = GET_HEARTS_MASK(bitMask);
-    uint16_t diamondsMask = GET_DIAMONDS_MASK(bitMask);
-    uint16_t clubsMask    = GET_CLUBS_MASK(bitMask);
-    uint16_t spadesMask   = GET_SPADES_MASK(bitMask);
+    uint16_t *suitMasks = (uint16_t*)(&bitMask);
+    uint16_t heartsMask   = suitMasks[0];
+    uint16_t diamondsMask = suitMasks[1];
+    uint16_t clubsMask    = suitMasks[2];
+    uint16_t spadesMask   = suitMasks[3];
     
     /* Check for flush - at most one suit can have a valid flush */
     uint16_t flushScore = 

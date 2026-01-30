@@ -4,6 +4,13 @@
 #include "evaluator.h"
 #include "global_defines.h"
 
+static inline int get_card_no(int i)
+{
+    int suit = i / 13;
+    int rank = i % 13;
+    return (suit << 4 | rank);
+
+}
 void test_evaluator(const evaluatorTables *tables)
 {
     const uint16_t *Flushes = tables->Flushes;
@@ -13,14 +20,21 @@ void test_evaluator(const evaluatorTables *tables)
     uint32_t histogram[9] = {0};
     clock_t start = clock();
     for(int a=0; a < 52; a++){
+        int ai = get_card_no(a);
         for(int b=a+1; b < 52; b++){
+            int bi = get_card_no(b);
             for(int c=b+1; c < 52; c++){
+                int ci = get_card_no(c);
                 for(int d=c+1; d < 52; d++){
+                    int di = get_card_no(d);
                     for(int e=d+1; e < 52; e++){
+                        int ei = get_card_no(e);
                         for(int f=e+1; f < 52; f++){
+                            int fi = get_card_no(f);
                             for(int g=f+1; g < 52; g++){
-                                uint64_t bitmask = (1ll << a) |(1ll << b) |(1ll << c) |(1ll << d) |(1ll << e) |(1ll << f) |(1ll << g);
-                                histogram[evaluateHand(bitmask, Flushes, Primes, hashTable, directLookup)>>12]++;
+                                int gi = get_card_no(g);
+                                uint64_t bitMask = (1ull << ai)|(1ull << bi)|(1ull << ci)|(1ull << di)|(1ull << ei)|(1ull << fi)|(1ull << gi);
+                                histogram[evaluateHand(bitMask, Flushes, Primes, hashTable, directLookup)>>12]++;
 
                            }
                         }
