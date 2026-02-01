@@ -1,0 +1,107 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sun 01 Feb 2026 17:04:20 NZDT
+Binary:      ./bin/test_ev_calculator
+Arguments:   
+Git Commit:  3644b0112c5a13bcfd108a315b1bccd1c602bf50
+Git Short:   3644b01
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+Imported Hands
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 24 24 25 25 25 
+imported 16384 elements from DataFiles/holeCardHandRanks.dat
+Wall time: 530.40 ms
+Simulations per second 188538020
+Simulations:100000000
+Simulations per thread:12500000
+Threads: 8
+Hash Table Size:131072 B
+Direct Lookup Table Size:1048576 bytes
+Size of PlayerSim:8 bytes
+Range: 24
+Player: 88
+GameState: 856
+
+ Performance counter stats for './bin/test_ev_calculator':
+
+          4,219.10 msec task-clock                       #    7.911 CPUs utilized          
+               207      context-switches                 #   49.063 /sec                   
+                 2      cpu-migrations                   #    0.474 /sec                   
+             2,653      page-faults                      #  628.808 /sec                   
+    14,168,488,337      cycles                           #    3.358 GHz                      (49.00%)
+    18,324,031,037      instructions                     #    1.29  insn per cycle           (62.05%)
+     2,707,325,925      branches                         #  641.684 M/sec                    (62.69%)
+        88,347,761      branch-misses                    #    3.26% of all branches          (63.42%)
+     4,364,333,434      L1-dcache-loads                  #    1.034 G/sec                    (63.66%)
+       597,837,842      L1-dcache-load-misses            #   13.70% of all L1-dcache accesses  (63.43%)
+        90,585,826      LLC-loads                        #   21.470 M/sec                    (49.75%)
+            22,784      LLC-load-misses                  #    0.03% of all LL-cache accesses  (49.07%)
+
+       0.533335679 seconds time elapsed
+
+       4.192660000 seconds user
+       0.028031000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 16K of event 'cycles'
+# Event count (approx.): 14005771452
+#
+# Overhead  Command          Shared Object       Symbol                            
+# ........  ...............  ..................  ..................................
+#
+    61.52%  test_ev_calcula  test_ev_calculator  [.] single_thread_iterator
+            |          
+            |--60.87%--single_thread_iterator
+            |          iterator_thread
+            |          
+             --0.55%--iterateHistogram
+                       iterator_thread
+
+    24.21%  test_ev_calcula  test_ev_calculator  [.] evaluateRound
+            |          
+             --24.07%--evaluateRound
+                       |          
+                        --2.01%--iterator_thread
+
+    14.02%  test_ev_calcula  test_ev_calculator  [.] iterateHistogram
+            |          
+             --13.85%--iterateHistogram
+                       |          
+                        --0.76%--iterator_thread
+
+     0.02%  test_ev_calcula  [kernel.kallsyms]   [k] smp_call_function_many_cond
+     0.02%  test_ev_calcula  [kernel.kallsyms]   [k] native_irq_return_iret
+     0.02%  test_ev_calcula  test_ev_calculator  [.] merge_histogram
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] __handle_mm_fault
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] native_write_msr
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] error_entry
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] __list_del_entry_valid
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] up_read
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] sync_regs
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] gen8_gt_irq_handler
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] pick_next_task_fair
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] update_cfs_group
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] __update_load_avg_cfs_rq
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] reweight_entity
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] rcu_note_context_switch
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] try_to_wake_up
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] its_return_thunk
+     0.01%  test_ev_calcula  [kernel.kallsyms]   [k] __x2apic_send_IPI_mask
+     0.01%  test_ev_calcula  libc.so.6           [.] __GI___clone_internal

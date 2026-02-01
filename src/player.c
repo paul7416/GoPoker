@@ -31,16 +31,14 @@ bool get_hand_mask(Player *p, uint16_t hand_index)
     return p->range.playableHands[hand_index];
 }
 
-GameState *create_game_state(int no_players, uint16_t *initial_range_extent, double *stacks)
+GameState *create_game_state(const int no_players, const uint16_t *initial_range_extent, const double *stacks)
 {
     GameState *G = calloc(1, sizeof(GameState));
     uint32_t count;
-    G->bitMasks = (uint64_t*)import_dat_file("DataFiles/52C2.dat", &count, sizeof(uint64_t));
     G->handRanks = (uint8_t*)import_dat_file("DataFiles/holeCardHandRanks.dat", &count, sizeof(uint8_t));
     G->no_players = no_players;
     for(int i = 0; i < no_players; i++)
     {
-        G->players[i].range.bitMasks = G->bitMasks;
         G->players[i].range.handRanks = G->handRanks;
         G->players[i].stack = stacks[i];
         G->players[i].range.playableHands = calloc(0x4000, sizeof(bool));
@@ -48,4 +46,14 @@ GameState *create_game_state(int no_players, uint16_t *initial_range_extent, dou
         set_range_extent(&G->players[i], initial_range_extent[i]);
     }
     return G;
+}
+void free_game_state(GameState *G)
+{
+    free(G->bitMasks);
+    free(G->handRanks);
+    for(int i = 0; i < G->no_players; i++)
+    {
+        free(G->players[i].range.playableHands);
+    }
+    free(G);
 }

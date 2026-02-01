@@ -10,7 +10,7 @@ LIB_DIR = lib
 CC = gcc
 CFLAGS = -O3 -Wall -Wextra -Wpedantic -march=native -std=c11
 CFLAGS += -I$(LIB_DIR)
-#CFLAGS += -pg
+#CFLAGS += -g
 CFLAGS += -isystem
 CFLAGS += /usr/include
 CFLAGS += -isystem
@@ -25,7 +25,7 @@ EV_O = $(OBJ_DIR)/ev.o
 TABLE_IMPORT_O = $(OBJ_DIR)/table_import.o
 RANGE_EQUILATOR_O = $(OBJ_DIR)/range_equilator.o
 LIST_O = $(OBJ_DIR)/list.o
-EV_CALC_O = $(OBJ_DIR)/ev_calculator.o
+SIMULATOR_O = $(OBJ_DIR)/simulator.o
 HISTOGRAM_O = $(OBJ_DIR)/histogram.o
 PLAYER_O = $(OBJ_DIR)/player.o
 
@@ -60,7 +60,7 @@ $(BIN_DIR)/random_hand_generator: $(OBJ_DIR)/random_hand_generator.o $(EVALUATOR
 $(BIN_DIR)/test_evaluator: $(OBJ_DIR)/test_evaluator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(BIN_DIR)/test_ev_calculator: $(OBJ_DIR)/test_ev_calculator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) $(EV_CALC_O) $(HISTOGRAM_O) $(PLAYER_O) | $(BIN_DIR)
+$(BIN_DIR)/test_simulator: $(OBJ_DIR)/test_simulator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) $(SIMULATOR_O) $(HISTOGRAM_O) $(PLAYER_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/test_range_equilator: $(OBJ_DIR)/test_range_equilator.o $(RANGE_EQUILATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)

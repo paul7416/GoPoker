@@ -85,9 +85,6 @@ const evaluatorTables *import_evaluator_tables()
         eval_tables->Primes[i] = (uint32_t)tmp[i];
     }
     free(tmp);
-
-
-   
     import_primes_dict(eval_tables);
     printf("Table importing completed\n");
     return eval_tables;
@@ -98,6 +95,7 @@ void free_evaluator_tables(const evaluatorTables *tables)
     free((void*)tables->Flushes);
     free((void*)tables->Primes);
     free((void*)tables->hashTable);
+    free((void*)tables->directLookup);
     free((void*)tables);
 }
 

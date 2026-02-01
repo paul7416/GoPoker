@@ -1,0 +1,98 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sun 01 Feb 2026 15:02:28 NZDT
+Binary:      bin/test_evaluator
+Arguments:   
+Git Commit:  3644b0112c5a13bcfd108a315b1bccd1c602bf50
+Git Short:   3644b01
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+Straight Flush  : 41584
+Four Of A Kind  : 224848
+Full House      : 3473184
+Flush           : 4047644
+Straight        : 6180020
+Three of a Kind : 6461620
+Two Pairs       : 31433400
+Pairs           : 58627800
+High Card       : 23294460
+Evaluator test PASSED ✅
+Time taken: 807.586000ms
+M Hands per second: 165.660
+Hash Table Size:128kB
+Direct Lookup Size:1024kB
+
+ Performance counter stats for 'bin/test_evaluator':
+
+            809.47 msec task-clock                       #    0.999 CPUs utilized          
+                 2      context-switches                 #    2.471 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               476      page-faults                      #  588.039 /sec                   
+     2,836,589,052      cycles                           #    3.504 GHz                      (49.79%)
+     5,878,946,540      instructions                     #    2.07  insn per cycle           (62.64%)
+       659,831,828      branches                         #  815.140 M/sec                    (62.94%)
+        21,829,687      branch-misses                    #    3.31% of all branches          (62.94%)
+     1,897,375,313      L1-dcache-loads                  #    2.344 G/sec                    (62.94%)
+        97,236,998      L1-dcache-load-misses            #    5.12% of all L1-dcache accesses  (62.56%)
+        11,241,574      LLC-loads                        #   13.888 M/sec                    (49.41%)
+            16,137      LLC-load-misses                  #    0.14% of all LL-cache accesses  (49.41%)
+
+       0.810035050 seconds time elapsed
+
+       0.810090000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cycles'
+# Event count (approx.): 2893095525
+#
+# Overhead  Command         Shared Object         Symbol                         
+# ........  ..............  ....................  ...............................
+#
+    63.54%  test_evaluator  test_evaluator        [.] evaluateHand
+            |          
+            |--57.04%--evaluateHand
+            |          main
+            |          
+             --6.50%--test_evaluator
+                       main
+
+    36.26%  test_evaluator  test_evaluator        [.] test_evaluator
+            |          
+            |--35.07%--test_evaluator
+            |          main
+            |          
+             --1.19%--evaluateHand
+                       main
+
+     0.04%  test_evaluator  [kernel.kallsyms]     [k] __list_del_entry_valid
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] free_unref_page_list
+     0.03%  test_evaluator  [kernel.kallsyms]     [k] rb_next
+     0.02%  test_evaluator  test_evaluator        [.] import_primes_dict
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] up_read
+     0.02%  test_evaluator  [kernel.kallsyms]     [k] lru_add_fn
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] _raw_spin_lock_irq
+     0.01%  test_evaluator  ld-linux-x86-64.so.2  [.] _dl_map_object_deps
+     0.01%  test_evaluator  [kernel.kallsyms]     [k] __get_obj_cgroup_from_memcg
+     0.00%  test_evaluator  [kernel.kallsyms]     [k] mod_objcg_state
+     0.00%  test_evaluator  ld-linux-x86-64.so.2  [.] __GI___tunables_init
+
+
+#
+# (Tip: To see list of saved events and attributes: perf evlist -v)
+#

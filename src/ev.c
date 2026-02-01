@@ -41,8 +41,9 @@ void icm(int *stacks, int no_players, double *payouts, int payout_places, double
 
 void analyse_pot(GameState *p, const uint64_t evaluation)
 {
-    // create tem players
-    GameState temp_game_state = *p;
+    // create temp players
+    GameState temp_game_state;
+    memcpy(&temp_game_state, p, sizeof(GameState));
     // set bets and stacks
     for(int i = 0; i < temp_game_state.no_players; i++)
     {
