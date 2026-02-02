@@ -87,10 +87,10 @@ static inline uint64_t generate_community_cards(uint8_t cards[DECK_SIZE][CONCURR
 }
 
 void single_thread_iterator(
-                int iterations, 
-                bool *playable_hands, 
+                const int iterations, 
+                const bool *playable_hands, 
                 GameStateSim sim,
-                cardDeck *original_deck,
+                const cardDeck *original_deck,
                 HistogramTable *H,
                 const evaluatorTables *T)
 {
@@ -147,15 +147,6 @@ void single_thread_iterator(
     }
 }
 
-typedef struct {
-    int thread_id;
-    uint32_t iterations;
-    bool *local_playable_hands;
-    GameStateSim sim_thread;
-    cardDeck *d_thread;
-    HistogramTable *H_thread;
-    const evaluatorTables *T;
-} ThreadArgs;
 
 void* iterator_thread(void *arg) {
     ThreadArgs *a = (ThreadArgs*)arg;

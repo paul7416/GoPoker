@@ -47,6 +47,7 @@ int run_test_iteration(GameState *G, const evaluatorTables *T, const uint32_t it
 
 int main(void)
 {
+    printf("concurrent decks:%d\n", CONCURRENT_DECKS);
     const int TESTS_TO_RUN = 1;
     //assert(TESTS_TO_RUN <= NO_TESTS);
     const int n_threads = 8;
