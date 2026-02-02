@@ -105,7 +105,7 @@ void single_thread_iterator(
     uint8_t (*cards)[CONCURRENT_DECKS];
     uint8_t active_count, last_active, card_1, card_2;
     uint64_t evaluation;
-    int concurrent_iterations = iterations / CONCURRENT_DECKS;
+    int concurrent_iterations = iterations;
 
     for(int iteration = 0; iteration < concurrent_iterations; iteration++)
     {
@@ -168,7 +168,10 @@ void  multi_thread_iterator(int iterations, GameState *G, const evaluatorTables 
     pthread_t threads[n_threads];
     ThreadArgs args[n_threads];
     HistogramTable *H_threads[n_threads];
-    uint32_t iterations_per_thread = iterations / n_threads;
+    assert(iterations % CONCURRENT_DECKS == 0);
+    uint32_t iteration_sets = iterations / CONCURRENT_DECKS;
+    uint32_t iterations_sets_per_thread = iteration_sets / n_threads;
+    int iteration_mod = iteration_sets % n_threads;
 
     // Build lightweight copy
     bool local_playable_hands[MAX_PLAYERS][0x4000] = {0};
@@ -191,7 +194,8 @@ void  multi_thread_iterator(int iterations, GameState *G, const evaluatorTables 
     for (int t = 0; t < n_threads; t++) {
         H_threads[t] = create_histogram_table(HISTOGRAM_START_SIZE);
         args[t].thread_id = t;
-        args[t].iterations = iterations_per_thread;
+        args[t].iterations = iterations_sets_per_thread;
+        if(t < iteration_mod)args[t].iterations++;
         args[t].sim_thread = sim;
         args[t].d_thread = &d;
         args[t].H_thread = H_threads[t];

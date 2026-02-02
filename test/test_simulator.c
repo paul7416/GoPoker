@@ -51,7 +51,7 @@ int main(void)
     //assert(TESTS_TO_RUN <= NO_TESTS);
     const int n_threads = 8;
     const int number_players = 9;
-    const int iterations = 50000000;
+    const int iterations = 100000000;
     printf("Imported Hands\n");
     const uint16_t range_extents[NO_TESTS][9] = {{24, 24, 24, 25, 25, 25, 25, 25, 25},
                                                  {84, 84, 84, 85, 85, 85, 85, 85, 85},
