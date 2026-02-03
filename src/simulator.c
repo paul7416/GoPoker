@@ -23,25 +23,24 @@ void seed(uint64_t s[2])
     for( int i = 0; i < 20; i++)xorshift128plus(s);
 }
 
-void shuffle_single_deck(uint8_t cdecks[DECK_SIZE][CONCURRENT_DECKS], int deck_no, uint64_t s[2])
+void shuffle_single_deck(cardDeck *d, int deck_no, uint64_t s[2])
 {
     uint8_t tmp;
-    for(int i = 0; i < DECK_SIZE - 1; i++)
+    for(uint32_t i = 0; i < DECK_SIZE - 1; i++)
     {
-        uint32_t rnd_index = (((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i;
-        tmp = cdecks[i][deck_no];
-        cdecks[i][deck_no] = cdecks[rnd_index][deck_no];
-        cdecks[rnd_index][deck_no] = tmp;
+        uint32_t rnd_index = (uint32_t)((((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i);
+        tmp = d->data[i].cards[deck_no];
+        d->data[i].cards[deck_no] = d->data[rnd_index].cards[deck_no];
+        d->data[rnd_index].cards[deck_no] = tmp;
     }
 
 }
 
-cardDeck create_card_deck(int no_players, uint64_t s[2])
+cardDeck create_card_deck(uint8_t no_players, uint64_t s[2])
 {
     cardDeck d;
     d.current_index = 0;
-    d.number_of_shuffled_cards = no_players * 2 + 5;
-    uint8_t decks[DECK_SIZE][CONCURRENT_DECKS];
+    d.number_of_shuffled_cards = (uint8_t)(no_players * 2 + 5);
     for(int deck_number = 0; deck_number < CONCURRENT_DECKS; deck_number++)
     {
         for(int i = 0; i < DECK_SIZE; i++)
@@ -49,14 +48,9 @@ cardDeck create_card_deck(int no_players, uint64_t s[2])
             int suit = i / 13;
             int rank = i % 13;
             int card_int = 16 * suit + rank;
-            decks[i][deck_number] = card_int;
+            d.data[i].cards[deck_number] = (uint8_t)card_int;
         }
-        shuffle_single_deck(decks, deck_number, s);
-    }
-    dec_vec *tmpptr = (dec_vec*)decks;
-    for(int i = 0; i < DECK_SIZE; i++)
-    {
-        d.card_array[i] = tmpptr[i];
+        shuffle_single_deck(&d, deck_number, s);
     }
     return d;
 }
@@ -65,29 +59,28 @@ cardDeck create_card_deck(int no_players, uint64_t s[2])
 static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
 {
     dec_vec a;
-    dec_vec *arr = (dec_vec*)d->card_array;
+    union deckEntry *arr = d->data;
     
-    for(int i = 0; i < d->number_of_shuffled_cards; i++)
+    for(uint32_t i = 0; i < d->number_of_shuffled_cards; i++)
     {
-        uint32_t rnd_index = (((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i;
-        a = arr[i];
-        arr[i] = arr[rnd_index];
-        arr[rnd_index] = a;
+        uint32_t rnd_index = (uint32_t)((((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i);
+        a = arr[i].vectors;
+        arr[i].vectors = arr[rnd_index].vectors;
+        arr[rnd_index].vectors = a;
     }
-
 }
 
-static inline uint64_t generate_community_cards(uint8_t cards[DECK_SIZE][CONCURRENT_DECKS], int sim_no)
+static inline uint64_t generate_community_cards(cardDeck *d, int sim_no)
 {
-    return (1ull << cards[0][sim_no])|
-           (1ull << cards[1][sim_no])|
-           (1ull << cards[2][sim_no])|
-           (1ull << cards[3][sim_no])|
-           (1ull << cards[4][sim_no]);
+    return (1ull << d->data[0].cards[sim_no])|
+           (1ull << d->data[1].cards[sim_no])|
+           (1ull << d->data[2].cards[sim_no])|
+           (1ull << d->data[3].cards[sim_no])|
+           (1ull << d->data[4].cards[sim_no]);
 }
 
 void single_thread_iterator(
-                const int iterations, 
+                const uint32_t iterations, 
                 const bool *playable_hands, 
                 GameStateSim sim,
                 const cardDeck *original_deck,
@@ -102,25 +95,23 @@ void single_thread_iterator(
     // create and seed rng_
     uint64_t s[2];
     seed(s);
-    uint8_t (*cards)[CONCURRENT_DECKS];
-    uint8_t active_count, last_active, card_1, card_2;
+    uint8_t active_count, card_1, card_2;
+    int last_active;
     uint64_t evaluation;
-    int concurrent_iterations = iterations;
+    uint32_t concurrent_iterations = iterations;
 
-    for(int iteration = 0; iteration < concurrent_iterations; iteration++)
+    for(uint32_t iteration = 0; iteration < concurrent_iterations; iteration++)
     {
         shuffle_deck(&d, s);
-        cards = (uint8_t(*)[CONCURRENT_DECKS])d.card_array;
         for(int sim_no = 0; sim_no < CONCURRENT_DECKS; sim_no++)
         {
             active_count = 0;
             last_active = 0;
-
             for(int i = 0; i < sim.no_players; i++)
             {
                 PlayerSim *p = &sim.players[i];
-                card_1 = cards[(i << 1) + 5][sim_no];
-                card_2 = cards[(i << 1) + 6][sim_no];
+                card_1 = d.data[(i << 1) + 5].cards[sim_no];
+                card_2 = d.data[(i << 1) + 6].cards[sim_no];
                 uint16_t playable_index = ((uint16_t)card_1 << 8)|(card_2);
                 p->folded = !(local_playable_hands[i][playable_index]);
 
@@ -134,11 +125,11 @@ void single_thread_iterator(
             }
             if(active_count <= 1)
             {
-                evaluation = last_active + 1;
+                evaluation = (uint64_t)(last_active + 1);
             }
             else
             {
-                sim.community_cards = generate_community_cards(cards, sim_no);
+                sim.community_cards = generate_community_cards(&d, sim_no);
                 evaluation = evaluateRound(&sim, T);
 
             }
@@ -154,7 +145,7 @@ void* iterator_thread(void *arg) {
     return NULL;
 }
 
-void  multi_thread_iterator(int iterations, GameState *G, const evaluatorTables *T, const int n_threads, HistogramTable *H)
+void  multi_thread_iterator(uint32_t iterations, GameState *G, const evaluatorTables *T, const uint32_t n_threads, HistogramTable *H)
 {
     pthread_t threads[n_threads];
     ThreadArgs args[n_threads];
@@ -162,12 +153,12 @@ void  multi_thread_iterator(int iterations, GameState *G, const evaluatorTables 
     assert(iterations % CONCURRENT_DECKS == 0);
     uint32_t iteration_sets = iterations / CONCURRENT_DECKS;
     uint32_t iterations_sets_per_thread = iteration_sets / n_threads;
-    int iteration_mod = iteration_sets % n_threads;
+    uint32_t iteration_mod = iteration_sets % n_threads;
 
     // Build lightweight copy
     bool local_playable_hands[MAX_PLAYERS][0x4000] = {0};
     GameStateSim sim;
-    sim.no_players = G->no_players;
+    sim.no_players = (uint8_t)G->no_players;
     for (int i = 0; i < sim.no_players; i++)
     {
         for(int j = 0; j < 0x4000; j++)
@@ -179,10 +170,10 @@ void  multi_thread_iterator(int iterations, GameState *G, const evaluatorTables 
     // create and seed rng
     uint64_t s[2];
     seed(s);
-    cardDeck d = create_card_deck(G->no_players, s);
+    cardDeck d = create_card_deck((uint8_t)G->no_players, s);
     
     // create thread-local histograms
-    for (int t = 0; t < n_threads; t++) {
+    for (uint32_t t = 0; t < n_threads; t++) {
         H_threads[t] = create_histogram_table(HISTOGRAM_START_SIZE);
         args[t].thread_id = t;
         args[t].iterations = iterations_sets_per_thread;
@@ -195,12 +186,12 @@ void  multi_thread_iterator(int iterations, GameState *G, const evaluatorTables 
         pthread_create(&threads[t], NULL, iterator_thread, &args[t]);
     }
     // join threads
-    for (int t = 0; t < n_threads; t++) {
+    for (uint32_t t = 0; t < n_threads; t++) {
         pthread_join(threads[t], NULL);
     }
 
     //merge thread-local histograms into master
-    for (int t = 0; t < n_threads; t++) {
+    for (uint32_t t = 0; t < n_threads; t++) {
         merge_histogram(H, H_threads[t]);
         free_histogram_table(H_threads[t]);
     }

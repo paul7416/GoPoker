@@ -128,24 +128,24 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
     uint16_t spadesMask   = suitMasks[3];
     
     /* Check for flush - at most one suit can have a valid flush */
-    uint16_t flushScore = 
+    int flushScore = 
             Flushes[heartsMask] + 
             Flushes[diamondsMask] + 
             Flushes[clubsMask] + 
             Flushes[spadesMask];
-    if (flushScore != 0) return flushScore;
+    if (flushScore != 0) return (uint16_t)flushScore;
 
     /* Non-flush: multiply primes and look up rank */
     uint32_t prime = (Primes[heartsMask] * Primes[diamondsMask] * Primes[clubsMask] * Primes[spadesMask]);
     return hashLookup(prime, hashTable, directLookup);
 }
 
-int getTies(playerResult results[MAX_PLAYERS], int rank)
+uint8_t getTies(playerResult results[MAX_PLAYERS], int rank)
 {
-    int count = 0;
+    uint8_t count = 0;
     for(int i = 0;i < MAX_PLAYERS && !results[i].folded; i++)
     {
-        count += (int)(results[i].player_rank == rank);
+        if(results[i].player_rank == rank) count++;
     }
     return count;
 }
@@ -162,7 +162,7 @@ int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS])
         {
             results[i].player_rank = results[i - 1].player_rank;
         }
-        else results[i].player_rank = i;
+        else results[i].player_rank = (uint8_t)i;
         code = code >> 6;
     }
     for(int j = 0;j < MAX_PLAYERS && !results[j].folded; j++)

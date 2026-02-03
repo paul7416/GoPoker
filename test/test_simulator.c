@@ -14,7 +14,7 @@
 #define NO_TESTS 4
 
 
-int run_test_iteration(GameState *G, const evaluatorTables *T, const uint32_t iterations, const int n_threads)
+int run_test_iteration(GameState *G, const evaluatorTables *T, const uint32_t iterations, const uint32_t n_threads)
 {
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -27,8 +27,8 @@ int run_test_iteration(GameState *G, const evaluatorTables *T, const uint32_t it
 
     free_histogram_table(H);
 
-    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + 
-            (end.tv_usec - start.tv_usec) / 1000.0;
+    double ms = (double)(end.tv_sec - start.tv_sec) * 1000.0 + 
+            (double)(end.tv_usec - start.tv_usec) / 1000.0;
     
     printf("Wall time: %.2f ms\n", ms);
     printf("Simulations per second %0.0f\n", iterations / ms * 1000);
@@ -50,11 +50,11 @@ int main(void)
     printf("concurrent decks:%d\n", CONCURRENT_DECKS);
     const int TESTS_TO_RUN = 1;
     //assert(TESTS_TO_RUN <= NO_TESTS);
-    const int n_threads = 8;
-    const int number_players = 9;
-    const int iterations = 100000000;
+    const uint32_t n_threads = 8;
+    const int number_players = 6;
+    const uint32_t iterations = 100000000;
     printf("Imported Hands\n");
-    const uint16_t range_extents[NO_TESTS][9] = {{24, 24, 24, 25, 25, 25, 25, 25, 25},
+    const int16_t range_extents[NO_TESTS][9] = {{24, 24, 24, 25, 25, 25, 25, 25, 25},
                                                  {84, 84, 84, 85, 85, 85, 85, 85, 85},
                                                  {169, 169, 169, 169, 169, 169, 169, 169, 169},
                                                  {34, 34, 34, 35, 35, 35, 35, 35, 35}};

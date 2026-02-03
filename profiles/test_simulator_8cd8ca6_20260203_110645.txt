@@ -1,0 +1,112 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 03 Feb 2026 11:06:45 NZDT
+Binary:      bin/test_simulator
+Arguments:   
+Git Commit:  8cd8ca6716de812fee147ca2dd873e7096bebad7
+Git Short:   8cd8ca6
+Host:        paul-Veriton-M6640G
+Kernel:      5.15.0-157-generic
+========================================
+
+=== perf stat ===
+concurrent decks:16
+Imported Hands
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 24 24 25 25 25 
+imported 16384 elements from DataFiles/holeCardHandRanks.dat
+total number of buckets:2845
+Wall time: 753.89 ms
+Simulations per second 132644642
+Simulations:100000000
+Simulations per thread:12500000
+Threads: 8
+Hash Table Size:131072 B
+Direct Lookup Table Size:1048576 bytes
+Starting size of histogram table:65536 bytes
+Range: 24
+Player: 88
+GameState: 856
+
+ Performance counter stats for 'bin/test_simulator':
+
+          2,866.40 msec task-clock                #    3.791 CPUs utilized          
+               703      context-switches          #  245.255 /sec                   
+                 8      cpu-migrations            #    2.791 /sec                   
+               732      page-faults               #  255.373 /sec                   
+     9,721,216,684      cycles                    #    3.391 GHz                    
+     2,169,303,503      stalled-cycles-frontend   #   22.32% frontend cycles idle   
+     1,206,074,947      stalled-cycles-backend    #   12.41% backend cycles idle    
+    19,629,140,304      instructions              #    2.02  insn per cycle         
+                                                  #    0.11  stalled cycles per insn
+     2,948,765,350      branches                  #    1.029 G/sec                  
+        95,043,235      branch-misses             #    3.22% of all branches        
+     4,191,449,675      L1-dcache-loads           #    1.462 G/sec                  
+       517,496,392      L1-dcache-load-misses     #   12.35% of all L1-dcache accesses
+        24,387,573      LLC-loads                 #    8.508 M/sec                  
+   <not supported>      LLC-load-misses                                             
+
+       0.756095890 seconds time elapsed
+
+       2.860538000 seconds user
+       0.008001000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 12K of event 'cycles'
+# Event count (approx.): 10548618600
+#
+# Overhead  Command         Shared Object      Symbol                                
+# ........  ..............  .................  ......................................
+#
+    57.56%  test_simulator  test_simulator     [.] single_thread_iterator
+            |          
+            |--56.67%--single_thread_iterator
+            |          iterator_thread
+            |          
+             --0.90%--iterateHistogram
+                       iterator_thread
+
+    14.48%  test_simulator  test_simulator     [.] evaluateHand
+            |          
+             --14.05%--evaluateHand
+
+    14.46%  test_simulator  test_simulator     [.] evaluateRound
+            |          
+             --14.33%--evaluateRound
+                       |          
+                        --1.53%--iterator_thread
+
+    13.05%  test_simulator  test_simulator     [.] iterateHistogram
+            |          
+             --12.79%--iterateHistogram
+
+     0.03%  test_simulator  [kernel.kallsyms]  [k] __irqentry_text_end
+     0.02%  test_simulator  [kernel.kallsyms]  [k] __update_load_avg_cfs_rq
+     0.02%  test_simulator  test_simulator     [.] merge_histogram
+     0.02%  test_simulator  [kernel.kallsyms]  [k] native_irq_return_iret
+     0.02%  test_simulator  test_simulator     [.] import_primes_dict
+     0.02%  test_simulator  [kernel.kallsyms]  [k] pick_next_task_fair
+     0.02%  test_simulator  [kernel.kallsyms]  [k] update_sd_lb_stats.constprop.0
+     0.02%  test_simulator  [kernel.kallsyms]  [k] rb_next
+     0.02%  test_simulator  [kernel.kallsyms]  [k] enqueue_entity
+     0.02%  test_simulator  [kernel.kallsyms]  [k] psi_group_change
+     0.01%  test_simulator  [kernel.kallsyms]  [k] ktime_get
+     0.01%  test_simulator  [kernel.kallsyms]  [k] vma_merge
+     0.01%  test_simulator  libc.so.6          [.] __memset_sse2_unaligned_erms
+     0.01%  test_simulator  [kernel.kallsyms]  [k] psi_task_change
+     0.01%  test_simulator  [kernel.kallsyms]  [k] psi_task_switch
+     0.01%  test_simulator  [kernel.kallsyms]  [k] native_read_msr
+     0.01%  test_simulator  [kernel.kallsyms]  [k] iterate_groups

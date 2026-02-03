@@ -1,6 +1,7 @@
 #include "ev.h"
 #include <stdint.h>
 #include "evaluator.h"
+#include <string.h>
 
 int cmp_playerIndex(const void *a, const void *b) {
     Player *x = (Player*)a;

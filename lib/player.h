@@ -32,7 +32,7 @@ typedef struct
 
 typedef struct
 {
-    int no_players;
+    uint32_t no_players;
     Player players[MAX_PLAYERS];
     uint64_t community_cards;
     uint64_t *bitMasks;
@@ -48,7 +48,7 @@ typedef struct
 void set_range_extent(Player *p, int16_t range_extent);
 void increment_range_extent(Player *p, int16_t delta);
 bool get_hand_mask(Player *p, uint16_t hand_index);
-GameState *create_game_state(const int no_players, const uint16_t *initial_range_extent, const double *stacks);
+GameState *create_game_state(const uint32_t no_players, const int16_t *initial_range_extent, const double *stacks);
 void set_folded(Player *p, int cards_index);
 void free_game_state(GameState *G);
 #endif

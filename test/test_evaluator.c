@@ -20,7 +20,7 @@ void test_evaluator(const evaluatorTables *tables)
     const uint32_t *Primes = tables->Primes;
     const uint64_t *hashTable = tables->hashTable;
     const uint16_t *directLookup = tables->directLookup;
-    uint32_t histogram[9] = {0};
+    int histogram[9] = {0};
     clock_t start = clock();
     for(int a=0; a < 52; a++){
         int ai = get_card_no(a);
@@ -50,7 +50,7 @@ void test_evaluator(const evaluatorTables *tables)
     double duration = (double)(end - start) * 1000 / CLOCKS_PER_SEC;
 
 
-    const uint32_t golden_histogram[9] = {
+    const int golden_histogram[9] = {
         41584,      // Straight Flush
         224848,     // Four Of A Kind
         3473184,    // Full House

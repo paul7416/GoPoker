@@ -9,6 +9,7 @@ LIB_DIR = lib
 # Compiler
 CC = gcc
 CFLAGS = -O3 -Wall -Wextra -Wpedantic -march=native -std=c11
+CFLAGS += -Wconversion
 CFLAGS += -I$(LIB_DIR)
 #CFLAGS += -g
 CFLAGS += -isystem
