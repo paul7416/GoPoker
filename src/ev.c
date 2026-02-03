@@ -3,7 +3,6 @@
 #include "evaluator.h"
 #include <string.h>
 #include "debug.h"
-#include "icm.h"
 
 int cmp_playerIndex(const void *a, const void *b) {
     Player *x = (Player*)a;
@@ -22,32 +21,35 @@ int cmp_playerRank(const void *a, const void *b) {
     return (x->rank > y->rank) - (x->rank < y->rank);
 }
 
-void icm_recurse(int *stacks, double remaining, double prob, int place,
-                 double *payouts, double *ev, int no_players, int payout_places) {
+void icm_recurse(uint32_t *stacks, uint32_t remaining, float prob, int place,
+                 float *payouts, float *ev, uint32_t no_players, int payout_places) {
     if (place >= payout_places) return;
-    for (int i = 0; i < no_players; i++) {
+    for (uint32_t i = 0; i < no_players; i++) {
         if (stacks[i] == 0) continue;
         
-        double p = (double)stacks[i] / remaining;
+        float p = ((float)stacks[i]) / (float)remaining;
         ev[i] += prob * p * payouts[place];
         
-        int saved = stacks[i];
+        uint32_t saved = stacks[i];
         stacks[i] = 0;
         icm_recurse(stacks, remaining - saved, prob * p, place + 1, payouts, ev, no_players, payout_places);
         stacks[i] = saved;
     }
 }
 
-void icm(int *stacks, int no_players, double *payouts, int payout_places, double *ev) {
-    double total = 0;
-    for (int i = 0; i < no_players; i++) {
+void icm(GameState *G, float *ev) {
+    uint32_t stacks[MAX_PLAYERS];
+
+    uint32_t total = 0;
+    for (uint8_t i = 0; i < G->no_players; i++) {
+        stacks[i] = G->players[i].stack;
         total += stacks[i];
         ev[i] = 0;
     }
-    icm_recurse(stacks, total, 1.0, 0, payouts, ev, no_players, payout_places);
+    icm_recurse(stacks, total, 1.0, 0, G->payouts, ev, G->no_players, G->number_payouts);
 }
 
-void analyse_pot(GameState *p, const uint64_t evaluation)
+void analyse_pot(GameState *p, const uint64_t evaluation, float *ev)
 {
     // create temp players
     GameState temp_game_state;
@@ -60,16 +62,19 @@ void analyse_pot(GameState *p, const uint64_t evaluation)
         temp_game_state.players[i].rank = 0xff;
         temp_game_state.players[i].index = (uint8_t)i;
     }
-    temp_game_state.players[1].stack -= temp_game_state.small_blind;
-    temp_game_state.players[1].bet += temp_game_state.small_blind;
-    uint32_t BB_index = 2 % temp_game_state.no_players;
-    temp_game_state.players[BB_index].stack -= temp_game_state.big_blind;
-    temp_game_state.players[BB_index].bet += temp_game_state.big_blind;
+    // CRITICAL --- under the gun is always at position 0 as to simplify monte carlo iterations.
+    //
+    uint8_t sb_index = (uint8_t)(temp_game_state.no_players - 2);
+    uint8_t bb_index = (uint8_t)(temp_game_state.no_players - 1);
+    temp_game_state.players[sb_index].stack -= temp_game_state.small_blind;
+    temp_game_state.players[sb_index].bet += temp_game_state.small_blind;
+    temp_game_state.players[bb_index].stack -= temp_game_state.big_blind;
+    temp_game_state.players[bb_index].bet += temp_game_state.big_blind;
 
     //get player rankings for hand
     playerResult results[MAX_PLAYERS] = {0};
     (void)decodeOutcomes(evaluation, (playerResult*)results);
-
+    //printf("evals:%20lx, %d%d%d, %d%d%d, %d%d%d, %d%d%d, %d%d%d, %d%d%d\n",evaluation,results[0].index,results[0].player_rank,results[0].tied, results[1].index,results[1].player_rank,results[1].tied, results[2].index,results[2].player_rank,results[2].tied, results[3].index,results[3].player_rank,results[3].tied, results[4].index,results[4].player_rank,results[4].tied, results[5].index, results[5].player_rank,results[5].tied);
     //pass player_rankings to temp_game_state
     for(uint32_t i = 0; i < temp_game_state.no_players; i++)
     {
@@ -88,12 +93,12 @@ void analyse_pot(GameState *p, const uint64_t evaluation)
     // distribute pots
     for(uint32_t i = 0; i < temp_game_state.no_players; i++)
     {
-        double pot_increment = temp_game_state.players[i].remaining;
+        uint32_t pot_increment = temp_game_state.players[i].remaining;
         if(pot_increment == 0) continue;
 
-        double pot_size = 0;
+        uint32_t pot_size = 0;
         uint8_t best_rank = 0xff;
-        int best_rank_count = 0;
+        uint32_t best_rank_count = 0;
         for(uint32_t j = i; j < temp_game_state.no_players; j++)
         {
             pot_size += pot_increment;
@@ -108,7 +113,7 @@ void analyse_pot(GameState *p, const uint64_t evaluation)
                 best_rank_count++;
             }
         }
-        double divided_pot =  pot_size / best_rank_count;
+        uint32_t divided_pot =  pot_size / best_rank_count;
         for(uint32_t j = i;j < temp_game_state.no_players; j++)
         {
             if(temp_game_state.players[j].rank == best_rank)
@@ -117,10 +122,6 @@ void analyse_pot(GameState *p, const uint64_t evaluation)
             }
         }
     }
-    // sort by index
     qsort(temp_game_state.players, temp_game_state.no_players, sizeof(Player), cmp_playerIndex);
-    for(uint32_t i = 0; i < temp_game_state.no_players; i++)
-    {
-        printf("Index:%d   Rank:%d   Stack:%f\n", temp_game_state.players[i].index,temp_game_state.players[i].rank,temp_game_state.players[i].stack);
-    }
+    icm(&temp_game_state, ev);
 }

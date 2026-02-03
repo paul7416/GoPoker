@@ -145,19 +145,36 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
 uint8_t getTies(playerResult results[MAX_PLAYERS], int rank)
 {
     uint8_t count = 0;
-    for(int i = 0;i < MAX_PLAYERS && !results[i].folded; i++)
+    for(int i = 0;i < MAX_PLAYERS && !results[i].folded && results[i].index != 0; i++)
     {
         if(results[i].player_rank == rank) count++;
     }
     return count;
 }
+int decodeFixedOutcome(uint64_t code, playerResult *results)
+{
+    results[0].index = (uint8_t)code - 1;
+    uint8_t player_index = 1;
+    for(uint64_t i = 1; i < MAX_PLAYERS; i++)
+    {
+        if(i != code)
+        {
+            results[player_index].index = (uint8_t)i - 1;
+            results[player_index].folded = true;
+            results[player_index].player_rank = (uint8_t)i;
+            player_index++;
+        }
+    }
+    return 0;
+}
 int decodeOutcomes(uint64_t code, playerResult *results)
 {
+    if((code >> 6) == 0)return decodeFixedOutcome(code, results);
     int i;
     for(i = 0; i < MAX_PLAYERS && code != 0; i++)
     {
         uint64_t player_bits = code & 0x3f;
-        results[i].index = (uint8_t)(player_bits & 0xf);
+        results[i].index = (uint8_t)(player_bits & 0xf) - 1;
         results[i].tied = (uint8_t)((player_bits & 0x10)!=0);
         results[i].folded = (bool)(player_bits & 0x20);
         if(i > 0 && results[i].tied)

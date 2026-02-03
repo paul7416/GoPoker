@@ -31,7 +31,7 @@ bool get_hand_mask(Player *p, uint16_t hand_index)
     return p->range.playableHands[hand_index];
 }
 
-GameState *create_game_state(const uint32_t no_players, const int16_t *initial_range_extent, const double *stacks)
+GameState *create_game_state(const uint32_t no_players, const int16_t *initial_range_extent, const uint32_t *stacks)
 {
     GameState *G = calloc(1, sizeof(GameState));
     uint32_t count;

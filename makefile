@@ -56,6 +56,9 @@ $(BIN_DIR)/hand_masks_generator: $(OBJ_DIR)/hand_masks_generator.o | $(BIN_DIR)
 $(BIN_DIR)/random_hand_generator: $(OBJ_DIR)/random_hand_generator.o $(EVALUATOR_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+$(BIN_DIR)/solver: $(OBJ_DIR)/solver.o $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O)| $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
 # === Tests ===
 
 $(BIN_DIR)/test_evaluator: $(OBJ_DIR)/test_evaluator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)

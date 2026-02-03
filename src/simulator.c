@@ -123,9 +123,13 @@ void single_thread_iterator(
                     last_active = i;
                 }
             }
-            if(active_count <= 1)
+            if(active_count == 1)
             {
-                evaluation = (uint64_t)(last_active + 1);
+                evaluation = (uint64_t)(last_active) + 1;
+            }
+            else if(active_count == 0)
+            {
+                evaluation = (uint64_t)(sim.no_players);
             }
             else
             {
@@ -195,5 +199,4 @@ void  multi_thread_iterator(uint32_t iterations, GameState *G, const evaluatorTa
         merge_histogram(H, H_threads[t]);
         free_histogram_table(H_threads[t]);
     }
-    printf("total number of buckets:%ld\n",H->entry_count);
 }

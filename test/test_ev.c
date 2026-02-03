@@ -41,7 +41,7 @@ void get_hole_cards_string(char hole_cards_string[5], uint8_t card_1, uint8_t ca
     hole_cards_string[3] = suits[card_2 >> 4];
 }
 
-void test_ev(const evaluatorTables *T, uint8_t community_cards[5], uint8_t player_cards[MAX_PLAYERS][2], const uint32_t noPlayers, const double *stacks)
+void test_ev(const evaluatorTables *T, uint8_t community_cards[5], uint8_t player_cards[MAX_PLAYERS][2], const uint32_t noPlayers, const uint32_t *stacks, const float *payouts, int no_payouts)
 {
 
     GameState G = {0};
@@ -61,10 +61,11 @@ void test_ev(const evaluatorTables *T, uint8_t community_cards[5], uint8_t playe
     }
     G.big_blind = 200;
     G.small_blind = 100;
-    G.payouts[0] = 50;
-    G.payouts[1] = 30;
-    G.payouts[2] = 20;
-    G.number_payouts = 3;
+    G.number_payouts = (uint8_t)no_payouts;
+    for(int i = 0; i < no_payouts; i++)
+    {
+        G.payouts[i] = payouts[i];
+    }
     
 
     uint64_t used = sim.community_cards;
@@ -85,9 +86,12 @@ void test_ev(const evaluatorTables *T, uint8_t community_cards[5], uint8_t playe
     }
 
     uint64_t evaluation = evaluateRound(&sim, T);
+    //uint64_t evaluation = 2;
     uint64_t outcome = evaluation;
     printf("Outcome:%lx\n",outcome);
     char hole_cards_string[5];
+    float ev[MAX_PLAYERS] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    analyse_pot(&G, evaluation, ev);
     hole_cards_string[4] = '\0';
     for(uint32_t i = 0; i < noPlayers; i++)
     {
@@ -96,10 +100,13 @@ void test_ev(const evaluatorTables *T, uint8_t community_cards[5], uint8_t playe
         uint8_t index = player_outcome & 0xf;
         bool tied = (bool)(player_outcome &0x10);
         get_hole_cards_string(hole_cards_string, player_cards[index][0], player_cards[index][1]);
-        printf("rank: %d cards: %s index: %d folded: %d tied: %d\n", i, hole_cards_string, index, folded, tied);
+        printf("rank: %d cards: %s index: %d folded: %d tied: %d\n", i, hole_cards_string, index, folded, tied );
         outcome = outcome >> 6;
     }
-    analyse_pot(&G, evaluation);
+    for(uint32_t i = 0; i < noPlayers; i++)
+    {
+       printf("player %d ev: %f\n", i, ev[i]);
+    }
 }
 
 int main(void)
@@ -108,32 +115,47 @@ int main(void)
     const evaluatorTables *tables = import_evaluator_tables();
     char playerHands[MAX_PLAYERS][2][3] = 
     {
-        {"Ac", "Ad"},
+        {"Jd", "Qd"},
         {"Ks", "Kc"},
-        {"2s", "4s"},
-        {"2s", "3s"},
-        {"2s", "3s"},
-        {"5s", "4s"},
+        {"Qs", "Js"},
+        {"Ad", "Ac"},
+        {"2c", "3c"},
+        {"5d", "4h"},
         {"2c", "5d"},
         {"4c", "5c"},
         {"4c", "5c"}
     };
-    char communityCards[5][3] = {"8s", "9s", "As", "Jc", "Qd"};
+    char communityCards[5][3] = {"8d", "9s", "As", "Jc", "Qc"};
     uint8_t int_player_hands[MAX_PLAYERS][2];
     uint8_t int_community_cards[5];
     for(uint32_t i = 0; i < noPlayers; i++)
     {
         int_player_hands[i][0] = get_card(playerHands[i][0]);
         int_player_hands[i][1] = get_card(playerHands[i][1]);
-        printf("%s : %d\n", playerHands[i][0], int_player_hands[i][0]);
-        printf("%s : %d\n\n", playerHands[i][1], int_player_hands[i][1]);
+        //printf("%s : %d\n", playerHands[i][0], int_player_hands[i][0]);
+        //printf("%s : %d\n\n", playerHands[i][1], int_player_hands[i][1]);
     }
+    uint32_t stacks[MAX_PLAYERS] = {1000, 1000, 1000, 1000, 1000, 1000, 2000, 2000, 2000};
+
+    for(uint32_t i = 0; i < noPlayers; i++)
+    {
+        printf("Player %d starting stack:%d\n", i, stacks[i]);
+    }
+    printf("Community Cards: ");
     for(int i = 0; i < 5; i++)
     {
         int_community_cards[i] = get_card(communityCards[i]);
-        printf("%s : %d\n", communityCards[i], int_community_cards[i]);
+        printf("%s ", communityCards[i]);
     }
-    double stacks[MAX_PLAYERS] = {1000, 1100, 700, 1000, 1000, 200, 2000, 2000};
-    test_ev(tables,int_community_cards, int_player_hands, noPlayers, stacks);
+    printf("\n");
+    int no_payouts = 3;
+    float payouts[3] = {50, 30, 20};
+    printf("Payouts: ");
+    for(int i = 0; i < no_payouts; i ++)
+    {
+        printf("%f ",payouts[i]);
+    }
+    printf("\n");
+    test_ev(tables,int_community_cards, int_player_hands, noPlayers, stacks, payouts, no_payouts);
     free_evaluator_tables(tables);
 }
