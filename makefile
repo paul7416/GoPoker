@@ -61,13 +61,16 @@ $(BIN_DIR)/random_hand_generator: $(OBJ_DIR)/random_hand_generator.o $(EVALUATOR
 $(BIN_DIR)/test_evaluator: $(OBJ_DIR)/test_evaluator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+$(BIN_DIR)/test_evaluate_round: $(OBJ_DIR)/test_evaluate_round.o $(EVALUATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
 $(BIN_DIR)/test_simulator: $(OBJ_DIR)/test_simulator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) $(SIMULATOR_O) $(HISTOGRAM_O) $(PLAYER_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/test_range_equilator: $(OBJ_DIR)/test_range_equilator.o $(RANGE_EQUILATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(BIN_DIR)/test_ev: $(OBJ_DIR)/test_ev.o $(EV_O) | $(BIN_DIR)
+$(BIN_DIR)/test_ev: $(OBJ_DIR)/test_ev.o $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/test_list: $(OBJ_DIR)/test_list.o $(LIST_O) | $(BIN_DIR)

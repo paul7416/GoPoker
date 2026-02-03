@@ -7,6 +7,7 @@
 #include "table_import.h"
 #include "evaluator.h"
 #include <string.h>
+#include "debug.h"
 uint32_t evaluatehand_calls = 0;
 
 /*
@@ -126,6 +127,7 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
     uint16_t diamondsMask = suitMasks[1];
     uint16_t clubsMask    = suitMasks[2];
     uint16_t spadesMask   = suitMasks[3];
+
     
     /* Check for flush - at most one suit can have a valid flush */
     int flushScore = 
@@ -149,7 +151,7 @@ uint8_t getTies(playerResult results[MAX_PLAYERS], int rank)
     }
     return count;
 }
-int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS])
+int decodeOutcomes(uint64_t code, playerResult *results)
 {
     int i;
     for(i = 0; i < MAX_PLAYERS && code != 0; i++)
@@ -183,7 +185,6 @@ uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
     uint8_t *hole_cards;
     uint64_t community_cards = G->community_cards;
 
-    
     for(int i = 0; i < G->no_players; i++)
     {
         playerResult result;

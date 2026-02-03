@@ -47,7 +47,7 @@ cardDeck create_card_deck(uint8_t no_players, uint64_t s[2])
         {
             int suit = i / 13;
             int rank = i % 13;
-            int card_int = 16 * suit + rank;
+            int card_int = (suit << 4) | rank;
             d.data[i].cards[deck_number] = (uint8_t)card_int;
         }
         shuffle_single_deck(&d, deck_number, s);

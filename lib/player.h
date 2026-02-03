@@ -20,29 +20,25 @@ typedef struct
     double stack;
     double bet;
     double remaining;
-    double  push_regret;
-    double  fold_regret;
+    double push_regret;
+    double fold_regret;
     double ev;
-    Range range;
-    uint64_t hole_cards;
-    uint8_t rank;
     uint8_t index;
+    uint8_t rank;
     bool folded;
+    Range range;
 }Player;
 
 typedef struct
 {
     uint32_t no_players;
     Player players[MAX_PLAYERS];
-    uint64_t community_cards;
     uint64_t *bitMasks;
     uint8_t *handRanks;
-    size_t iterations;
     uint32_t big_blind;
     uint32_t small_blind;
-    double *payouts;
-    uint8_t active_count;
-    uint8_t last_active;
+    double payouts[MAX_PLAYERS];
+    uint8_t number_payouts;
 }GameState;
 
 void set_range_extent(Player *p, int16_t range_extent);

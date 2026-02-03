@@ -44,5 +44,5 @@ const evaluatorTables *import_evaluator_tables();
 uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint64_t *hashTable, const uint16_t *directLookup);
 void free_evaluator_tables(const evaluatorTables *tables);
 uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables);
-int decodeOutcomes(uint64_t code, playerResult results[MAX_PLAYERS]);
+int decodeOutcomes(const uint64_t code, playerResult *results);
 #endif
