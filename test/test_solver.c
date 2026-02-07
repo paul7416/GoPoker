@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include "debug.h"
+#include <stdio.h>
 
 int main(void)
 {
