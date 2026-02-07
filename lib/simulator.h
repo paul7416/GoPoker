@@ -7,9 +7,23 @@
 
 #ifdef __AVX2__
     typedef __m256i dec_vec;
+    #define and_vec _mm256_and_si256
+    #define or_vec _mm256_or_si256
+    #define vec_set1_epi8 _mm256_set1_epi8
+    #define vec_set1_epi16 _mm256_set1_epi16
+    #define vec_slli_epi16 _mm256_slli_epi16
+    #define vec_srli_epi16 _mm256_srli_epi16
+    #define vec_cmpeq_epi8 _mm256_cmpeq_epi8
     #define CONCURRENT_DECKS 32
 #else
     typedef __m128i dec_vec;
+    #define and_vec _mm_and_si128
+    #define or_vec _mm_or_si128
+    #define vec_set1_epi8 _mm_set1_epi8
+    #define vec_set1_epi16 _mm_set1_epi16
+    #define vec_slli_epi16 _mm_slli_epi16
+    #define vec_srli_epi16 _mm_srli_epi16
+    #define vec_cmpeq_epi8 _mm_cmpeq_epi8
     #define CONCURRENT_DECKS 16
 #endif
 
@@ -22,10 +36,12 @@ union deckEntry
 typedef struct __attribute__((aligned(64)))
 {
     union deckEntry data[DECK_SIZE];
+    union deckEntry hand_types[MAX_PLAYERS];
+    union deckEntry suited[MAX_PLAYERS];
     uint8_t current_index;
     uint8_t number_of_shuffled_cards;
+    uint8_t no_players;
 }cardDeck;
-
 
 typedef struct 
 {

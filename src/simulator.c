@@ -6,6 +6,8 @@
 #include "debug.h"
 #include <pthread.h>
 #include <string.h>
+#include <stdio.h>
+
 
 
 // Xorshift128+ generator
@@ -33,13 +35,13 @@ void shuffle_single_deck(cardDeck *d, int deck_no, uint64_t s[2])
         d->data[i].cards[deck_no] = d->data[rnd_index].cards[deck_no];
         d->data[rnd_index].cards[deck_no] = tmp;
     }
-
 }
 
 cardDeck create_card_deck(uint8_t no_players, uint64_t s[2])
 {
     cardDeck d;
     d.current_index = 0;
+    d.no_players = no_players;
     d.number_of_shuffled_cards = (uint8_t)(no_players * 2 + 5);
     for(int deck_number = 0; deck_number < CONCURRENT_DECKS; deck_number++)
     {
@@ -68,6 +70,26 @@ static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
         arr[i].vectors = arr[rnd_index].vectors;
         arr[rnd_index].vectors = a;
     }
+    for(uint8_t player = 0, deck_index = 5; deck_index < d->number_of_shuffled_cards; player++, deck_index += 2)
+    {
+        // load vectors for this player's two cards
+        dec_vec card_1_vector = d->data[deck_index].vectors;
+        dec_vec card_2_vector = d->data[deck_index + 1].vectors;
+        
+        // extract ranks
+        dec_vec rank1 = and_vec(card_1_vector, vec_set1_epi8(0x0F));
+        dec_vec rank2 = and_vec(card_2_vector, vec_set1_epi8(0x0F));
+        
+        // extract suits (shift right by 4, then mask)
+        dec_vec suit1 = and_vec(vec_srli_epi16(card_1_vector, 4), vec_set1_epi8(0x0F));
+        dec_vec suit2 = and_vec(vec_srli_epi16(card_2_vector, 4), vec_set1_epi8(0x0F));
+        
+        // calculate suited flags (0xFF if suited, 0x00 if not)
+        d->suited[player].vectors = and_vec(vec_cmpeq_epi8(suit1, suit2), vec_set1_epi8(0x01));
+        
+        // calculate base indices: (rank1 << 4) | rank2
+        d->hand_types[player].vectors = or_vec(vec_slli_epi16(rank1, 4), rank2);
+    }
 }
 
 static inline uint64_t generate_community_cards(cardDeck *d, int sim_no)
@@ -90,7 +112,7 @@ void single_thread_iterator(
     cardDeck d;
     memcpy(&d, original_deck, sizeof(cardDeck));  //Need to ensure local copy of base data
 
-    bool (*local_playable_hands)[0x4000] = (bool (*)[0x4000])playable_hands;
+    bool (*local_playable_hands)[460] = (bool (*)[460])playable_hands;
 
     // create and seed rng_
     uint64_t s[2];
@@ -112,13 +134,12 @@ void single_thread_iterator(
                 PlayerSim *p = &sim.players[i];
                 card_1 = d.data[(i << 1) + 5].cards[sim_no];
                 card_2 = d.data[(i << 1) + 6].cards[sim_no];
-                uint16_t playable_index = ((uint16_t)card_1 << 8)|(card_2);
+                uint16_t playable_index = ((uint16_t)d.suited[i].cards[sim_no] << 8) | d.hand_types[i].cards[sim_no];
                 p->folded = !(local_playable_hands[i][playable_index]);
-
                 if (!p->folded)
                 {
-                    uint16_t *ptr = (uint16_t*)&p->hole_cards;
-                    *ptr = playable_index;
+                    p->hole_cards[0] = card_1;
+                    p->hole_cards[1] = card_2;
                     active_count++;
                     last_active = i;
                 }
@@ -160,14 +181,14 @@ void  multi_thread_iterator(uint32_t iterations, GameState *G, const evaluatorTa
     uint32_t iteration_mod = iteration_sets % n_threads;
 
     // Build lightweight copy
-    bool local_playable_hands[MAX_PLAYERS][0x4000] = {0};
+    bool local_playable_hands[MAX_PLAYERS][460] = {0};
     GameStateSim sim;
     sim.no_players = (uint8_t)G->no_players;
     for (int i = 0; i < sim.no_players; i++)
     {
-        for(int j = 0; j < 0x4000; j++)
+        for(int j = 0; j < 460; j++)
         {
-            local_playable_hands[i][j] |= (G->players[i].range.playableHands[j]);
+            local_playable_hands[i][j] = (G->players[i].range.playableHands[j]);
         }
         sim.players[i].index = G->players[i].index;
     }

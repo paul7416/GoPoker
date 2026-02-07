@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "evaluator.h"
 #include <string.h>
+#include <stdlib.h>
 #include "debug.h"
 
 int cmp_playerIndex(const void *a, const void *b) {

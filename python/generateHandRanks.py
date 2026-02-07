@@ -48,28 +48,22 @@ def add_frequency(hand, frequencies):
         frequencies[hand] +=1
 
 ranks = "23456789TJQKA"
-frequencies = {}
-output_list = [255] * 0x4000
-for i in range(52):
-    for j in range(i+1, 52):
-        hand_ranks = sorted([i%13, j%13], reverse=True)
-        if hand_ranks[0] == hand_ranks[1]:
-            modifier = ""
-        elif i//13 == j//13:
-            modifier = "s"
-        else:
-            modifier = "o"
-        card_string = f"{ranks[hand_ranks[0]]}{ranks[hand_ranks[1]]}{modifier}"
-        hand_score = hands.index(card_string)
-        output_list[get_16_bit_hand_no(i)<<8|get_16_bit_hand_no(j)] = hand_score
-        output_list[get_16_bit_hand_no(j)<<8|get_16_bit_hand_no(i)] = hand_score
-        add_frequency(card_string, frequencies)
-pairs = sorted([(key, value) for key, value in frequencies.items()],key = lambda x: x[0])
-for p in pairs:
-    print(p)
-for index, value in enumerate(output_list):
-    if value==255:
-        print(index & 0x3f,(index>>6)&0x3f)
+output_list =[0xff] * 460
+
+for index, hand in enumerate(hands):
+    rank1 = ranks.index(hand[0])
+    rank2 = ranks.index(hand[1])
+    integer_val_1 = rank1 << 4 | rank2
+    integer_val_2 = rank2 << 4 | rank1
+    if hand[-1] == 's':
+        integer_val_1 |= 0x100
+        integer_val_2 |= 0x100
+    output_list[integer_val_1] = index + 1
+    output_list[integer_val_2] = index + 1
+
+
+for val in output_list:
+    print(val)
 num_elements = len(output_list)
 header = struct.pack("<I", num_elements)
 byte_data = bytes(output_list)
