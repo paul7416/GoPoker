@@ -19,6 +19,7 @@ HistogramTable *create_histogram_table(size_t hash_table_size)
         exit(1);
     }
     ht->capacity = hash_table_size;
+    ht->max_entries = (size_t)((double)hash_table_size * HISTOGRAM_MAX_LOAD_FACTOR);
     ht->table = (HistogramEntry*)calloc(hash_table_size, sizeof(HistogramEntry));
     if(!ht->table)
     {    
@@ -51,6 +52,7 @@ void resize_hash_table(HistogramTable *hash_table)
     }
     free(hash_table->table);
     hash_table->capacity *= 2;
+    hash_table->max_entries = (size_t)((double)hash_table->capacity * HISTOGRAM_MAX_LOAD_FACTOR);
     hash_table->table = new->table;
     free(new);
 }
@@ -76,7 +78,7 @@ static inline HistogramEntry *get_entry(HistogramTable *hash_table, const uint64
 void iterateHistogram(HistogramTable *hash_table, const uint64_t key)
 {
     
-    if (hash_table->entry_count > (hash_table->capacity >> 1))
+    if (hash_table->entry_count > hash_table->max_entries)
     {
         resize_hash_table(hash_table);
     }

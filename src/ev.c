@@ -50,7 +50,7 @@ void icm(GameState *G, float *ev) {
     icm_recurse(stacks, total, 1.0, 0, G->payouts, ev, G->no_players, G->number_payouts);
 }
 
-void analyse_pot(GameState *p, const uint64_t evaluation, float *ev)
+void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev)
 {
     // create temp players
     GameState temp_game_state;
@@ -124,5 +124,5 @@ void analyse_pot(GameState *p, const uint64_t evaluation, float *ev)
         }
     }
     qsort(temp_game_state.players, temp_game_state.no_players, sizeof(Player), cmp_playerIndex);
-    icm(&temp_game_state, ev);
+    icm(&temp_game_state, ev->evs);
 }

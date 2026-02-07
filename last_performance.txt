@@ -1,0 +1,21 @@
+Imported Hands
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 18 24 24 24 24 
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+imported 16384 elements from DataFiles/holeCardHandRanks.dat
+Wall time: 556.52 ms
+Simulations per second 179688384
+Simulations:100000000
+Simulations per thread:12500000
+Threads: 8
+Hash Table Size:131072 B
+Direct Lookup Table Size:1048576 bytes
+Starting size of histogram table:32768 bytes
+evs: 16.9483, 16.9665, 16.9751, 16.9899, 15.6623, 16.4578, 
+total ev:99.999923
+Range: 24
+Player: 40
+GameState: 432

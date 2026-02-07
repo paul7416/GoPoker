@@ -1,25 +1,22 @@
 #include "evaluator.h"
+#include "histogram.h"
 #include "simulator.h"
 #include "global_defines.h"
 #include "player.h"
 #include "ev.h"
-#define START_CACHE_SIZE 0x2000
+#define START_EV_LIST_SIZE 0x2000
 
-typedef struct{
-    float evs[MAX_PLAYERS];
-    uint64_t key;
-    bool occupied;
-}CacheEntry;
-
-typedef struct{
-    CacheEntry *data;
+typedef struct
+{
+    EvEntry *data;
     uint32_t capacity;
-    uint32_t no_entries;
-}evCache;
+    uint32_t length;
+}EvList;
 
 typedef struct{
     const evaluatorTables *T;
-    evCache *C;
+    EvList *E;
+    HistogramTable *H;
 }SolverContext;
 
 void solver(
@@ -37,3 +34,4 @@ void solver(
         );
 
 SolverContext *get_solver_context(void);
+void free_solver_context(SolverContext *S);

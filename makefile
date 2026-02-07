@@ -18,6 +18,7 @@ CFLAGS += -isystem
 CFLAGS += /usr/include/x86_64-linux-gnu
 CFLAGS += -funroll-loops
 CFLAGS += -fpeel-loops
+CFLAGS += -fPIC
 LDFLAGS = -flto
 
 # Object files
@@ -29,6 +30,7 @@ LIST_O = $(OBJ_DIR)/list.o
 SIMULATOR_O = $(OBJ_DIR)/simulator.o
 HISTOGRAM_O = $(OBJ_DIR)/histogram.o
 PLAYER_O = $(OBJ_DIR)/player.o
+SOLVER_O = $(OBJ_DIR)/solver.o
 
 
 # Create directories if they don't exist
@@ -47,19 +49,17 @@ $(OBJ_DIR)/%.o: $(TEST_DIR)/%.c | $(OBJ_DIR)
 
 # === Executables ===
 
-$(BIN_DIR)/c_solver: $(OBJ_DIR)/c_solver.o $(EVALUATOR_O) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-
-$(BIN_DIR)/hand_masks_generator: $(OBJ_DIR)/hand_masks_generator.o | $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-
-$(BIN_DIR)/random_hand_generator: $(OBJ_DIR)/random_hand_generator.o $(EVALUATOR_O) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-
 $(BIN_DIR)/solver: $(OBJ_DIR)/solver.o $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O)| $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+# === Shared Library ===
+$(BIN_DIR)/solver.so: $(SOLVER_O) $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O) | $(BIN_DIR)
+	$(CC) -shared $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+
 # === Tests ===
+$(BIN_DIR)/test_solver: $(OBJ_DIR)/test_solver.o $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O) $(SOLVER_O)| $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/test_evaluator: $(OBJ_DIR)/test_evaluator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -86,19 +86,8 @@ $(BIN_DIR)/test_list: $(OBJ_DIR)/test_list.o $(LIST_O) | $(BIN_DIR)
 # Include dependency files
 -include $(OBJ_DIR)/*.d
 
-# Targets
-ALL_TARGETS = $(BIN_DIR)/c_solver $(BIN_DIR)/hand_masks_generator $(BIN_DIR)/random_hand_generator $(BIN_DIR)/icm
-TEST_TARGETS = $(BIN_DIR)/test_evaluator
-
-all: $(ALL_TARGETS)
-
-test: $(TEST_TARGETS)
-	@for t in $(TEST_TARGETS); do echo "Running $$t..."; $$t || exit 1; done
-
 clean:
 	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/*.d
 	rm -f $(ALL_TARGETS) $(TEST_TARGETS)
-
-rebuild: clean all
 
 .PHONY: all clean rebuild test
