@@ -90,7 +90,7 @@ void solver(
     GameState *G = create_game_state(no_players, ranges, stacks);
     G->big_blind = big_blind;
     G->small_blind = small_blind;
-    memcpy(G->payouts, payouts, MAX_PLAYERS * sizeof(float));
+    memcpy(G->payouts, payouts, number_payouts * sizeof(float));
     G->number_payouts = (uint8_t)number_payouts;
 
     HistogramTable *H = S->H;

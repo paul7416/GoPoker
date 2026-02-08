@@ -1,0 +1,105 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 07 Feb 2026 23:09:45 NZDT
+Binary:      bin/test_solver
+Arguments:   
+Git Commit:  c526104e851f2c96c50aab1b9091b39e6aed7c4d
+Git Short:   c526104
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+Imported Hands
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 18 24 24 24 24 
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+imported 460 elements from DataFiles/holeCardHandRanks.dat
+
+Wall time: 0.470 s
+Iterations: 100000000
+Million iterations/sec: 212.55
+
+evs: 16.9453, 16.9433, 16.9720, 16.9866, 15.6564, 16.4962, 
+total ev:99.999936
+Range: 24
+Player: 40
+GameState: 432
+
+ Performance counter stats for 'bin/test_solver':
+
+          3,692.42 msec task-clock                       #    7.805 CPUs utilized          
+               210      context-switches                 #   56.873 /sec                   
+                 1      cpu-migrations                   #    0.271 /sec                   
+               619      page-faults                      #  167.641 /sec                   
+    12,278,364,259      cycles                           #    3.325 GHz                      (49.59%)
+    16,613,183,514      instructions                     #    1.35  insn per cycle           (62.89%)
+     2,896,142,228      branches                         #  784.349 M/sec                    (63.16%)
+        81,386,999      branch-misses                    #    2.81% of all branches          (63.44%)
+     4,616,850,451      L1-dcache-loads                  #    1.250 G/sec                    (63.48%)
+        75,038,126      L1-dcache-load-misses            #    1.63% of all L1-dcache accesses  (63.25%)
+        18,612,394      LLC-loads                        #    5.041 M/sec                    (49.52%)
+            36,421      LLC-load-misses                  #    0.20% of all LL-cache accesses  (48.98%)
+
+       0.473059141 seconds time elapsed
+
+       3.693612000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 14K of event 'cycles'
+# Event count (approx.): 12489909861
+#
+# Overhead  Command      Shared Object         Symbol                          
+# ........  ...........  ....................  ................................
+#
+    50.73%  test_solver  test_solver           [.] single_thread_iterator
+            |          
+            |--49.23%--single_thread_iterator
+            |          iterator_thread
+            |          
+             --1.35%--iterateHistogram
+                       iterator_thread
+
+    16.39%  test_solver  test_solver           [.] iterateHistogram
+            |          
+             --16.08%--iterateHistogram
+                       |          
+                        --1.40%--iterator_thread
+
+    13.41%  test_solver  test_solver           [.] evaluateRound
+            |          
+             --13.17%--evaluateRound
+                       |          
+                        --1.85%--iterator_thread
+
+    11.67%  test_solver  test_solver           [.] evaluateHand
+            |          
+             --11.51%--evaluateHand
+
+     7.59%  test_solver  test_solver           [.] shuffle_deck
+            |          
+             --7.56%--shuffle_deck
+                       |          
+                        --7.52%--single_thread_iterator
+                                  iterator_thread
+
+     0.02%  test_solver  libc.so.6             [.] __GI___qsort_r
+     0.02%  test_solver  test_solver           [.] merge_histogram
+     0.01%  test_solver  [kernel.kallsyms]     [k] its_return_thunk
+     0.01%  test_solver  [kernel.kallsyms]     [k] __update_load_avg_cfs_rq
+     0.01%  test_solver  test_solver           [.] icm_recurse
+     0.01%  test_solver  test_solver           [.] analyse_pot
+     0.01%  test_solver  test_solver           [.] import_primes_dict
+     0.01%  test_solver  [kernel.kallsyms]     [k] reweight_entity

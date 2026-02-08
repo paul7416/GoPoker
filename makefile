@@ -12,6 +12,7 @@ CFLAGS = -O3 -Wall -Wextra -Wpedantic -march=native -std=c11
 CFLAGS += -Wconversion
 CFLAGS += -I$(LIB_DIR)
 #CFLAGS += -g
+#CFLAGS += -fsanitize=address
 CFLAGS += -isystem
 CFLAGS += /usr/include
 CFLAGS += -isystem

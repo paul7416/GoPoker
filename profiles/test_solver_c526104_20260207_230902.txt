@@ -1,0 +1,105 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Sat 07 Feb 2026 23:09:02 NZDT
+Binary:      bin/test_solver
+Arguments:   
+Git Commit:  c526104e851f2c96c50aab1b9091b39e6aed7c4d
+Git Short:   c526104
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+Imported Hands
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 18 24 24 24 24 
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 49205 elements from ./DataFiles/seven_rank_dict.bin
+Table importing completed
+imported 460 elements from DataFiles/holeCardHandRanks.dat
+
+Wall time: 0.466 s
+Iterations: 100000000
+Million iterations/sec: 214.41
+
+evs: 16.9457, 16.9414, 16.9725, 16.9864, 15.6571, 16.4967, 
+total ev:99.999935
+Range: 24
+Player: 40
+GameState: 432
+
+ Performance counter stats for 'bin/test_solver':
+
+          3,685.17 msec task-clock                       #    7.867 CPUs utilized          
+               192      context-switches                 #   52.101 /sec                   
+                 1      cpu-migrations                   #    0.271 /sec                   
+               619      page-faults                      #  167.971 /sec                   
+    12,320,593,363      cycles                           #    3.343 GHz                      (49.71%)
+    16,643,621,613      instructions                     #    1.35  insn per cycle           (62.93%)
+     2,901,987,169      branches                         #  787.477 M/sec                    (63.33%)
+        81,384,107      branch-misses                    #    2.80% of all branches          (63.38%)
+     4,613,743,844      L1-dcache-loads                  #    1.252 G/sec                    (63.42%)
+        73,558,242      L1-dcache-load-misses            #    1.59% of all L1-dcache accesses  (62.97%)
+        18,672,472      LLC-loads                        #    5.067 M/sec                    (49.40%)
+             4,816      LLC-load-misses                  #    0.03% of all LL-cache accesses  (49.06%)
+
+       0.468452737 seconds time elapsed
+
+       3.686300000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 14K of event 'cycles'
+# Event count (approx.): 12498462859
+#
+# Overhead  Command      Shared Object         Symbol                              
+# ........  ...........  ....................  ....................................
+#
+    50.17%  test_solver  test_solver           [.] single_thread_iterator
+            |          
+            |--48.73%--single_thread_iterator
+            |          iterator_thread
+            |          
+             --1.26%--iterateHistogram
+                       iterator_thread
+
+    16.09%  test_solver  test_solver           [.] iterateHistogram
+            |          
+             --15.77%--iterateHistogram
+                       |          
+                        --1.40%--iterator_thread
+
+    13.97%  test_solver  test_solver           [.] evaluateRound
+            |          
+             --13.58%--evaluateRound
+                       |          
+                        --1.69%--iterator_thread
+
+    12.18%  test_solver  test_solver           [.] evaluateHand
+            |          
+             --11.93%--evaluateHand
+
+     7.22%  test_solver  test_solver           [.] shuffle_deck
+            |          
+             --7.20%--shuffle_deck
+                       |          
+                        --7.14%--single_thread_iterator
+                                  iterator_thread
+
+     0.04%  test_solver  test_solver           [.] icm_recurse
+     0.02%  test_solver  test_solver           [.] merge_histogram
+     0.01%  test_solver  [kernel.kallsyms]     [k] tick_sched_do_timer
+     0.01%  test_solver  [kernel.kallsyms]     [k] asm_sysvec_apic_timer_interrupt
+     0.01%  test_solver  [kernel.kallsyms]     [k] rb_insert_color
+     0.01%  test_solver  [kernel.kallsyms]     [k] _raw_spin_lock
+     0.01%  test_solver  [kernel.kallsyms]     [k] native_read_msr
+     0.01%  test_solver  [kernel.kallsyms]     [k] __update_load_avg_se

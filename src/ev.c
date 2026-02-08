@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "debug.h"
+#include<stdio.h>
 
 int cmp_playerIndex(const void *a, const void *b) {
     Player *x = (Player*)a;
@@ -45,9 +46,13 @@ void icm(GameState *G, float *ev) {
     for (uint8_t i = 0; i < G->no_players; i++) {
         stacks[i] = G->players[i].stack;
         total += stacks[i];
-        ev[i] = 0;
     }
     icm_recurse(stacks, total, 1.0, 0, G->payouts, ev, G->no_players, G->number_payouts);
+}
+static inline uint32_t min_uint32(uint32_t A, uint32_t B)
+{
+    if(A < B)return A;
+    return B;
 }
 
 void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev)
@@ -67,15 +72,16 @@ void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev)
     //
     uint8_t sb_index = (uint8_t)(temp_game_state.no_players - 2);
     uint8_t bb_index = (uint8_t)(temp_game_state.no_players - 1);
-    temp_game_state.players[sb_index].stack -= temp_game_state.small_blind;
-    temp_game_state.players[sb_index].bet += temp_game_state.small_blind;
-    temp_game_state.players[bb_index].stack -= temp_game_state.big_blind;
-    temp_game_state.players[bb_index].bet += temp_game_state.big_blind;
+    Player *BB = &temp_game_state.players[bb_index];
+    Player *SB = &temp_game_state.players[sb_index];
+    SB->bet = min_uint32(SB->stack, temp_game_state.small_blind);
+    BB->bet = min_uint32(BB->stack, temp_game_state.big_blind);
+    BB->stack -= BB->bet;
+    SB->stack -= SB->bet;
 
     //get player rankings for hand
-    playerResult results[MAX_PLAYERS] = {0};
+    playerResult results[MAX_PLAYERS];
     (void)decodeOutcomes(evaluation, (playerResult*)results);
-    //printf("evals:%20lx, %d%d%d, %d%d%d, %d%d%d, %d%d%d, %d%d%d, %d%d%d\n",evaluation,results[0].index,results[0].player_rank,results[0].tied, results[1].index,results[1].player_rank,results[1].tied, results[2].index,results[2].player_rank,results[2].tied, results[3].index,results[3].player_rank,results[3].tied, results[4].index,results[4].player_rank,results[4].tied, results[5].index, results[5].player_rank,results[5].tied);
     //pass player_rankings to temp_game_state
     for(uint32_t i = 0; i < temp_game_state.no_players; i++)
     {
@@ -84,6 +90,11 @@ void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev)
             temp_game_state.players[results[i].index].rank = results[i].player_rank;
             temp_game_state.players[results[i].index].bet += temp_game_state.players[results[i].index].stack;
             temp_game_state.players[results[i].index].stack = 0;
+        }
+        if(results[i].index >= MAX_PLAYERS)
+        {
+            fprintf(stderr, "%d %d %d\n", results[i].index, results[i].player_rank, results[i].folded);
+            exit(1);
         }
         temp_game_state.players[results[i].index].remaining = temp_game_state.players[results[i].index].bet;
 
@@ -94,10 +105,10 @@ void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev)
     // distribute pots
     for(uint32_t i = 0; i < temp_game_state.no_players; i++)
     {
+        uint32_t pot_size = 0;
         uint32_t pot_increment = temp_game_state.players[i].remaining;
         if(pot_increment == 0) continue;
 
-        uint32_t pot_size = 0;
         uint8_t best_rank = 0xff;
         uint32_t best_rank_count = 0;
         for(uint32_t j = i; j < temp_game_state.no_players; j++)
@@ -122,6 +133,7 @@ void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev)
                 temp_game_state.players[j].stack += divided_pot;
             }
         }
+        pot_size = 0;
     }
     qsort(temp_game_state.players, temp_game_state.no_players, sizeof(Player), cmp_playerIndex);
     icm(&temp_game_state, ev->evs);

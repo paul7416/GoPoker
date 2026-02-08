@@ -11,4 +11,5 @@ typedef struct
 
 void icm(GameState *G, float *ev);
 void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev);
+void print_outcome(uint64_t outcome);
 

@@ -37,7 +37,7 @@ void import_primes_dict(evaluatorTables *e){
     uint16_t *direct_lookup = aligned_alloc(64, DIRECT_LOOKUP_SIZE * sizeof(uint16_t));
     if(!direct_lookup)
     {
-        printf("direct lookup table failed to allocate\n");
+
         exit(1);
     }
     memset(hash_table, 0, HASH_TABLE_SIZE * sizeof(uint64_t));
@@ -145,7 +145,7 @@ uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uin
 uint8_t getTies(playerResult results[MAX_PLAYERS], int rank)
 {
     uint8_t count = 0;
-    for(int i = 0;i < MAX_PLAYERS && !results[i].folded && results[i].index != 0; i++)
+    for(int i = 0;i < MAX_PLAYERS; i++)
     {
         if(results[i].player_rank == rank) count++;
     }
@@ -154,14 +154,18 @@ uint8_t getTies(playerResult results[MAX_PLAYERS], int rank)
 int decodeFixedOutcome(uint64_t code, playerResult *results)
 {
     results[0].index = (uint8_t)code - 1;
+    results[0].tied = 1;
+    results[0].folded = 0;
+    results[0].player_rank = 0;
     uint8_t player_index = 1;
-    for(uint64_t i = 1; i < MAX_PLAYERS; i++)
+    for(uint64_t i = 1; i <= MAX_PLAYERS; i++)
     {
         if(i != code)
         {
             results[player_index].index = (uint8_t)i - 1;
             results[player_index].folded = true;
             results[player_index].player_rank = (uint8_t)i;
+            results[player_index].tied = 1;
             player_index++;
         }
     }
@@ -169,6 +173,7 @@ int decodeFixedOutcome(uint64_t code, playerResult *results)
 }
 int decodeOutcomes(uint64_t code, playerResult *results)
 {
+    memset(results,0xff, sizeof(playerResult) * MAX_PLAYERS);
     if((code >> 6) == 0)return decodeFixedOutcome(code, results);
     int i;
     for(i = 0; i < MAX_PLAYERS && code != 0; i++)
@@ -190,6 +195,17 @@ int decodeOutcomes(uint64_t code, playerResult *results)
     }
 
     return i;
+}
+void print_outcome(uint64_t outcome)
+{
+    playerResult results[MAX_PLAYERS] = {0};
+    decodeOutcomes(outcome, results);
+    for(int i = 0; i < MAX_PLAYERS; i++)
+    {
+        playerResult p = results[i];
+        printf("Index: %3d Folded: %d rank: %d tied: %d\n", p.index, p.folded, p.player_rank, p.tied);
+    }
+
 }
 uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables)
 {

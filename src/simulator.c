@@ -57,12 +57,12 @@ cardDeck create_card_deck(uint8_t no_players, uint64_t s[2])
     return d;
 }
 
-
-static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
+__attribute__((noinline))
+static void shuffle_deck(cardDeck *d, uint64_t s[2])
 {
     dec_vec a;
     union deckEntry *arr = d->data;
-    
+
     for(uint32_t i = 0; i < d->number_of_shuffled_cards; i++)
     {
         uint32_t rnd_index = (uint32_t)((((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i);
@@ -70,25 +70,35 @@ static inline void shuffle_deck(cardDeck *d, uint64_t s[2])
         arr[i].vectors = arr[rnd_index].vectors;
         arr[rnd_index].vectors = a;
     }
+
     for(uint8_t player = 0, deck_index = 5; deck_index < d->number_of_shuffled_cards; player++, deck_index += 2)
     {
         // load vectors for this player's two cards
         dec_vec card_1_vector = d->data[deck_index].vectors;
         dec_vec card_2_vector = d->data[deck_index + 1].vectors;
-        
+
         // extract ranks
         dec_vec rank1 = and_vec(card_1_vector, vec_set1_epi8(0x0F));
         dec_vec rank2 = and_vec(card_2_vector, vec_set1_epi8(0x0F));
-        
+
         // extract suits (shift right by 4, then mask)
         dec_vec suit1 = and_vec(vec_srli_epi16(card_1_vector, 4), vec_set1_epi8(0x0F));
         dec_vec suit2 = and_vec(vec_srli_epi16(card_2_vector, 4), vec_set1_epi8(0x0F));
-        
-        // calculate suited flags (0xFF if suited, 0x00 if not)
-        d->suited[player].vectors = and_vec(vec_cmpeq_epi8(suit1, suit2), vec_set1_epi8(0x01));
-        
-        // calculate base indices: (rank1 << 4) | rank2
-        d->hand_types[player].vectors = or_vec(vec_slli_epi16(rank1, 4), rank2);
+
+        // calculate hand_types: (rank1 << 4) | rank2
+        dec_vec hand_types = or_vec(vec_slli_epi16(rank1, 4), rank2);
+
+        // calculate suited flags (0x01 if suited, 0x00 if not)
+        dec_vec suited_flags = and_vec(vec_cmpeq_epi8(suit1, suit2), vec_set1_epi8(0x01));
+
+        // Combine into 16-bit values: hand_types in low byte, suited in high byte
+        // unpacklo/hi interleaves bytes: result is [hand_types[0], suited[0], hand_types[1], suited[1], ...]
+        dec_vec combined_lo = vec_unpacklo_epi8(hand_types, suited_flags);
+        dec_vec combined_hi = vec_unpackhi_epi8(hand_types, suited_flags);
+
+        // Store both halves as 16-bit indices
+        d->hand_indices[player].vectors[0] = combined_lo;
+        d->hand_indices[player].vectors[1] = combined_hi;
     }
 }
 
@@ -134,7 +144,7 @@ void single_thread_iterator(
                 PlayerSim *p = &sim.players[i];
                 card_1 = d.data[(i << 1) + 5].cards[sim_no];
                 card_2 = d.data[(i << 1) + 6].cards[sim_no];
-                uint16_t playable_index = ((uint16_t)d.suited[i].cards[sim_no] << 8) | d.hand_types[i].cards[sim_no];
+                uint16_t playable_index = d.hand_indices[i].indices[sim_no];
                 p->folded = !(local_playable_hands[i][playable_index]);
                 if (!p->folded)
                 {
@@ -143,6 +153,7 @@ void single_thread_iterator(
                     active_count++;
                     last_active = i;
                 }
+
             }
             if(active_count == 1)
             {

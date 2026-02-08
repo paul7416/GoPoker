@@ -1,11 +1,23 @@
-
-#include<stdio.h>
-#include<stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
 #include "evaluator.h"
 #include "player.h"
+#include <string.h>
 #include "ev.h"
 #include "global_defines.h"
 #include "debug.h"
+
+
+char *hand_types[9] = {"Straight Flush",
+                       "Quads",
+                       "Full House",
+                       "Flush",
+                       "Straight",
+                       "Trips",
+                       "Two Pair",
+                       "Pair",
+                       "High Card"};
 
 uint8_t get_rank(char c)
 {
@@ -31,6 +43,28 @@ uint8_t get_card(char card_string[])
     uint8_t suit = get_suit(card_string[1]);
     return (suit << 4)|rank;
 }
+uint16_t print_hand_state(char hole_cards[MAX_PLAYERS][2][3], char community_cards[5][3], const evaluatorTables *T, const uint32_t no_players)
+{
+    printf("\n");
+    printf("player|  seven card hand   |   hand_type   | rank within type\n");
+    for(uint32_t player_index = 0; player_index < no_players; player_index++)
+    {
+        printf("%6d|%s %s", player_index, hole_cards[player_index][0], hole_cards[player_index][1]);
+        uint64_t bitMask = (1ull << get_card(hole_cards[player_index][0])) | (1ull << get_card(hole_cards[player_index][1]));
+        for(int i = 0; i < 5; i++)
+        {
+            printf(" %s", community_cards[i]);
+            bitMask |= (1ull << get_card(community_cards[i]));
+        }
+        uint16_t score = evaluateHand(bitMask, T->Flushes, T->Primes, T->hashTable, T->directLookup);
+        printf("|%s",hand_types[score>>12]);
+        for(size_t i = strlen(hand_types[score>>12]); i < 15; i++)printf(" ");
+        printf("|%3d\n",score&0xfff);
+    }
+
+    return 0;
+}
+
 void get_hole_cards_string(char hole_cards_string[5], uint8_t card_1, uint8_t card_2)
 {
     char *suits = "hdcs";
@@ -84,46 +118,39 @@ void test_ev(const evaluatorTables *T, uint8_t community_cards[5], uint8_t playe
         sim.players[i].index = i;
         sim.players[i].folded = false;
     }
+    sim.players[1].folded = true;
 
     uint64_t evaluation = evaluateRound(&sim, T);
-    //uint64_t evaluation = 2;
     uint64_t outcome = evaluation;
     printf("Outcome:%lx\n",outcome);
-    char hole_cards_string[5];
-    float ev[MAX_PLAYERS] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    analyse_pot(&G, evaluation, ev);
-    hole_cards_string[4] = '\0';
+    print_outcome(outcome);
+    EvEntry ev_entry = {0};
+    ev_entry.evaluation = evaluation;
+    analyse_pot(&G, evaluation, &ev_entry);
+    float total_evs = 0;
     for(uint32_t i = 0; i < noPlayers; i++)
     {
-        uint8_t player_outcome = (uint8_t)outcome & 0x3f;
-        bool folded = (bool)(player_outcome & 0x20);
-        uint8_t index = player_outcome & 0xf;
-        bool tied = (bool)(player_outcome &0x10);
-        get_hole_cards_string(hole_cards_string, player_cards[index][0], player_cards[index][1]);
-        printf("rank: %d cards: %s index: %d folded: %d tied: %d\n", i, hole_cards_string, index, folded, tied );
-        outcome = outcome >> 6;
+        total_evs += ev_entry.evs[i];
+        printf("player %d ev: %f\n", i, ev_entry.evs[i]);
     }
-    for(uint32_t i = 0; i < noPlayers; i++)
-    {
-       printf("player %d ev: %f\n", i, ev[i]);
-    }
+    printf("Total Evs: %f\n", total_evs);
 }
 
 int main(void)
 {
-    const uint32_t noPlayers = 6;
+    const uint32_t noPlayers = 9;
     const evaluatorTables *tables = import_evaluator_tables();
     char playerHands[MAX_PLAYERS][2][3] = 
     {
-        {"Jd", "Qd"},
-        {"Ks", "Kc"},
+        {"Td", "Kd"},
+        {"Ts", "Kc"},
         {"Qs", "Js"},
         {"Ad", "Ac"},
         {"2c", "3c"},
         {"5d", "4h"},
         {"2c", "5d"},
-        {"4c", "5c"},
-        {"4c", "5c"}
+        {"9c", "8c"},
+        {"Tc", "7c"}
     };
     char communityCards[5][3] = {"8d", "9s", "As", "Jc", "Qc"};
     uint8_t int_player_hands[MAX_PLAYERS][2];
@@ -132,22 +159,23 @@ int main(void)
     {
         int_player_hands[i][0] = get_card(playerHands[i][0]);
         int_player_hands[i][1] = get_card(playerHands[i][1]);
-        //printf("%s : %d\n", playerHands[i][0], int_player_hands[i][0]);
-        //printf("%s : %d\n\n", playerHands[i][1], int_player_hands[i][1]);
     }
-    uint32_t stacks[MAX_PLAYERS] = {1000, 1000, 1000, 1000, 1000, 1000, 2000, 2000, 2000};
+    uint32_t stacks[MAX_PLAYERS] = {1000, 1000, 1000, 1000, 1000, 1000, 2000, 2000, 800};
+    uint32_t total_stacks = 0;
 
     for(uint32_t i = 0; i < noPlayers; i++)
     {
         printf("Player %d starting stack:%d\n", i, stacks[i]);
+        total_stacks += stacks[i];
     }
-    printf("Community Cards: ");
+    printf("Total stacks: %d\n", total_stacks);
     for(int i = 0; i < 5; i++)
     {
         int_community_cards[i] = get_card(communityCards[i]);
-        printf("%s ", communityCards[i]);
     }
-    printf("\n");
+
+    print_hand_state(playerHands, communityCards, tables, noPlayers);
+
     int no_payouts = 3;
     float payouts[3] = {50, 30, 20};
     printf("Payouts: ");
