@@ -11,7 +11,7 @@ int main(void)
     
     const uint32_t n_threads = 8;
     const uint32_t number_players = 6;
-    const uint32_t iterations = 100000000;
+    const uint32_t iterations = 500000;
     printf("Imported Hands\n");
     const int16_t range_extents[4][9] = {{-1, -1, 169, -1, 100, 100, 100, 100, 100},
                                                  {84, 84, 84, 85, 85, 85, 85, 85, 85},
@@ -42,19 +42,19 @@ int main(void)
     solver(range_extents[3], iterations, S, payouts, number_payouts, number_players, stacks, n_threads, small_blind, big_blind, evs);
     gettimeofday(&end, NULL);
     
-    double seconds = (double)(end.tv_sec - start.tv_sec) + 
-                     (double)(end.tv_usec - start.tv_usec) / 1000000.0;
-    double millions_per_sec = (iterations / 1000000.0) / seconds;
+    double ms = (double)(end.tv_sec - start.tv_sec) * 1000 + 
+                     (double)(end.tv_usec - start.tv_usec) / 1000.0;
+    double millions_per_sec = (iterations / 1000.0) / ms;
     
-    printf("\nWall time: %.3f s\n", seconds);
+    printf("\nWall time: %.3f ms\n", ms);
     printf("Iterations: %u\n", iterations);
-    printf("Million iterations/sec: %.2f\n\n", millions_per_sec);
+    printf("Million iterations/sec: %.3f\n\n", millions_per_sec);
     
     printf("evs: ");
     double total_ev = 0;
     for(uint32_t i = 0; i < number_players; i++)
     {
-        printf("%0.4f, ",evs[i]);
+        printf("%0.3f, ",evs[i]);
         total_ev+=evs[i];
     }
     printf("\n");

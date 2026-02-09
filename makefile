@@ -32,6 +32,7 @@ SIMULATOR_O = $(OBJ_DIR)/simulator.o
 HISTOGRAM_O = $(OBJ_DIR)/histogram.o
 PLAYER_O = $(OBJ_DIR)/player.o
 SOLVER_O = $(OBJ_DIR)/solver.o
+DECK_O = $(OBJ_DIR)/deck.o
 
 
 # Create directories if they don't exist
@@ -54,12 +55,12 @@ $(BIN_DIR)/solver: $(OBJ_DIR)/solver.o $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABL
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 # === Shared Library ===
-$(BIN_DIR)/solver.so: $(SOLVER_O) $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O) | $(BIN_DIR)
+$(BIN_DIR)/solver.so: $(SOLVER_O) $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O) $(DECK_O) | $(BIN_DIR)
 	$(CC) -shared $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 
 # === Tests ===
-$(BIN_DIR)/test_solver: $(OBJ_DIR)/test_solver.o $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O) $(SOLVER_O)| $(BIN_DIR)
+$(BIN_DIR)/test_solver: $(OBJ_DIR)/test_solver.o $(EV_O) $(EVALUATOR_O) $(PLAYER_O) $(TABLE_IMPORT_O) $(ICM_O) $(HISTOGRAM_O) $(SIMULATOR_O) $(SOLVER_O) $(DECK_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/test_evaluator: $(OBJ_DIR)/test_evaluator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
@@ -68,7 +69,7 @@ $(BIN_DIR)/test_evaluator: $(OBJ_DIR)/test_evaluator.o $(EVALUATOR_O) $(TABLE_IM
 $(BIN_DIR)/test_evaluate_round: $(OBJ_DIR)/test_evaluate_round.o $(EVALUATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(BIN_DIR)/test_simulator: $(OBJ_DIR)/test_simulator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) $(SIMULATOR_O) $(HISTOGRAM_O) $(PLAYER_O) | $(BIN_DIR)
+$(BIN_DIR)/test_simulator: $(OBJ_DIR)/test_simulator.o $(EVALUATOR_O) $(TABLE_IMPORT_O) $(SIMULATOR_O) $(HISTOGRAM_O) $(PLAYER_O) $(DECK_O) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(BIN_DIR)/test_range_equilator: $(OBJ_DIR)/test_range_equilator.o $(RANGE_EQUILATOR_O) $(TABLE_IMPORT_O) | $(BIN_DIR)
