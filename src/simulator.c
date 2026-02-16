@@ -8,13 +8,13 @@
 #include <stdio.h>
 
 
-static inline uint64_t generate_community_cards(cardDeck *d, int sim_no)
+static inline uint64_t generate_community_cards(cardDeck *d, int sim_no, uint8_t start_index)
 {
-    return (1ull << d->data[0].cards[sim_no])|
-           (1ull << d->data[1].cards[sim_no])|
-           (1ull << d->data[2].cards[sim_no])|
-           (1ull << d->data[3].cards[sim_no])|
-           (1ull << d->data[4].cards[sim_no]);
+    return (1ull << d->data[start_index].cards[sim_no])|
+           (1ull << d->data[start_index + 1].cards[sim_no])|
+           (1ull << d->data[start_index + 2].cards[sim_no])|
+           (1ull << d->data[start_index + 3].cards[sim_no])|
+           (1ull << d->data[start_index + 4].cards[sim_no]);
 }
 
 void single_thread_iterator(
@@ -24,8 +24,8 @@ void single_thread_iterator(
                 HistogramTable *H,
                 const evaluatorTables *T)
 {
-    cardDeck d = create_card_deck(sim.no_players, DECK_SIZE);
-    initialization_shuffle(&d);
+    cardDeck d = create_card_deck(sim.no_players);
+    initialization_shuffle(&d, 0);
 
     bool (*local_playable_hands)[460] = (bool (*)[460])playable_hands;
 
@@ -34,10 +34,11 @@ void single_thread_iterator(
     int last_active;
     uint64_t evaluation;
     uint32_t concurrent_iterations = iterations;
+    uint8_t community_card_start_index = (sim.no_players << 1);
 
     for(uint32_t iteration = 0; iteration < concurrent_iterations; iteration++)
     {
-        shuffle_deck(&d);
+        shuffle_deck(&d, 0);
         for(int sim_no = 0; sim_no < CONCURRENT_DECKS; sim_no++)
         {
             active_count = 0;
@@ -45,8 +46,9 @@ void single_thread_iterator(
             for(int i = 0; i < sim.no_players; i++)
             {
                 PlayerSim *p = &sim.players[i];
-                card_1 = d.data[(i << 1) + 5].cards[sim_no];
-                card_2 = d.data[(i << 1) + 6].cards[sim_no];
+                int index = i << 1;
+                card_1 = d.data[index++].cards[sim_no];
+                card_2 = d.data[index].cards[sim_no];
                 uint16_t playable_index = d.hand_indices[i].indices[sim_no];
                 p->folded = !(local_playable_hands[i][playable_index]);
                 if (!p->folded)
@@ -68,7 +70,7 @@ void single_thread_iterator(
             }
             else
             {
-                sim.community_cards = generate_community_cards(&d, sim_no);
+                sim.community_cards = generate_community_cards(&d, sim_no, community_card_start_index );
                 evaluation = evaluateRound(&sim, T);
 
             }

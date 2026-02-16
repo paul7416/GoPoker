@@ -11,7 +11,7 @@ int main(void)
     
     const uint32_t n_threads = 8;
     const uint32_t number_players = 6;
-    const uint32_t iterations = 500000;
+    const uint32_t iterations = 100000000;
     printf("Imported Hands\n");
     const int16_t range_extents[4][9] = {{-1, -1, 169, -1, 100, 100, 100, 100, 100},
                                                  {84, 84, 84, 85, 85, 85, 85, 85, 85},

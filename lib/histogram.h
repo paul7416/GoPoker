@@ -7,13 +7,12 @@
 #define HISTOGRAM_MAX_SIZE     0x1000000
 #define HISTOGRAM_MAX_LOAD_FACTOR 0.75
 
-typedef struct
-{
+typedef struct {
     uint64_t key;
-    uint32_t count; 
+    uint32_t count;
     uint32_t ev_list_index:31;
     uint32_t ev_cached:1;
-}HistogramEntry;
+} __attribute__((aligned(16))) HistogramEntry;
 
 typedef struct
 {

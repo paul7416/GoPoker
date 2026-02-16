@@ -21,14 +21,14 @@ void seed(cardDeck *d)
     for( int i = 0; i < 20; i++)xorshift128plus(s);
 }
 
-void initialization_shuffle(cardDeck *d){
+void initialization_shuffle(cardDeck *d, uint8_t start_position){
     seed(d);
     for(int deck_no = 0; deck_no < CONCURRENT_DECKS; deck_no++)
     {
         uint8_t tmp;
-        for(uint8_t i = 0; i < d->deck_size - 1; i++)
+        for(uint8_t i = start_position; i < DECK_SIZE - 1; i++)
         {
-            uint32_t rnd_index = (uint32_t)((((uint64_t)((uint32_t)xorshift128plus(d->s)) * (d->deck_size - i)) >> 32) + i);
+            uint32_t rnd_index = (uint32_t)((((uint64_t)((uint32_t)xorshift128plus(d->s)) * (DECK_SIZE - i)) >> 32) + i);
             tmp = d->data[i].cards[deck_no];
             d->data[i].cards[deck_no] = d->data[rnd_index].cards[deck_no];
             d->data[rnd_index].cards[deck_no] = tmp;
@@ -36,11 +36,9 @@ void initialization_shuffle(cardDeck *d){
     }
 }
 
-cardDeck create_card_deck(uint8_t no_players, uint8_t deck_size)
+cardDeck create_card_deck(uint8_t no_players)
 {
     cardDeck d;
-    d.deck_size = deck_size;
-    d.current_index = 0;
     d.no_players = no_players;
     d.number_of_shuffled_cards = (uint8_t)(no_players * 2 + 5);
     for(int deck_number = 0; deck_number < CONCURRENT_DECKS; deck_number++)
@@ -56,14 +54,25 @@ cardDeck create_card_deck(uint8_t no_players, uint8_t deck_size)
     return d;
 }
 
-__attribute__((noinline))
-void shuffle_deck(cardDeck *d)
+void set_hero_cards(cardDeck *d, uint16_t hero_cards) // MUST BE DONE BEFORE INITIALIZATION SHUFFLE
+{
+    uint8_t card1 = (uint8_t)((hero_cards & 0xf) | 0x10); // always select a card from the second suit.
+    uint8_t card2 = (uint8_t)((hero_cards >> 4) & 0x1f); // if suited from second suit if unsuited from first.
+    dec_vec a = d->data[0].vectors;
+    d->data[0].vectors = d->data[card1].vectors;
+    d->data[card1].vectors = a;
+    a = d->data[1].vectors;
+    d->data[1].vectors = d->data[card2].vectors;
+    d->data[card2].vectors = a;
+}
+
+void shuffle_deck(cardDeck *d, uint8_t start_position)
 {
     dec_vec a;
     uint64_t *s = d->s;
     union deckEntry *arr = d->data;
 
-    for(uint32_t i = 0; i < d->number_of_shuffled_cards; i++)
+    for(uint32_t i = start_position; i < d->number_of_shuffled_cards; i++)
     {
         uint32_t rnd_index = (uint32_t)((((uint64_t)((uint32_t)xorshift128plus(s)) * (DECK_SIZE - i)) >> 32) + i);
         a = arr[i].vectors;
@@ -71,11 +80,11 @@ void shuffle_deck(cardDeck *d)
         arr[rnd_index].vectors = a;
     }
 
-    for(uint8_t player = 0, deck_index = 5; deck_index < d->number_of_shuffled_cards; player++, deck_index += 2)
+    for(uint8_t player = 0; player < d->no_players; player++)
     {
         // load vectors for this player's two cards
-        dec_vec card_1_vector = d->data[deck_index].vectors;
-        dec_vec card_2_vector = d->data[deck_index + 1].vectors;
+        dec_vec card_1_vector = d->data[player << 1].vectors;
+        dec_vec card_2_vector = d->data[(player << 1) + 1].vectors;
 
         // extract ranks
         dec_vec rank1 = and_vec(card_1_vector, vec_set1_epi8(0x0F));

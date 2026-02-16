@@ -14,7 +14,7 @@ typedef struct {
     uint8_t index;
     bool folded;
     uint32_t padding;
-} PlayerSim;
+}__attribute__((aligned(8))) PlayerSim;
 
 typedef struct {
     uint64_t community_cards;
@@ -37,7 +37,7 @@ typedef struct{
     uint8_t player_rank;
     uint8_t tied;
     uint16_t padding;
-}playerResult;
+}__attribute__((aligned(8))) playerResult;
 
 
 const evaluatorTables *import_evaluator_tables();

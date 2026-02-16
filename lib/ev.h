@@ -7,7 +7,8 @@ typedef struct
 {
     uint64_t evaluation;
     float evs[MAX_PLAYERS];
-}EvEntry;
+    int padding;
+} __attribute__((aligned(16))) EvEntry;
 
 void icm(GameState *G, float *ev);
 void analyse_pot(GameState *p, const uint64_t evaluation, EvEntry *ev);

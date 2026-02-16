@@ -28,13 +28,13 @@
     #define CONCURRENT_DECKS 16
 #endif
 
-union deckEntry
+union __attribute__((aligned(32))) deckEntry
 {
     dec_vec vectors;
     uint8_t cards[CONCURRENT_DECKS];
 };
 
-union handIndexEntry
+union __attribute__((aligned(64))) handIndexEntry
 {
     dec_vec vectors[2];  // Two vectors to hold 32x or 16x 16-bit values
     uint16_t indices[CONCURRENT_DECKS];
@@ -45,12 +45,12 @@ typedef struct __attribute__((aligned(64)))
     union deckEntry data[DECK_SIZE];
     union handIndexEntry hand_indices[MAX_PLAYERS];
     uint64_t s[2];
-    uint8_t current_index;
     uint8_t number_of_shuffled_cards;
+    uint8_t community_card_index;
     uint8_t no_players;
-    uint8_t deck_size;
 }cardDeck;
 
-cardDeck create_card_deck(uint8_t no_players, uint8_t deck_size);
-void initialization_shuffle(cardDeck *d);
-void shuffle_deck(cardDeck *d);
+cardDeck create_card_deck(uint8_t no_players);
+void initialization_shuffle(cardDeck *d, uint8_t start_position);
+void shuffle_deck(cardDeck *d, uint8_t start_position);
+void set_hero_cards(cardDeck *d, uint16_t hero_cards); // MUST BE DONE BEFORE INITIALIZATION SHUFFLE
