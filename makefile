@@ -8,11 +8,11 @@ LIB_DIR = lib
 
 # Compiler
 CC = gcc
-CFLAGS = -O3 -Wall -Wextra -Wpedantic -march=native -std=c11
+CFLAGS = -Wall -Wextra -Wpedantic -march=native -std=c11
 CFLAGS += -Wconversion
+CFLAGS += -Wshadow
+CFLAGS += -Werror
 CFLAGS += -I$(LIB_DIR)
-#CFLAGS += -g
-#CFLAGS += -fsanitize=address
 CFLAGS += -isystem
 CFLAGS += /usr/include
 CFLAGS += -isystem
@@ -21,6 +21,18 @@ CFLAGS += -funroll-loops
 CFLAGS += -fpeel-loops
 CFLAGS += -fPIC
 LDFLAGS = -flto
+
+ifdef DEBUG
+	CFLAGS += -Og
+	CFLAGS += -g
+	CFLAGS += -fsanitize=address
+	CFLAGS += -Wno-error=unused-variable -Wno-error=unused-parameter
+	LDFLAGS += -fsanitize=address
+else
+	CFLAGS += -O3
+endif
+	
+
 
 # Object files
 EVALUATOR_O = $(OBJ_DIR)/evaluator.o

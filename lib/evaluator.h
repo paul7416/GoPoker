@@ -5,8 +5,8 @@
 #include "global_defines.h"
 #include "player.h"
 
-#define HASH_TABLE_SIZE 0x4000
-#define DIRECT_LOOKUP_SIZE 0x80000
+#define HASH_TABLE_SIZE 0x10000
+#define SEED_TABLE_SIZE 0x800
 #define ARRAY_SIZE 0x2000
 
 typedef struct {
@@ -25,8 +25,8 @@ typedef struct {
 typedef struct{
     const uint16_t *Flushes;
     uint32_t *Primes;
-    const uint64_t *hashTable;
-    const uint16_t *directLookup;
+    const uint32_t *seeds;
+    const uint16_t *perfectHash;
 }evaluatorTables;
 
 
@@ -41,7 +41,7 @@ typedef struct{
 
 
 const evaluatorTables *import_evaluator_tables();
-uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint64_t *hashTable, const uint16_t *directLookup);
+uint16_t evaluateHand(const uint64_t bitMask, const uint16_t *Flushes, const uint32_t *Primes, const uint32_t *seeds, const uint16_t *perfectHash);
 void free_evaluator_tables(const evaluatorTables *tables);
 uint64_t evaluateRound(GameStateSim *G, const evaluatorTables *tables);
 int decodeOutcomes(const uint64_t code, playerResult *results);

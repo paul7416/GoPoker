@@ -1,0 +1,107 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 17 Feb 2026 11:21:04 NZDT
+Binary:      bin/test_solver
+Arguments:   
+Git Commit:  0b3a3a2f680c403fd8b57ea3cef0f962538cf5b1
+Git Short:   0b3a3a2
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+Imported Hands
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 18 24 24 24 24 
+pre hand stack sizes: 1000 1000 1000 1000 1000 1000 
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 131072 elements from ./DataFiles/PerfectMap.bin
+imported 1024 elements from ./DataFiles/seeds.bin
+Table importing completed
+imported 460 elements from DataFiles/holeCardHandRanks.dat
+
+Wall time: 15.665 ms
+Iterations: 500000
+Million iterations/sec: 31.918
+
+evs: 16.976, 16.968, 16.983, 16.976, 15.630, 16.467, 
+total ev:99.999686
+Range: 24
+Player: 40
+GameState: 432
+
+ Performance counter stats for 'bin/test_solver':
+
+             16.70 msec task-clock                       #    0.963 CPUs utilized          
+                 1      context-switches                 #   59.866 /sec                   
+                 0      cpu-migrations                   #    0.000 /sec                   
+               179      page-faults                      #   10.716 K/sec                  
+        27,599,182      cycles                           #    1.652 GHz                      (22.49%)
+        23,776,815      instructions                     #    0.86  insn per cycle         
+         8,952,219      branches                         #  535.933 M/sec                  
+           368,642      branch-misses                    #    4.12% of all branches        
+        25,267,149      L1-dcache-loads                  #    1.513 G/sec                  
+           372,767      L1-dcache-load-misses            #    1.48% of all L1-dcache accesses  (79.19%)
+            60,963      LLC-loads                        #    3.650 M/sec                    (31.41%)
+               653      LLC-load-misses                  #    1.07% of all LL-cache accesses  (7.50%)
+
+       0.017348349 seconds time elapsed
+
+       0.017466000 seconds user
+       0.000000000 seconds sys
+
+
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 63  of event 'cycles'
+# Event count (approx.): 44198600
+#
+# Overhead  Command      Shared Object      Symbol                                
+# ........  ...........  .................  ......................................
+#
+    34.06%  test_solver  test_solver        [.] single_thread_iterator
+            |
+            ---single_thread_iterator
+               iterator_thread
+
+    23.10%  test_solver  test_solver        [.] iterateHistogram
+            |
+            ---iterateHistogram
+               |          
+               |--3.70%--iterator_thread
+               |          
+               |--1.91%--0x1ef
+               |          0
+               |          
+               |--1.91%--0x1ed
+               |          0
+               |          
+               |--1.90%--0x20c
+               |          0
+               |          
+               |--1.90%--0x1c7
+               |          0
+               |          
+               |--1.90%--0x1be
+               |          0
+               |          
+               |--1.87%--0x18a
+               |          0
+               |          
+               |--1.84%--0x172
+               |          0
+               |          
+               |--1.78%--0x158
+               |          0
+               |          
+               |--1.69%--0x111
+               |          0
+               |          
+               |--1.41%--0xbb

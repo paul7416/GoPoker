@@ -1,0 +1,111 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 17 Feb 2026 11:21:31 NZDT
+Binary:      bin/test_solver
+Arguments:   
+Git Commit:  0b3a3a2f680c403fd8b57ea3cef0f962538cf5b1
+Git Short:   0b3a3a2
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+Imported Hands
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 18 24 24 24 24 
+pre hand stack sizes: 1000 1000 1000 1000 1000 1000 
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 131072 elements from ./DataFiles/PerfectMap.bin
+imported 1024 elements from ./DataFiles/seeds.bin
+Table importing completed
+imported 460 elements from DataFiles/holeCardHandRanks.dat
+
+Wall time: 6.035 ms
+Iterations: 500000
+Million iterations/sec: 82.850
+
+evs: 16.981, 16.962, 16.983, 16.988, 15.633, 16.453, 
+total ev:99.999686
+Range: 24
+Player: 40
+GameState: 432
+
+ Performance counter stats for 'bin/test_solver':
+
+             38.32 msec task-clock                       #    4.968 CPUs utilized          
+                18      context-switches                 #  469.734 /sec                   
+                 1      cpu-migrations                   #   26.096 /sec                   
+               263      page-faults                      #    6.863 K/sec                  
+        28,091,979      cycles                           #    0.733 GHz                      (80.74%)
+        92,597,947      instructions                     #    3.30  insn per cycle         
+        15,698,661      branches                         #  409.677 M/sec                  
+           426,507      branch-misses                    #    2.72% of all branches        
+        25,654,852      L1-dcache-loads                  #  669.497 M/sec                  
+           451,474      L1-dcache-load-misses            #    1.76% of all L1-dcache accesses  (67.03%)
+     <not counted>      LLC-loads                                                     (0.00%)
+     <not counted>      LLC-load-misses                                               (0.00%)
+
+       0.007712590 seconds time elapsed
+
+       0.039437000 seconds user
+       0.000000000 seconds sys
+
+
+Some events weren't counted. Try disabling the NMI watchdog:
+	echo 0 > /proc/sys/kernel/nmi_watchdog
+	perf stat ...
+	echo 1 > /proc/sys/kernel/nmi_watchdog
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 132  of event 'cycles'
+# Event count (approx.): 71924034
+#
+# Overhead  Command      Shared Object         Symbol                          
+# ........  ...........  ....................  ................................
+#
+    48.22%  test_solver  test_solver           [.] single_thread_iterator
+            |          
+            |--45.71%--single_thread_iterator
+            |          iterator_thread
+            |          
+             --2.51%--iterateHistogram
+                       iterator_thread
+
+    14.89%  test_solver  test_solver           [.] iterateHistogram
+            |
+            ---iterateHistogram
+               |          
+               |--1.10%--0x101
+               |          0
+               |          
+               |--1.08%--0xe9
+               |          0
+               |          
+               |--1.07%--0x111
+               |          0
+               |          
+               |--1.05%--0x10a
+               |          0
+               |          
+               |--1.04%--0xe0
+               |          0
+               |          
+               |--1.04%--0x106
+               |          0
+               |          
+               |--1.04%--0xea
+               |          0
+               |          
+               |--1.01%--0xfe
+               |          0
+               |          
+               |--1.01%--0xe4
+               |          0
+               |          

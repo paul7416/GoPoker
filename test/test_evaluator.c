@@ -18,8 +18,8 @@ void test_evaluator(const evaluatorTables *tables)
 {
     const uint16_t *Flushes = tables->Flushes;
     const uint32_t *Primes = tables->Primes;
-    const uint64_t *hashTable = tables->hashTable;
-    const uint16_t *directLookup = tables->directLookup;
+    const uint32_t *seeds = tables->seeds;
+    const uint16_t *perfectHash = tables->perfectHash;
     int histogram[9] = {0};
     clock_t start = clock();
     for(int a=0; a < 52; a++){
@@ -37,7 +37,7 @@ void test_evaluator(const evaluatorTables *tables)
                             for(int g=f+1; g < 52; g++){
                                 int gi = get_card_no(g);
                                 uint64_t bitMask = (1ull << ai)|(1ull << bi)|(1ull << ci)|(1ull << di)|(1ull << ei)|(1ull << fi)|(1ull << gi);
-                                histogram[evaluateHand(bitMask, Flushes, Primes, hashTable, directLookup)>>12]++;
+                                histogram[evaluateHand(bitMask, Flushes, Primes, seeds, perfectHash)>>12]++;
 
                            }
                         }
@@ -90,8 +90,7 @@ void test_evaluator(const evaluatorTables *tables)
 
     printf("Time taken: %fms\n", duration);
     printf("M Hands per second: %.3f\n", (double)total / 1000 / duration);
-    printf("Hash Table Size:%dkB\n",HASH_TABLE_SIZE * 8 / 1024);
-    printf("Direct Lookup Size:%dkB\n",DIRECT_LOOKUP_SIZE * 2 / 1024);
+    printf("Hash Table Size:%dkB\n",HASH_TABLE_SIZE * 2 / 1024);
 //    for(int i =0; i < 50; i++)
 //    {
 //        printf("%d probes:%d\n",i,probe_histogram[i]);

@@ -1,0 +1,111 @@
+========================================
+Performance Profile Report
+========================================
+Date:        Tue 17 Feb 2026 11:24:39 NZDT
+Binary:      bin/test_solver
+Arguments:   
+Git Commit:  0b3a3a2f680c403fd8b57ea3cef0f962538cf5b1
+Git Short:   0b3a3a2
+Host:        Paul
+Kernel:      6.1.0-40-amd64
+========================================
+
+=== perf stat ===
+Imported Hands
+Number of Players:6
+Calling Ranges (out of 169 possible hand types): 24 18 24 24 24 24 
+pre hand stack sizes: 1000 1000 1000 1000 1000 1000 
+imported 8192 elements from ./DataFiles/flush_ranks.bin
+imported 8192 elements from ./DataFiles/primes.bin
+imported 131072 elements from ./DataFiles/PerfectMap.bin
+imported 1024 elements from ./DataFiles/seeds.bin
+Table importing completed
+imported 460 elements from DataFiles/holeCardHandRanks.dat
+
+Wall time: 6.059 ms
+Iterations: 500000
+Million iterations/sec: 82.522
+
+evs: 16.979, 16.975, 16.976, 16.977, 15.631, 16.461, 
+total ev:99.999686
+Range: 24
+Player: 40
+GameState: 432
+
+ Performance counter stats for 'bin/test_solver':
+
+             37.13 msec task-clock                       #    4.159 CPUs utilized          
+                20      context-switches                 #  538.606 /sec                   
+                 1      cpu-migrations                   #   26.930 /sec                   
+               265      page-faults                      #    7.137 K/sec                  
+         6,366,444      cycles                           #    0.171 GHz                      (34.63%)
+        72,036,949      instructions                     #   11.32  insn per cycle           (97.08%)
+        15,610,540      branches                         #  420.397 M/sec                  
+           425,947      branch-misses                    #    2.73% of all branches        
+        25,711,404      L1-dcache-loads                  #  692.416 M/sec                  
+           462,608      L1-dcache-load-misses            #    1.80% of all L1-dcache accesses  (93.14%)
+     <not counted>      LLC-loads                                                     (0.00%)
+     <not counted>      LLC-load-misses                                               (0.00%)
+
+       0.008928386 seconds time elapsed
+
+       0.035373000 seconds user
+       0.003537000 seconds sys
+
+
+Some events weren't counted. Try disabling the NMI watchdog:
+	echo 0 > /proc/sys/kernel/nmi_watchdog
+	perf stat ...
+	echo 1 > /proc/sys/kernel/nmi_watchdog
+
+=== perf report (top functions) ===
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 135  of event 'cycles'
+# Event count (approx.): 74035079
+#
+# Overhead  Command      Shared Object         Symbol                            
+# ........  ...........  ....................  ..................................
+#
+    47.15%  test_solver  test_solver           [.] single_thread_iterator
+            |          
+            |--46.17%--single_thread_iterator
+            |          iterator_thread
+            |          
+             --0.98%--iterateHistogram
+                       iterator_thread
+
+    17.11%  test_solver  test_solver           [.] iterateHistogram
+            |
+            ---iterateHistogram
+               |          
+               |--3.86%--iterator_thread
+               |          
+               |--1.71%--0xab
+               |          0
+               |          
+               |--1.07%--0xf4
+               |          0
+               |          
+               |--1.06%--0xe7
+               |          0
+               |          
+               |--1.01%--0x108
+               |          0
+               |          
+               |--1.00%--0x106
+               |          0
+               |          
+               |--0.97%--0x7c
+               |          0
+               |          
+               |--0.96%--0xd8
+               |          0
+               |          
+               |--0.95%--0xd2
+               |          0
+               |          
+               |--0.88%--0xb2
