@@ -21,6 +21,7 @@ HistogramTable *create_histogram_table(size_t hash_table_size)
     ht->capacity = hash_table_size;
     ht->max_entries = (size_t)((double)hash_table_size * HISTOGRAM_MAX_LOAD_FACTOR);
     ht->table = (HistogramEntry*)calloc(hash_table_size, sizeof(HistogramEntry));
+    ht->mask = hash_table_size - 1;
     if(!ht->table)
     {    
         fprintf(stderr, "Memory allocation failed in function %s\n", __func__);
@@ -54,11 +55,12 @@ void resize_hash_table(HistogramTable *hash_table)
     hash_table->capacity *= 2;
     hash_table->max_entries = (size_t)((double)hash_table->capacity * HISTOGRAM_MAX_LOAD_FACTOR);
     hash_table->table = new->table;
+    hash_table->mask = hash_table->capacity - 1;
     free(new);
 }
 static inline HistogramEntry *get_entry(HistogramTable *hash_table, const uint64_t key)
 {
-    uint64_t index = hash64_mul(key) & (hash_table->capacity - 1);
+    uint64_t index = hash64_mul(key) & (hash_table->mask);
     uint64_t start_index = index;
     while (1)
     {
@@ -66,7 +68,7 @@ static inline HistogramEntry *get_entry(HistogramTable *hash_table, const uint64
         {
             return &hash_table->table[index];
         }
-        index = (index + 1) & (hash_table->capacity - 1);
+        index = (index + 1) & (hash_table->mask);
         if (index==start_index)
         {
             printf("Buffer overflowed\n");

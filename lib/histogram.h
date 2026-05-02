@@ -19,6 +19,7 @@ typedef struct
     HistogramEntry *table;
     size_t entry_count;
     size_t capacity;
+    size_t mask;
     size_t max_entries;
 }HistogramTable;
 
